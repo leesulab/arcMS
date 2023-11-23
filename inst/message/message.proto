@@ -1,0 +1,32 @@
+syntax="proto2";
+
+message Spectrum {
+   repeated float Intensities = 1;
+   // the following represent sub-types; at most 1 should have a value
+   optional MassSpectrum MassSpectrum = 200;
+}
+
+enum Polarity {
+   Unknown = 0;
+   Negative = 1;
+   Positive = 2;
+}
+
+message MassSpectrum {
+   repeated float Masses = 1;
+   repeated int32 ScanSize = 2;
+   // the following represent sub-types; at most 1 should have a value
+   optional MSeMassSpectrum MSeMassSpectrum = 100;
+}
+
+enum EnergyLevel {
+   Unknown2 = 0;
+   Low = 1;
+   High = 2;
+}
+
+message MSeMassSpectrum {
+   optional double RetentionTime = 1 [default = 0];
+   optional EnergyLevel EnergyLevel = 2 [default = Unknown2];
+   optional Polarity IonizationPolarity = 3 [default = Unknown];
+}
