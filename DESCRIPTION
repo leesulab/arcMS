@@ -1,6 +1,6 @@
 Package: parquetMS
 Type: Package
-Title: Unifi MS converter to parquet format
+Title: Unifi MS converter to Parquet and HDF5 formats
 Version: 0.1.0
 Authors@R: c(
     person("Julien", "Le Roux", email = "julien.le-roux@u-pec.fr", role = c("aut", "cre")),
@@ -24,7 +24,7 @@ Imports:
     glue (>= 1.6.2),
     future (>= 1.26.1),
     arrow (>= 9.0.0),
-    jsonify,
+    dplyr (>= 1.0.10),
     dtplyr,
     future.apply,
     progressr,
@@ -33,9 +33,8 @@ Imports:
     data.table,
     withr,
     tidytable,
-    rhdf5
-Depends:
-    dplyr (>= 1.0.10)
+    rhdf5,
+    magrittr
 Collate:
     'add_drift_time.R'
     'analysis_search.R'

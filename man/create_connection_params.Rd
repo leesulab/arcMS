@@ -2,7 +2,6 @@
 % Please edit documentation in R/api_connection.R
 \name{create_connection_params}
 \alias{create_connection_params}
-\alias{create_connection_params,featureGroups-method}
 \title{Create connection parameters}
 \usage{
 create_connection_params(

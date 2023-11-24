@@ -4,20 +4,21 @@
 #' @importFrom stats ave
 #' @import methods
 #' @import data.table
-#' @import tidytable
-#' @import dplyr
+#' @importFrom magrittr %>%
+#' @importFrom dplyr mutate select
+#' @importFrom tidytable uncount
 #' @import dtplyr
 #' @import bitops
-#' @import RProtoBuf
-#' @import httr
-#' @import jsonlite
-#' @import glue
+#' @importFrom RProtoBuf readProtoFiles
+#' @importFrom httr GET add_headers content POST
+#' @importFrom jsonlite fromJSON toJSON
+#' @importFrom glue glue
 #' @import future
 #' @import future.apply
 #' @import progressr
-#' @import arrow
+#' @importFrom arrow write_parquet
 #' @import withr
-#' @import rhdf5
+#' @importFrom rhdf5 h5write h5createFile
 NULL # need this for doc generation
 
 printf <- function(...) cat(sprintf(...), sep = "")
@@ -38,3 +39,12 @@ NULL
 
 ### data.table . compatibility - see https://stackoverflow.com/questions/43662416/when-using-data-table-in-a-package-r-cmd-check-notes-no-visible-global-functio
 `.` <- list
+
+#### Document generation
+
+#' Unifi MS converter to Parquet and HDF5 formats.
+#'
+#' \Sexpr[results=text,echo=FALSE]{packageDescription("parquetMS", fields = "Description")}
+#'
+"_PACKAGE"
+NULL

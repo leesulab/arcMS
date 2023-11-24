@@ -106,7 +106,7 @@ if (format == "parquet") {
 
   printf("Sample '%s' saved as parquet file! \n", sample_name)
 } else {
-  hdf5_file <- glue("{path}/{sample_name}.h5")
+  hdf5_file <- glue::glue("{path}/{sample_name}.h5")
   rhdf5::h5createFile(hdf5_file)
   low_data <- subset(explode_data_with_dt, energy_level == "Low")
   high_data <- subset(explode_data_with_dt, energy_level == "High")

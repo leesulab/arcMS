@@ -19,7 +19,7 @@ get_sample_list <- function(connection_params, analysis_id) {
                         "Authorization"=paste("Bearer", token)))
 
   json_string <- httr::content(rg, "text", encoding = "UTF-8")
-  infos = jsonify::from_json(json_string)
+  infos = jsonlite::fromJSON(json_string)
   analysis_name = infos$name
 
   url2 = glue::glue("{url}/analyses({analysis_id})/sampleresults")
@@ -29,7 +29,7 @@ get_sample_list <- function(connection_params, analysis_id) {
                         "Authorization"=paste("Bearer", token)))
 
   json_string <- httr::content(rg, "text", encoding = "UTF-8")
-  sample = jsonify::from_json(json_string)
+  sample = jsonlite::fromJSON(json_string)
   sample = data.frame(sample$value)
   replicateNumber = sample$sample$replicateNumber
   id = NULL
