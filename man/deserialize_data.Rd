@@ -15,3 +15,4 @@ A S3 object which contains the spectral data associated with each spectrum
 \description{
 A function to deserialize the protobuf data
 }
+\keyword{internal}

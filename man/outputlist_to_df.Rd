@@ -15,3 +15,4 @@ A dataframe containing the spectral data associated with each spectra.
 \description{
 The function adapts the data in S3 format obtained with the `deserialize_data()` function into a dataframe.
 }
+\keyword{internal}

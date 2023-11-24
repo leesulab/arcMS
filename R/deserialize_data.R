@@ -4,8 +4,7 @@
 #'
 #' @param rg_content the $content of a request in octet-stream
 #' @return A S3 object which contains the spectral data associated with each spectrum
-#' @export
-#'
+#' @keywords internal
 
 deserialize_data <- function(rg_content) {
   file = system.file("message", "message.proto", package = "parquetMS")

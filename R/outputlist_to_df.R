@@ -4,8 +4,7 @@
 #'
 #' @param outputlist Deserialized data in S3 format obtained with the deserialized_data() function
 #' @return A dataframe containing the spectral data associated with each spectra.
-#' @export
-#'
+#' @keywords internal
 
 outputlist_to_df <- function(outputlist){
   data_all = data.frame(masses = double(),    # Create empty data frame

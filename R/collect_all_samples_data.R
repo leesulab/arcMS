@@ -6,7 +6,7 @@
 #' @param analysis_id - The id of the analysis
 #'
 #' @return A dataframe wih sample names and IDs, along with the analysis name.
-#' @export
+
 get_sample_list <- function(connection_params, analysis_id) {
 
   url = connection_apihosturl(connection_params)

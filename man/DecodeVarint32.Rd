@@ -24,3 +24,4 @@ A function to decode a buffer data.
   \item Author - Fred K. Gruber <fred@gnshealthcare.com>
 }
 }
+\keyword{internal}

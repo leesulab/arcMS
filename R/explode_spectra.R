@@ -6,8 +6,7 @@
 #'
 #' @param wide_df A wide format dataframe with columns 'masses', 'intensities', and 'scan_size'.
 #' @return A long format dataframe with the exploded spectral data.
-#' @export
-#'
+#' @keywords internal
 
 explode_spectra <- function(wide_df) {
   # defining data.table variables locally to avoid R cmd check NOTES due to NSE

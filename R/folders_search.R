@@ -5,8 +5,6 @@
 #' @param connection_params Connection parameters to the Unifi API, including the API host URL and access token.
 #' @return A data frame containing folder information from the Unifi API.
 #' @export
-#'
-
 
 folders_search <- function(connection_params) {
   url <- connection_apihosturl(connection_params)
