@@ -1,23 +1,22 @@
 #### Dependencies
-
-#' @importFrom utils head tail modifyList setTxtProgressBar txtProgressBar write.csv write.table read.csv data getFromNamespace
-#' @importFrom stats ave
 #' @import methods
 #' @import data.table
+#' @import dtplyr
+#' @import bitops
+#' @import withr
+#' @importFrom utils head tail modifyList setTxtProgressBar txtProgressBar write.csv write.table read.csv data getFromNamespace
+#' @importFrom stats ave
 #' @importFrom magrittr %>%
 #' @importFrom dplyr mutate select
 #' @importFrom tidytable uncount
-#' @import dtplyr
-#' @import bitops
 #' @importFrom RProtoBuf readProtoFiles
 #' @importFrom httr GET add_headers content POST
 #' @importFrom jsonlite fromJSON toJSON
 #' @importFrom glue glue
-#' @import future
-#' @import future.apply
-#' @import progressr
+#' @importFrom future plan multisession
+#' @importFrom future.apply future_lapply
+#' @importFrom progressr progressor with_progress
 #' @importFrom arrow write_parquet
-#' @import withr
 #' @importFrom rhdf5 h5write h5createFile
 NULL # need this for doc generation
 

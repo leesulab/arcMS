@@ -22,7 +22,7 @@ collect_one_sample_data(
 
 \item{analysis_name}{The name of the Analysis (to be used for naming the folder)}
 
-\item{format}{The format chosen for the exported filed (parquet or HDF5)}
+\item{format}{The format chosen for the exported file (parquet or hdf5)}
 
 \item{num_spectras}{Number of spectras to be downloaded (OPTIONAL, only if whole sample data not needed)}
 }
