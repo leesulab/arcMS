@@ -4,12 +4,12 @@
 \alias{get_spectrum_infos}
 \title{Retrieve Spectrum Information from Unifi API}
 \usage{
-get_spectrum_infos(connection_params, sampleid)
+get_spectrum_infos(connection_params, sample_id)
 }
 \arguments{
 \item{connection_params}{Connection parameters to the Unifi API, including the API host URL and access token.}
 
-\item{sampleid}{The identifier of the sample result for which spectrum information is to be retrieved.}
+\item{sample_id}{The identifier of the sample result for which spectrum information is to be retrieved.}
 }
 \value{
 A list containing two elements: a DataFrame with detailed spectrum information from the Unifi API,

@@ -6,7 +6,7 @@
 #' @param analysis_id - The id of the analysis
 #'
 #' @return A dataframe wih sample names and IDs, along with the analysis name.
-
+#' @export
 get_sample_list <- function(connection_params, analysis_id) {
 
   url = connection_apihosturl(connection_params)
@@ -61,11 +61,11 @@ collect_all_samples_data <- function(connection_params, analysis_id, format = 'p
   samplelist = get_sample_list(connection_params, analysis_id)
   for (i in 1:(nrow(samplelist))) {
     print(glue::glue("-------- Number of samples collected {i}/{nrow(samplelist)} -------- \n"))
-    sampleid = samplelist$id[i]
-    samplename = samplelist$SampleName[i]
+    sample_id = samplelist$id[i]
+    sample_name = samplelist$SampleName[i]
     analysis_name = samplelist$analysisName[i]
 
-    collect_one_sample_data(connection_params, sampleid, samplename, analysis_name)
+    collect_one_sample_data(connection_params, sample_id, sample_name, analysis_name)
   }
   printf("All done!\n")
 

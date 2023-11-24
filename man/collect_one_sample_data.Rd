@@ -6,8 +6,8 @@
 \usage{
 collect_one_sample_data(
   connection_params,
-  sampleid,
-  samplename,
+  sample_id,
+  sample_name,
   analysis_name,
   format = "parquet"
 )
@@ -15,9 +15,9 @@ collect_one_sample_data(
 \arguments{
 \item{connection_params}{Connection parameters to the Unifi API - url and token}
 
-\item{sampleid}{The id of the sample to be collected}
+\item{sample_id}{The id of the sample to be collected}
 
-\item{samplename}{The sample name (to be used for naming the saved file)}
+\item{sample_name}{The sample name (to be used for naming the saved file)}
 
 \item{analysis_name}{The name of the Analysis (to be used for naming the folder)}
 
