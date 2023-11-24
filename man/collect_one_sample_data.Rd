@@ -6,22 +6,25 @@
 \usage{
 collect_one_sample_data(
   connection_params,
-  sampleid,
-  samplename,
+  sample_id,
+  sample_name,
   analysis_name,
-  format = "parquet"
+  format = "parquet",
+  num_spectras = NULL
 )
 }
 \arguments{
 \item{connection_params}{Connection parameters to the Unifi API - url and token}
 
-\item{sampleid}{The id of the sample to be collected}
+\item{sample_id}{The id of the sample to be collected}
 
-\item{samplename}{The sample name (to be used for naming the saved file)}
+\item{sample_name}{The sample name (to be used for naming the saved file)}
 
 \item{analysis_name}{The name of the Analysis (to be used for naming the folder)}
 
 \item{format}{The format chosen for the exported filed (parquet or HDF5)}
+
+\item{num_spectras}{Number of spectras to be downloaded (OPTIONAL, only if whole sample data not needed)}
 }
 \value{
 A dataframe of the sample's deserialized spectral data is saved in parquet or HDF5 format in the analysis name folder.

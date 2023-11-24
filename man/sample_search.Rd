@@ -4,12 +4,12 @@
 \alias{sample_search}
 \title{Retrieve Sample Results from Unifi API}
 \usage{
-sample_search(connection_params, analysisid)
+sample_search(connection_params, analysis_id)
 }
 \arguments{
 \item{connection_params}{Connection parameters to the Unifi API, including the API host URL and access token.}
 
-\item{analysisid}{The identifier of the analysis for which sample results are to be retrieved.}
+\item{analysis_id}{The identifier of the analysis for which sample results are to be retrieved.}
 }
 \value{
 A data frame containing samples result information from the Unifi API,
@@ -17,7 +17,7 @@ A data frame containing samples result information from the Unifi API,
 
 Example usage:
 con_params <- create_connection_params(api_host_url, api_token)
-sample_results <- sample_search(con_params, analysisid)
+sample_results <- sample_search(con_params, analysis_id)
 }
 \description{
 This function retrieves samples result information from the Unifi API for a specified analysis using the provided connection parameters.

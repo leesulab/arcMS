@@ -5,7 +5,7 @@
 #' The function returns both a DataFrame containing the spectrum information and a formatted JSON string of the same data.
 #'
 #' @param connection_params Connection parameters to the Unifi API, including the API host URL and access token.
-#' @param sampleid The identifier of the sample result for which spectrum information is to be retrieved.
+#' @param sample_id The identifier of the sample result for which spectrum information is to be retrieved.
 #' @return A list containing two elements: a DataFrame with detailed spectrum information from the Unifi API,
 #'         and a formatted JSON string of the spectrum information.
 #'
@@ -18,11 +18,11 @@
 #' @export
 
 
-get_spectrum_infos <- function(connection_params, sampleid) {
+get_spectrum_infos <- function(connection_params, sample_id) {
   url <- connection_apihosturl(connection_params)
   token <- connection_token(connection_params)
 
-  url2 <- glue::glue("{url}/sampleresults({sampleid})/spectruminfos")
+  url2 <- glue::glue("{url}/sampleresults({sample_id})/spectruminfos")
   rg <- httr::GET(url2,
                   add_headers("Content-Type"="application/x-www-form-urlencoded",
                               Accept="application/json",

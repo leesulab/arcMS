@@ -4,14 +4,14 @@
 \alias{add_drift_time}
 \title{Add Drift Time to Unnested Spectral Data}
 \usage{
-add_drift_time(connection_params, unnestdt, sampleid)
+add_drift_time(connection_params, unnestdt, sample_id)
 }
 \arguments{
 \item{connection_params}{Connection parameters to the Unifi API - url and token}
 
 \item{unnestdt}{An unnested data table that contains at least the columns 'bin'.}
 
-\item{sampleid}{The sample ID to be used in the API call.}
+\item{sample_id}{The sample ID to be used in the API call.}
 }
 \value{
 The unnested data table with an additional column 'dt' for drift time.

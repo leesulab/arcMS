@@ -4,16 +4,16 @@
 #'
 #' @param connection_params Connection parameters to the Unifi API - url and token
 #' @param unnestdt An unnested data table that contains at least the columns 'bin'.
-#' @param sampleid The sample ID to be used in the API call.
+#' @param sample_id The sample ID to be used in the API call.
 #' @return The unnested data table with an additional column 'dt' for drift time.
 #' @export
 
-add_drift_time <- function(connection_params, unnestdt, sampleid) {
+add_drift_time <- function(connection_params, unnestdt, sample_id) {
 
     url = connection_apihosturl(connection_params)
     token = connection_token(connection_params)
 
-    url2 <- glue::glue("{url}/sampleresults({sampleid})/spectra/mass.mse/convertbintodrifttime")
+    url2 <- glue::glue("{url}/sampleresults({sample_id})/spectra/mass.mse/convertbintodrifttime")
     rg <- httr::POST(url2,
         body = jsonlite::toJSON(list(bins = 1:200)),
         add_headers("Content-Type" = "application/json",
