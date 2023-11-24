@@ -10,7 +10,7 @@
 #' @param sample_id The id of the sample to be collected
 #' @param sample_name The sample name (to be used for naming the saved file)
 #' @param analysis_name The name of the Analysis (to be used for naming the folder)
-#' @param format The format chosen for the exported filed (parquet or HDF5)
+#' @param format The format chosen for the exported file (parquet or hdf5)
 #' @param num_spectras Number of spectras to be downloaded (OPTIONAL, only if whole sample data not needed)
 #'
 #' @return A dataframe of the sample's deserialized spectral data is saved in parquet or HDF5 format in the analysis name folder.
@@ -19,7 +19,7 @@
 collect_one_sample_data <- function(connection_params, sample_id, sample_name, analysis_name, format = 'parquet', num_spectras = NULL){
 
     if (!format %in% c('parquet', 'hdf5')) {
-    stop("The format must be parquet or HDF5")
+    stop("The format argument must be either 'parquet' or 'hdf5'")
   }
 
   printf("Downloading sample '%s'...\n", sample_name)
