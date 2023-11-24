@@ -23,15 +23,16 @@ ParquetMS can convert HDMSe data acquired with Unifi to tabular format for use i
 
 Two output data file formats can be obtained:
 
--   the [Apache Parquet](https://parquet.apache.org/) format for minimal filesize and fast access
+-   the [Apache Parquet](https://parquet.apache.org/) format for minimal filesize and fast access. Two files are produced: one for MS data, one for metadata.
 
--   the [HDF5](https://www.hdfgroup.org/solutions/hdf5/) format with faster access but slightly larger filesize
+-   the [HDF5](https://www.hdfgroup.org/solutions/hdf5/) format with all data and metadata in one file, fast access but larger filesize.
 
 ## Installation
 
 You can install parquetMS in R with the following command:
 
 ```{r eval=FALSE}
+install.packages("devtools")
 devtools::install_github("leesulab/parquetMS")
 ```
 
