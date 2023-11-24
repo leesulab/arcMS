@@ -9,7 +9,8 @@ collect_one_sample_data(
   sample_id,
   sample_name,
   analysis_name,
-  format = "parquet"
+  format = "parquet",
+  num_spectras = NULL
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ collect_one_sample_data(
 \item{analysis_name}{The name of the Analysis (to be used for naming the folder)}
 
 \item{format}{The format chosen for the exported filed (parquet or HDF5)}
+
+\item{num_spectras}{Number of spectras to be downloaded (OPTIONAL, only if whole sample data not needed)}
 }
 \value{
 A dataframe of the sample's deserialized spectral data is saved in parquet or HDF5 format in the analysis name folder.

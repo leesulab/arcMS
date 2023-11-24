@@ -11,6 +11,7 @@
 #' @param sample_name The sample name (to be used for naming the saved file)
 #' @param analysis_name The name of the Analysis (to be used for naming the folder)
 #' @param format The format chosen for the exported filed (parquet or HDF5)
+#' @param num_spectras Number of spectras to be downloaded (OPTIONAL, only if whole sample data not needed)
 #'
 #' @return A dataframe of the sample's deserialized spectral data is saved in parquet or HDF5 format in the analysis name folder.
 #' @export
@@ -18,7 +19,7 @@
 collect_one_sample_data <- function(connection_params, sample_id, sample_name, analysis_name, format = 'parquet', num_spectras = NULL){
 
     if (!format %in% c('parquet', 'hdf5')) {
-    stop("The format must be parquet or hdf5")
+    stop("The format must be parquet or HDF5")
   }
 
   printf("Downloading sample '%s'...\n", sample_name)
@@ -47,9 +48,13 @@ collect_one_sample_data <- function(connection_params, sample_id, sample_name, a
   spectrumCountEndpoint = glue::glue(sampleUrl, "/spectra/mass.mse/$count")
   spectrumCount = httr::content(httpClientPlain(spectrumCountEndpoint), "text", encoding = "utf-8")
 
-  numSpectra = as.numeric(iconv(spectrumCount, 'utf-8', 'ascii', sub=''))
+  if (!is.null(num_spectras)) {
+    numSpectra = num_spectras
+  } else{
+    numSpectra = as.numeric(iconv(spectrumCount, 'utf-8', 'ascii', sub=''))
+  }
   numLogicalSpectra =  numSpectra * 200
-  printf("Number of spectra: %s\n", numSpectra)
+  printf("Number of spectra to download: %s\n", numSpectra)
   chunkSize = 500 #default value in msconvert = 20
   nchunks = ceiling(numSpectra / chunkSize)
   # nchunks = 5
@@ -74,7 +79,7 @@ future::plan(multisession)
 }
 response = with_progress(resp(skips))
 
-printf("Saving sample '%s' in folder '%s'...\n", sample_name, analysis_name)
+printf("Saving sample '%s' to folder '%s'...\n", sample_name, analysis_name)
 
 deseria = lapply(response, deserialize_data)
 output = lapply(deseria, outputlist_to_df)
