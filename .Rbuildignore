@@ -3,3 +3,4 @@
 ^README.Rmd
 man-roxygen
 ^LICENSE.md
+^README\.Rmd$
