@@ -1,6 +1,6 @@
-#' get_sample_list
+#' Get the list of samples from an Analysis
 #'
-#'The function connects to a Unifi analysis and gets the list of all samples. It returns a dataframe with sample names and IDs, along with the analysis name.
+#'The function connects to a Unifi Analysis and gets the list of all samples. It returns a dataframe with sample names and IDs, along with the analysis name.
 #'
 #' @param connection_params - Connection parameters to the Unifi API - url and token
 #' @param analysis_id - The id of the analysis
@@ -41,7 +41,7 @@ get_sample_list <- function(connection_params, analysis_id) {
   return(sample)
 }
 
-#' collect_all_samples_data
+#' Convert data from all samples in an Analysis
 #'
 #' The function collects all samples data from an Analysis using the collect_one_sample_data() function and save them on disk.
 #'
@@ -52,7 +52,7 @@ get_sample_list <- function(connection_params, analysis_id) {
 #' @return A ataframe for each sample is saved in parquet or HDF5 format in a folder named after the Analysis.
 #' @export
 
-collect_all_samples_data <- function(connection_params, analysis_id, format = 'parquet') {
+convert_all_samples_data <- function(connection_params, analysis_id, format = 'parquet') {
 
       if (!format %in% c('parquet', 'HDF5')) {
     stop("The format must be parquet or HDF5")
@@ -65,7 +65,7 @@ collect_all_samples_data <- function(connection_params, analysis_id, format = 'p
     sample_name = samplelist$SampleName[i]
     analysis_name = samplelist$analysisName[i]
 
-    collect_one_sample_data(connection_params, sample_id, sample_name, analysis_name)
+    convert_one_sample_data(connection_params, sample_id, sample_name, analysis_name)
   }
   printf("All done!\n")
 

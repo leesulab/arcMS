@@ -4,7 +4,7 @@
 \name{parquetMS-package}
 \alias{parquetMS}
 \alias{parquetMS-package}
-\title{Unifi MS converter to Parquet and HDF5 formats.}
+\title{Unifi MS converter to Parquet and HDF5 formats}
 \description{
 \Sexpr[results=text,echo=FALSE]{packageDescription("parquetMS", fields = "Description")}
 }

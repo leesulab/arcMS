@@ -1,4 +1,4 @@
-#' deserialize_data
+#' Deserialize data
 #'
 #' A function to deserialize the protobuf data
 #'

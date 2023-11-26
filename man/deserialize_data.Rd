@@ -2,7 +2,7 @@
 % Please edit documentation in R/deserialize_data.R
 \name{deserialize_data}
 \alias{deserialize_data}
-\title{deserialize_data}
+\title{Deserialize data}
 \usage{
 deserialize_data(rg_content)
 }

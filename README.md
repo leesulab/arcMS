@@ -12,16 +12,18 @@ for use in R or Python, with a small filesize when saved on disk.
 Two output data file formats can be obtained:
 
 - the [Apache Parquet](https://parquet.apache.org/) format for minimal
-  filesize and fast access
+  filesize and fast access. Two files are produced: one for MS data, one
+  for metadata.
 
-- the [HDF5](https://www.hdfgroup.org/solutions/hdf5/) format with
-  faster access but slightly larger filesize
+- the [HDF5](https://www.hdfgroup.org/solutions/hdf5/) format with all
+  data and metadata in one file, fast access but larger filesize.
 
 ## Installation
 
 You can install parquetMS in R with the following command:
 
 ``` r
+install.packages("devtools")
 devtools::install_github("leesulab/parquetMS")
 ```
 
@@ -89,7 +91,7 @@ samples
 Once we get a sample ID, we can use it to download the sample data:
 
 ``` r
-collect_one_sample_data(con, sample_id = "0134efbf-c75a-411b-842a-4f35e2b76347", "sample1", "analysis_name")
+convert_one_sample_data(con, sample_id = "0134efbf-c75a-411b-842a-4f35e2b76347", "sample1", "analysis_name")
 ```
 
 This command will create a folder named `analysis_name` in the working
@@ -100,16 +102,16 @@ With an Analysis ID, we can convert and save all samples from the chosen
 Analysis:
 
 ``` r
-collect_all_samples_data(con, analysis_id = "e236bf99-31cd-44ae-a4e7-74915697df65", "analysis_name")
+convert_all_samples_data(con, analysis_id = "e236bf99-31cd-44ae-a4e7-74915697df65", "analysis_name")
 ```
 
 To use the HDF5 format instead of Parquet, the format argument can be
 used as below:
 
 ``` r
-collect_one_sample_data(con, sample_id = "0134efbf-c75a-411b-842a-4f35e2b76347", "sample1", "analysis_name", format = "hdf5")
+convert_one_sample_data(con, sample_id = "0134efbf-c75a-411b-842a-4f35e2b76347", "sample1", "analysis_name", format = "hdf5")
 
-collect_all_samples_data(con, analysis_id = "e236bf99-31cd-44ae-a4e7-74915697df65", "analysis_name", format = "hdf5")
+convert_all_samples_data(con, analysis_id = "e236bf99-31cd-44ae-a4e7-74915697df65", "analysis_name", format = "hdf5")
 ```
 
 This will save the samples data and metadata in the same `file.h5` file.

@@ -68,7 +68,9 @@ con = create_connection_params(apihosturl = "http://192.0.2.0:50034/unifi/v1", i
 ```
 
 ```{r include=FALSE}
-con = create_connection_params(apihosturl = "http://10.12.3.154:50034/unifi/v1", identityurl = "http://10.12.3.154:50333/identity/connect/token" )
+#con = create_connection_params(apihosturl = "http://10.12.3.154:50034/unifi/v1", identityurl = "http://10.12.3.154:50333/identity/connect/token" )
+
+con = create_connection_params(apihosturl = "http://localhost:50034/unifi/v1", identityurl = "http://localhost:50333/identity/connect/token")
 ```
 
 Now we can use these connection parameters to access the Unifi folders. The following function will show the list of folders and their IDs (e.g. `abe9c297-821e-4152-854a-17c73c9ff68c` in the example below).
@@ -110,7 +112,7 @@ samples[2:5,]
 Once we get a sample ID, we can use it to download the sample data:
 
 ```{r eval=FALSE}
-collect_one_sample_data(con, sample_id = "0134efbf-c75a-411b-842a-4f35e2b76347", "sample1", "analysis_name")
+convert_one_sample_data(con, sample_id = "0134efbf-c75a-411b-842a-4f35e2b76347", "sample1", "analysis_name")
 ```
 
 This command will create a folder named `analysis_name` in the working directory and save the sample data with the name `sample1.parquet` and its metadata with the name `sample1metadata.parquet`.
@@ -118,15 +120,15 @@ This command will create a folder named `analysis_name` in the working directory
 With an Analysis ID, we can convert and save all samples from the chosen Analysis:
 
 ```{r eval=FALSE}
-collect_all_samples_data(con, analysis_id = "e236bf99-31cd-44ae-a4e7-74915697df65", "analysis_name")
+convert_all_samples_data(con, analysis_id = "e236bf99-31cd-44ae-a4e7-74915697df65", "analysis_name")
 ```
 
 To use the HDF5 format instead of Parquet, the format argument can be used as below:
 
 ```{r eval=FALSE}
-collect_one_sample_data(con, sample_id = "0134efbf-c75a-411b-842a-4f35e2b76347", "sample1", "analysis_name", format = "hdf5")
+convert_one_sample_data(con, sample_id = "0134efbf-c75a-411b-842a-4f35e2b76347", "sample1", "analysis_name", format = "hdf5")
 
-collect_all_samples_data(con, analysis_id = "e236bf99-31cd-44ae-a4e7-74915697df65", "analysis_name", format = "hdf5")
+convert_all_samples_data(con, analysis_id = "e236bf99-31cd-44ae-a4e7-74915697df65", "analysis_name", format = "hdf5")
 ```
 
 This will save the samples data and metadata in the same `file.h5` file.

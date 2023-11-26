@@ -1,4 +1,4 @@
-#' outputlist_to_df
+#' Transform deserialized data to a dataframe
 #'
 #'The function adapts the data in S3 format obtained with the `deserialize_data()` function into a dataframe.
 #'

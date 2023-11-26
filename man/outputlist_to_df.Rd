@@ -2,7 +2,7 @@
 % Please edit documentation in R/outputlist_to_df.R
 \name{outputlist_to_df}
 \alias{outputlist_to_df}
-\title{outputlist_to_df}
+\title{Transform deserialized data to a dataframe}
 \usage{
 outputlist_to_df(outputlist)
 }
