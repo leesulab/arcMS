@@ -31,15 +31,11 @@ get_spectrum_infos <- function(connection_params, sample_id) {
   json_string <- httr::content(rg, "text", encoding = "UTF-8")
   spectrum_infos <- jsonlite::fromJSON(json_string)
   formatted_json <- jsonlite::toJSON(spectrum_infos, pretty = TRUE, auto_unbox = TRUE)
-  spectrum_infos_df = data.frame(spectrum_infos$value)
-    n_times <- 3
-for(i in 1:n_times) {
-  spectrum_infos_df <- spectrum_infos_df %>% 
-    unnest(cols = tidyselect::everything(), names_sep = "_")
-}
-setDT(spectrum_infos_df)
-spectrum_infos_df <- spectrum_infos_df[, lapply(.SD, as.character), .SDcols = names(spectrum_infos_df)]
-spectrum_infos_df <- spectrum_infos_df[, lapply(.SD, function(x) {
+  spectrum_infos_df = data.table(spectrum_infos$value)
+  spectrum_infos_df = tidytable::unnest(spectrum_infos_df, names_sep = ".")
+  # convert all columns to characters and NA values to NaN character
+  spectrum_infos_df <- spectrum_infos_df[, lapply(.SD, as.character), .SDcols = names(spectrum_infos_df)]
+  spectrum_infos_df <- spectrum_infos_df[, lapply(.SD, function(x) {
   if (is.numeric(x)) {
     x[is.nan(x) | is.na(x)] <- "NaN"
   } else if (is.character(x)) {
