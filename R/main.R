@@ -8,7 +8,7 @@
 #' @importFrom stats ave
 #' @importFrom magrittr %>%
 #' @importFrom dplyr mutate select
-#' @importFrom tidytable uncount
+#' @importFrom tidytable uncount unnest
 #' @importFrom RProtoBuf readProtoFiles
 #' @importFrom httr GET add_headers content POST
 #' @importFrom jsonlite fromJSON toJSON
