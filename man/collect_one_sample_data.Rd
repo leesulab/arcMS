@@ -4,19 +4,12 @@
 \alias{collect_one_sample_data}
 \title{Collect data from one sample}
 \usage{
-collect_one_sample_data(
-  connection_params,
-  sample_id,
-  sample_name,
-  num_spectras = NULL
-)
+collect_one_sample_data(connection_params, sample_id, num_spectras = NULL)
 }
 \arguments{
 \item{connection_params}{Connection parameters to the Unifi API - url and token}
 
 \item{sample_id}{The id of the sample to be collected}
-
-\item{sample_name}{The sample name (to be used for naming the saved file)}
 
 \item{num_spectras}{Number of spectras to be downloaded (OPTIONAL, only if whole sample data not needed)}
 }

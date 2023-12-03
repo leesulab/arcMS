@@ -9,34 +9,21 @@
 
 get_sample_list <- function(connection_params, analysis_id) {
 
-  url = connection_apihosturl(connection_params)
+  hostUrl = connection_apihosturl(connection_params)
   token = connection_token(connection_params)
 
-  url1 = glue::glue("{url}/analyses({analysis_id})/")
-  rg <- httr::GET(url1,
-            add_headers("Content-Type"="application/x-www-form-urlencoded",
-                        Accept="text/plain",
-                        "Authorization"=paste("Bearer", token)))
-
+  url1 = glue::glue("{hostUrl}/analyses({analysis_id})")
+  rg <- httpClientPlain(url1, token)
   json_string <- httr::content(rg, "text", encoding = "UTF-8")
   infos = jsonlite::fromJSON(json_string)
   analysis_name = infos$name
 
-  url2 = glue::glue("{url}/analyses({analysis_id})/sampleresults")
-  rg <- httr::GET(url2,
-            add_headers("Content-Type"="application/x-www-form-urlencoded",
-                        Accept="text/plain",
-                        "Authorization"=paste("Bearer", token)))
-
-  json_string <- httr::content(rg, "text", encoding = "UTF-8")
+  url2 = glue::glue("{hostUrl}/analyses({analysis_id})/sampleresults")
+  rg2 <- httpClientPlain(url2, token)
+  json_string <- httr::content(rg2, "text", encoding = "UTF-8")
   sample = jsonlite::fromJSON(json_string)
-  sample = data.frame(sample$value)
-  replicateNumber = sample$sample$replicateNumber
-  id = NULL
-  name = NULL
-  sample = sample %>% select(id, name)
-  sample = cbind(sample, replicateNumber)
-  sample = make_unique_sample_names(as.data.table(sample))
+  sample = as.data.table(sample$value)
+  sample = make_unique_sample_names(sample)
   sample = cbind(sample, analysisName = rep(analysis_name))
   return(sample)
 }
@@ -62,7 +49,7 @@ convert_all_samples_data <- function(connection_params, analysis_id, format = 'p
   for (i in 1:(nrow(samplelist))) {
     print(glue::glue("-------- Number of samples collected {i}/{nrow(samplelist)} -------- \n"))
     sample_id = samplelist$id[i]
-    sample_name = samplelist$SampleName[i]
+    sample_name = samplelist$sampleName[i]
     analysis_name = samplelist$analysisName[i]
 
     convert_one_sample_data(connection_params, sample_id, sample_name, analysis_name)
@@ -83,9 +70,9 @@ custom_make_unique <- function(v1, sep = '.') {
 
 make_unique_sample_names <- function(samples_datatable){
   # sample names in marker tables combine the sample name and the replicate number, and add a suffix in case of duplicates (function custom_make_unique) (e.g. A_replicate_1 several times)
-  SampleName = NULL
-  samples_datatable[, new := do.call(paste, c(.SD, sep = "_replicate_")), .SDcols = c("name","replicateNumber")]
-  samples_datatable[, SampleName := unlist(custom_make_unique(as.character(samples_datatable$new), sep = '_'))]
+  sampleName = NULL
+  samples_datatable[, new := do.call(paste, c(.SD, sep = "_replicate_")), .SDcols = c("name","sample.replicateNumber")]
+  samples_datatable[, sampleName := unlist(custom_make_unique(as.character(samples_datatable$new), sep = '_'))]
 
   return(samples_datatable)
 }

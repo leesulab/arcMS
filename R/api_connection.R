@@ -85,3 +85,18 @@ setMethod("connection_apihosturl", "connection_params", function(obj) obj@apihos
 #' @aliases connection_token
 #' @export
 setMethod("connection_token", "connection_params", function(obj) obj@token)
+
+
+# Helper functions to connect to API with URL, either collecting plain text or binary response
+httpClientPlain = function(url, token) {
+  httr::GET(url, add_headers(
+                                   Accept="text/plain",
+                                   "Authorization"=paste("Bearer", token)))
+}
+
+httpClientOctet = function(url, token) {
+  httr::GET(url,
+            add_headers("Content-Type"="application/x-www-form-urlencoded",
+                        Accept="application/octet-stream",
+              "Authorization"=paste("Bearer", token)))
+}

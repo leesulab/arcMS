@@ -7,8 +7,6 @@
 convert_one_sample_data(
   connection_params,
   sample_id,
-  sample_name,
-  analysis_name,
   format = "parquet",
   num_spectras = NULL
 )
@@ -17,10 +15,6 @@ convert_one_sample_data(
 \item{connection_params}{Connection parameters to the Unifi API - url and token}
 
 \item{sample_id}{The id of the sample to be collected}
-
-\item{sample_name}{The sample name (to be used for naming the saved file)}
-
-\item{analysis_name}{The name of the Analysis (to be used for naming the folder)}
 
 \item{format}{The format chosen for the exported file (parquet or hdf5)}
 

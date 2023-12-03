@@ -6,22 +6,26 @@
 #' The S3 object containing the spectral data is adapted into a dataframe by the \code{\link{outputlist_to_df}} function.
 #' Finally, the data is saved on disk to the Parquet or HDF5 format with the \code{\link{save_one_sample_data}} function.
 #'
-#' @inheritParams collect_one_sample_data
-#' @param analysis_name The name of the Analysis (to be used for naming the folder)
+#' @param connection_params Connection parameters to the Unifi API - url and token
+#' @param sample_id The id of the sample to be collected
+#' @param num_spectras Number of spectras to be downloaded (OPTIONAL, only if whole sample data not needed)
 #' @param format The format chosen for the exported file (parquet or hdf5)
 #'
 #' @return Datatables of the sample's spectral data and metadata are saved in Parquet or HDF5 format in the analysis name folder.
 #' @seealso \code{\link{collect_one_sample_data}} for only collecting data by dowloading from the API into the R environment, and \code{\link{save_one_sample_data}} to save collected data from the R environment to Parquet or HDF5 files.
 #' @export
 
-convert_one_sample_data <- function(connection_params, sample_id, sample_name, analysis_name, format = 'parquet', num_spectras = NULL){
+convert_one_sample_data <- function(connection_params, sample_id, format = 'parquet', num_spectras = NULL){
 
-    if (!format %in% c('parquet', 'hdf5')) {
-    stop("The format argument must be either 'parquet' or 'hdf5'")
-  }
+  if (!format %in% c('parquet', 'hdf5')) {
+  stop("The format argument must be either 'parquet' or 'hdf5'")
+}
 
-collected_data = collect_one_sample_data(connection_params, sample_id, sample_name, num_spectras)
+sample_info = get_sample_info(connection_params, sample_id)
+sample_name = sample_info$sample_name
+analysis_name = sample_info$analysis_name
 
+collected_data = collect_one_sample_data(connection_params, sample_id, num_spectras)
 save_one_sample_data(collected_data, sample_name, analysis_name, format = format)
 }
 
@@ -35,14 +39,17 @@ save_one_sample_data(collected_data, sample_name, analysis_name, format = format
 #'
 #' @param connection_params Connection parameters to the Unifi API - url and token
 #' @param sample_id The id of the sample to be collected
-#' @param sample_name The sample name (to be used for naming the saved file)
 #' @param num_spectras Number of spectras to be downloaded (OPTIONAL, only if whole sample data not needed)
 #'
 #' @return A list of dataframes of the sample's deserialized spectral data and metadata.
 #' @seealso \code{\link{save_one_sample_data}} to save collected data from the R environment to Parquet or HDF5 files, and \code{\link{convert_one_sample_data}} to both collect data and saving to files.
 #' @export
 
-collect_one_sample_data <- function(connection_params, sample_id, sample_name, num_spectras = NULL){
+collect_one_sample_data <- function(connection_params, sample_id, num_spectras = NULL){
+
+  sample_info = get_sample_info(connection_params, sample_id)
+  sample_name = sample_info$sample_name
+  analysis_name = sample_info$analysis_name
 
   printf("Downloading sample '%s'...\n", sample_name)
 
@@ -51,24 +58,11 @@ collect_one_sample_data <- function(connection_params, sample_id, sample_name, n
   # RT collect
   sampleUrl = glue::glue("{hostUrl}/sampleresults({sample_id})")
 
-  httpClientPlain = function(url) {
-    httr::GET(url, add_headers(
-                                     Accept="text/plain",
-                                     "Authorization"=paste("Bearer", token)))
-  }
-
-  httpClientOctet = function(url) {
-    httr::GET(url,
-              add_headers("Content-Type"="application/x-www-form-urlencoded",
-                          Accept="application/octet-stream",
-                "Authorization"=paste("Bearer", token)))
-  }
-
   spectrumEndpoint = function(skip, top) { glue::glue(sampleUrl, "/spectra/mass.mse?$skip=", skip, "&$top=", top) }
-  request = function(skip, top) {httr::content(httpClientOctet(spectrumEndpoint(skip, top)))}
+  request = function(skip, top) {httr::content(httpClientOctet(spectrumEndpoint(skip, top), token))}
 
   spectrumCountEndpoint = glue::glue(sampleUrl, "/spectra/mass.mse/$count")
-  spectrumCount = httr::content(httpClientPlain(spectrumCountEndpoint), "text", encoding = "utf-8")
+  spectrumCount = httr::content(httpClientPlain(spectrumCountEndpoint, token), "text", encoding = "utf-8")
 
   if (!is.null(num_spectras)) {
     numSpectra = num_spectras
@@ -151,7 +145,7 @@ if (!file.exists(path))
 #save data
 if (format == "parquet") {
   arrow::write_parquet(collected_data$data, glue("{path}/{sample_name}.parquet"), compression = "gzip")
-  arrow::write_parquet(collected_data$metadata, glue("{path}/{sample_name}metadata.parquet"), compression = "gzip")
+  arrow::write_parquet(collected_data$metadata, glue("{path}/{sample_name}-metadata.parquet"), compression = "gzip")
 
   printf("Sample '%s' saved as parquet file! \n", sample_name)
 } else {
@@ -167,4 +161,27 @@ if (format == "parquet") {
 
   printf("Sample '%s' saved as HDF5 file! \n", sample_name)
 }
+}
+
+# helper function to get sample name and parent analysis from a sample id
+
+get_sample_info <- function(connection_params, sample_id) {
+
+hostUrl = connection_apihosturl(connection_params)
+token = connection_token(connection_params)
+
+# get sample name and analysis name for creating folder and file on disk
+parentAnalysisEndpoint = glue::glue("{hostUrl}/sampleresults({sample_id})/analyses")
+parentAnalysis = httr::content(httpClientPlain(parentAnalysisEndpoint, token), "text", encoding = "utf-8")
+parentAnalysisInfo = jsonlite::fromJSON(parentAnalysis)
+parentAnalysisId = parentAnalysisInfo$value$id
+samplelist = get_sample_list(connection_params, parentAnalysisId)
+# defining data.table variable locally to avoid R cmd check NOTES due to NSE
+id = NULL
+sampleName = NULL
+analysisName = NULL
+sample_name_with_repnb = samplelist[id %in% sample_id, sampleName]
+analysis_name = samplelist[id %in% sample_id, analysisName]
+
+return(list(sample_name = sample_name_with_repnb, analysis_name = analysis_name))
 }
