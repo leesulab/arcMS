@@ -21,9 +21,9 @@ convert_one_sample_data <- function(connection_params, sample_id, format = 'parq
   stop("The format argument must be either 'parquet' or 'hdf5'")
 }
 
-sample_info = get_sample_infos(connection_params, sample_id)
-sample_name = sample_info$sampleName
-analysis_name = sample_info$analysisName
+sample_infos = get_sample_infos(connection_params, sample_id)
+sample_name = get_sample_name(sample_infos)
+analysis_name = get_analysis_name(sample_infos)
 
 collected_data = collect_one_sample_data(connection_params, sample_id, num_spectras)
 save_one_sample_data(collected_data, sample_name, analysis_name, format = format)
@@ -47,9 +47,10 @@ save_one_sample_data(collected_data, sample_name, analysis_name, format = format
 
 collect_one_sample_data <- function(connection_params, sample_id, num_spectras = NULL){
 
-  sample_info = get_sample_infos(connection_params, sample_id)
-  sample_name = sample_info$sample_metadata_df$sampleName
-  analysis_name = sample_info$sample_metadata_df$analysisName
+  sample_infos = get_sample_infos(connection_params, sample_id)
+  sample_name = get_sample_name(sample_infos)
+  analysis_name = get_analysis_name(sample_infos)
+  sample_metadata = get_sample_metadata(sample_infos)
 
   printf("Downloading sample '%s'...\n", sample_name)
 
@@ -110,7 +111,7 @@ explode_data = explode_spectra(data_all)
 explode_data_with_dt = add_drift_time(connection_params = connection_params, unnestdt = explode_data, sample_id = sample_id)
 spectrum_infos = get_spectrum_infos(connection_params = connection_params, sample_id = sample_id)
 
-collecteddata <- list("data" = explode_data_with_dt, "samplemetadata" = sample_info$sample_metadata_df, "spectrummetadata" = spectrum_infos$spectrum_infos)
+collecteddata <- list("data" = explode_data_with_dt, "samplemetadata" = sample_metadata, "spectrummetadata" = spectrum_infos$spectrum_infos)
 
 return(collecteddata)
 }
