@@ -13,8 +13,7 @@
 #' @param buffer The buffer data
 #' @param pos The position of the beginning of the message
 #' @return Decoded message position
-#' @export
-#'
+#' @keywords internal
 
 DecodeVarint32 = function(buffer, pos){
   mask = (2 ^ 32 - 1)

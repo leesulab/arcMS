@@ -6,7 +6,7 @@
 #' @param unnestdt An unnested data table that contains at least the columns 'bin'.
 #' @param sample_id The sample ID to be used in the API call.
 #' @return The unnested data table with an additional column 'dt' for drift time.
-#' @export
+#' @keywords internal
 
 add_drift_time <- function(connection_params, unnestdt, sample_id) {
 

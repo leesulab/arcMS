@@ -1,11 +1,10 @@
-#' outputlist_to_df
+#' Transform deserialized data to a dataframe
 #'
 #'The function adapts the data in S3 format obtained with the `deserialize_data()` function into a dataframe.
 #'
 #' @param outputlist Deserialized data in S3 format obtained with the deserialized_data() function
 #' @return A dataframe containing the spectral data associated with each spectra.
-#' @export
-#'
+#' @keywords internal
 
 outputlist_to_df <- function(outputlist){
   data_all = data.frame(masses = double(),    # Create empty data frame

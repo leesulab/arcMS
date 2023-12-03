@@ -19,3 +19,4 @@ The unnested data table with an additional column 'dt' for drift time.
 \description{
 This function takes an unnested data table with spectral data and adds drift time
 }
+\keyword{internal}

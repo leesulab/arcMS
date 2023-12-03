@@ -1,47 +1,34 @@
-#' get_sample_list
+#' Get the list of samples from an Analysis
 #'
-#'The function connects to a Unifi analysis and gets the list of all samples. It returns a dataframe with sample names and IDs, along with the analysis name.
+#'The function connects to a Unifi Analysis and gets the list of all samples. It returns a dataframe with sample names and IDs, along with the analysis name.
 #'
 #' @param connection_params - Connection parameters to the Unifi API - url and token
 #' @param analysis_id - The id of the analysis
 #'
 #' @return A dataframe wih sample names and IDs, along with the analysis name.
-#' @export
+
 get_sample_list <- function(connection_params, analysis_id) {
 
-  url = connection_apihosturl(connection_params)
+  hostUrl = connection_apihosturl(connection_params)
   token = connection_token(connection_params)
 
-  url1 = glue::glue("{url}/analyses({analysis_id})/")
-  rg <- httr::GET(url1,
-            add_headers("Content-Type"="application/x-www-form-urlencoded",
-                        Accept="text/plain",
-                        "Authorization"=paste("Bearer", token)))
-
+  url1 = glue::glue("{hostUrl}/analyses({analysis_id})")
+  rg <- httpClientPlain(url1, token)
   json_string <- httr::content(rg, "text", encoding = "UTF-8")
-  infos = jsonify::from_json(json_string)
+  infos = jsonlite::fromJSON(json_string)
   analysis_name = infos$name
 
-  url2 = glue::glue("{url}/analyses({analysis_id})/sampleresults")
-  rg <- httr::GET(url2,
-            add_headers("Content-Type"="application/x-www-form-urlencoded",
-                        Accept="text/plain",
-                        "Authorization"=paste("Bearer", token)))
-
-  json_string <- httr::content(rg, "text", encoding = "UTF-8")
-  sample = jsonify::from_json(json_string)
-  sample = data.frame(sample$value)
-  replicateNumber = sample$sample$replicateNumber
-  id = NULL
-  name = NULL
-  sample = sample %>% select(id, name)
-  sample = cbind(sample, replicateNumber)
-  sample = make_unique_sample_names(as.data.table(sample))
-  sample = cbind(sample, analysisName = rep(analysis_name))
-  return(sample)
+  url2 = glue::glue("{hostUrl}/analyses({analysis_id})/sampleresults")
+  rg2 <- httpClientPlain(url2, token)
+  json_string <- httr::content(rg2, "text", encoding = "UTF-8")
+  samplelistjson = jsonlite::fromJSON(json_string)
+  samplelist = as.data.table(samplelistjson$value)
+  samplelist = make_unique_sample_names(samplelist)
+  samplelist = cbind(samplelist, analysisName = rep(analysis_name))
+  return(samplelist)
 }
 
-#' collect_all_samples_data
+#' Convert data from all samples in an Analysis
 #'
 #' The function collects all samples data from an Analysis using the collect_one_sample_data() function and save them on disk.
 #'
@@ -52,7 +39,7 @@ get_sample_list <- function(connection_params, analysis_id) {
 #' @return A ataframe for each sample is saved in parquet or HDF5 format in a folder named after the Analysis.
 #' @export
 
-collect_all_samples_data <- function(connection_params, analysis_id, format = 'parquet') {
+convert_all_samples_data <- function(connection_params, analysis_id, format = 'parquet') {
 
       if (!format %in% c('parquet', 'HDF5')) {
     stop("The format must be parquet or HDF5")
@@ -62,10 +49,10 @@ collect_all_samples_data <- function(connection_params, analysis_id, format = 'p
   for (i in 1:(nrow(samplelist))) {
     print(glue::glue("-------- Number of samples collected {i}/{nrow(samplelist)} -------- \n"))
     sample_id = samplelist$id[i]
-    sample_name = samplelist$SampleName[i]
+    sample_name = samplelist$sampleName[i]
     analysis_name = samplelist$analysisName[i]
 
-    collect_one_sample_data(connection_params, sample_id, sample_name, analysis_name)
+    convert_one_sample_data(connection_params, sample_id, sample_name, analysis_name)
   }
   printf("All done!\n")
 
@@ -83,9 +70,9 @@ custom_make_unique <- function(v1, sep = '.') {
 
 make_unique_sample_names <- function(samples_datatable){
   # sample names in marker tables combine the sample name and the replicate number, and add a suffix in case of duplicates (function custom_make_unique) (e.g. A_replicate_1 several times)
-  SampleName = NULL
-  samples_datatable[, new := do.call(paste, c(.SD, sep = "_replicate_")), .SDcols = c("name","replicateNumber")]
-  samples_datatable[, SampleName := unlist(custom_make_unique(as.character(samples_datatable$new), sep = '_'))]
-
+  sampleName = NULL
+  samples_datatable[, new := do.call(paste, c(.SD, sep = "_replicate_")), .SDcols = c("name","sample.replicateNumber")]
+  samples_datatable[, sampleName := unlist(custom_make_unique(as.character(samples_datatable$new), sep = '_'))]
+  samples_datatable[,new:=NULL]
   return(samples_datatable)
 }

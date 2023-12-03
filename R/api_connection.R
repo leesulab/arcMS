@@ -46,8 +46,6 @@ setMethod("initialize", signature = "connection_params",
 #' @param apihosturl The \code{url} to connect to the Unifi API server (host).
 #'
 #' @return A list containing all parameters needed for the connection, in a \code{\link{connection_params}} object.
-#' @templateVar what create_connection_params
-#' @template main-rd-method
 #' @export
 
 create_connection_params <- function(identityurl = "http://localhost:50333/identity/connect/token", username = "administrator", password = "administrator", apihosturl = "http://localhost:50034/unifi/v1")
@@ -87,3 +85,18 @@ setMethod("connection_apihosturl", "connection_params", function(obj) obj@apihos
 #' @aliases connection_token
 #' @export
 setMethod("connection_token", "connection_params", function(obj) obj@token)
+
+
+# Helper functions to connect to API with URL, either collecting plain text or binary response
+httpClientPlain = function(url, token) {
+  httr::GET(url, add_headers(
+                                   Accept="text/plain",
+                                   "Authorization"=paste("Bearer", token)))
+}
+
+httpClientOctet = function(url, token) {
+  httr::GET(url,
+            add_headers("Content-Type"="application/x-www-form-urlencoded",
+                        Accept="application/octet-stream",
+              "Authorization"=paste("Bearer", token)))
+}

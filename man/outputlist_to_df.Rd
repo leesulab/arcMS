@@ -2,7 +2,7 @@
 % Please edit documentation in R/outputlist_to_df.R
 \name{outputlist_to_df}
 \alias{outputlist_to_df}
-\title{outputlist_to_df}
+\title{Transform deserialized data to a dataframe}
 \usage{
 outputlist_to_df(outputlist)
 }
@@ -15,3 +15,4 @@ A dataframe containing the spectral data associated with each spectra.
 \description{
 The function adapts the data in S3 format obtained with the `deserialize_data()` function into a dataframe.
 }
+\keyword{internal}
