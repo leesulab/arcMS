@@ -47,6 +47,7 @@ Collate:
     'deserialize_data.R'
     'explode_spectra.R'
     'folders_search.R'
+    'get_sample_infos.R'
     'get_spectrum_infos.R'
     'outputlist_to_df.R'
     'sample_search.R'

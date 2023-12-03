@@ -12,7 +12,7 @@ get_spectrum_infos(connection_params, sample_id)
 \item{sample_id}{The identifier of the sample result for which spectrum information is to be retrieved.}
 }
 \value{
-A list containing two elements: a DataFrame with detailed spectrum information from the Unifi API,
+A list containing two elements: a dataframe with detailed spectrum information from the Unifi API,
         and a formatted JSON string of the spectrum information.
 
 Example usage:
@@ -24,5 +24,5 @@ formatted_json <- results$formatted_json
 \description{
 This function retrieves spectrum information from the Unifi API for a specified sample result using the provided connection parameters.
 It extracts detailed spectrum information associated with the given sample result identifier.
-The function returns both a DataFrame containing the spectrum information and a formatted JSON string of the same data.
+The function returns both a dataframe containing the spectrum information and a formatted JSON string of the same data.
 }

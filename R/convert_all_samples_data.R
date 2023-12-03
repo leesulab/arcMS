@@ -21,11 +21,11 @@ get_sample_list <- function(connection_params, analysis_id) {
   url2 = glue::glue("{hostUrl}/analyses({analysis_id})/sampleresults")
   rg2 <- httpClientPlain(url2, token)
   json_string <- httr::content(rg2, "text", encoding = "UTF-8")
-  sample = jsonlite::fromJSON(json_string)
-  sample = as.data.table(sample$value)
-  sample = make_unique_sample_names(sample)
-  sample = cbind(sample, analysisName = rep(analysis_name))
-  return(sample)
+  samplelistjson = jsonlite::fromJSON(json_string)
+  samplelist = as.data.table(samplelistjson$value)
+  samplelist = make_unique_sample_names(samplelist)
+  samplelist = cbind(samplelist, analysisName = rep(analysis_name))
+  return(samplelist)
 }
 
 #' Convert data from all samples in an Analysis
@@ -73,6 +73,6 @@ make_unique_sample_names <- function(samples_datatable){
   sampleName = NULL
   samples_datatable[, new := do.call(paste, c(.SD, sep = "_replicate_")), .SDcols = c("name","sample.replicateNumber")]
   samples_datatable[, sampleName := unlist(custom_make_unique(as.character(samples_datatable$new), sep = '_'))]
-
+  samples_datatable[,new:=NULL]
   return(samples_datatable)
 }

@@ -21,9 +21,9 @@ convert_one_sample_data <- function(connection_params, sample_id, format = 'parq
   stop("The format argument must be either 'parquet' or 'hdf5'")
 }
 
-sample_info = get_sample_info(connection_params, sample_id)
-sample_name = sample_info$sample_name
-analysis_name = sample_info$analysis_name
+sample_info = get_sample_infos(connection_params, sample_id)
+sample_name = sample_info$sampleName
+analysis_name = sample_info$analysisName
 
 collected_data = collect_one_sample_data(connection_params, sample_id, num_spectras)
 save_one_sample_data(collected_data, sample_name, analysis_name, format = format)
@@ -47,9 +47,9 @@ save_one_sample_data(collected_data, sample_name, analysis_name, format = format
 
 collect_one_sample_data <- function(connection_params, sample_id, num_spectras = NULL){
 
-  sample_info = get_sample_info(connection_params, sample_id)
-  sample_name = sample_info$sample_name
-  analysis_name = sample_info$analysis_name
+  sample_info = get_sample_infos(connection_params, sample_id)
+  sample_name = sample_info$sample_metadata_df$sampleName
+  analysis_name = sample_info$sample_metadata_df$analysisName
 
   printf("Downloading sample '%s'...\n", sample_name)
 
@@ -110,7 +110,7 @@ explode_data = explode_spectra(data_all)
 explode_data_with_dt = add_drift_time(connection_params = connection_params, unnestdt = explode_data, sample_id = sample_id)
 spectrum_infos = get_spectrum_infos(connection_params = connection_params, sample_id = sample_id)
 
-collecteddata <- list("data" = explode_data_with_dt, "metadata" = spectrum_infos$spectrum_infos)
+collecteddata <- list("data" = explode_data_with_dt, "samplemetadata" = sample_info$sample_metadata_df, "spectrummetadata" = spectrum_infos$spectrum_infos)
 
 return(collecteddata)
 }
@@ -130,12 +130,21 @@ return(collecteddata)
 #' @seealso \code{\link{collect_one_sample_data}} for only collecting data by dowloading from the API into the R environment, and \code{\link{convert_one_sample_data}} to both collect data and saving to files.
 #' @export
 
-save_one_sample_data <- function(collected_data, sample_name, analysis_name, format = 'parquet'){
+save_one_sample_data <- function(collected_data, sample_name = NULL, analysis_name = NULL, format = 'parquet'){
 
     if (!format %in% c('parquet', 'hdf5')) {
     stop("The format argument must be either 'parquet' or 'hdf5'")
   }
-
+  if (!is.null(sample_name)) {
+    sample_name = sample_name
+  } else {
+    sample_name = collected_data$samplemetadata$sampleName
+  }
+  if (!is.null(analysis_name)) {
+    analysis_name = analysis_name
+  } else {
+    analysis_name = collected_data$samplemetadata$analysisName
+  }
 printf("Saving sample '%s' to folder '%s'...\n", sample_name, analysis_name)
 
 path = analysis_name
@@ -144,8 +153,10 @@ if (!file.exists(path))
 
 #save data
 if (format == "parquet") {
+  metadatalist = list("sampleinfos" = collected_data$samplemetadata, "spectruminfos" = collected_data$spectrummetadata)
+  metadatajson = toJSON(metadatalist, pretty = T)
   arrow::write_parquet(collected_data$data, glue("{path}/{sample_name}.parquet"), compression = "gzip")
-  arrow::write_parquet(collected_data$metadata, glue("{path}/{sample_name}-metadata.parquet"), compression = "gzip")
+  write(metadatajson, glue("{path}/{sample_name}-metadata.json"))
 
   printf("Sample '%s' saved as parquet file! \n", sample_name)
 } else {
@@ -157,31 +168,9 @@ if (format == "parquet") {
   high_data <- subset(collected_data$data, energy_level == "High")
   rhdf5::h5write(obj = low_data, file = hdf5_file, name = "ms1")
   rhdf5::h5write(obj = high_data, file = hdf5_file, name = "ms2")
-  rhdf5::h5write(obj = collected_data$metadata, file = hdf5_file, name = "metadata")
+  rhdf5::h5write(obj = collected_data$samplemetadata, file = hdf5_file, name = "samplemetadata")
+  rhdf5::h5write(obj = collected_data$spectrummetadata, file = hdf5_file, name = "spectrummetadata")
 
   printf("Sample '%s' saved as HDF5 file! \n", sample_name)
 }
-}
-
-# helper function to get sample name and parent analysis from a sample id
-
-get_sample_info <- function(connection_params, sample_id) {
-
-hostUrl = connection_apihosturl(connection_params)
-token = connection_token(connection_params)
-
-# get sample name and analysis name for creating folder and file on disk
-parentAnalysisEndpoint = glue::glue("{hostUrl}/sampleresults({sample_id})/analyses")
-parentAnalysis = httr::content(httpClientPlain(parentAnalysisEndpoint, token), "text", encoding = "utf-8")
-parentAnalysisInfo = jsonlite::fromJSON(parentAnalysis)
-parentAnalysisId = parentAnalysisInfo$value$id
-samplelist = get_sample_list(connection_params, parentAnalysisId)
-# defining data.table variable locally to avoid R cmd check NOTES due to NSE
-id = NULL
-sampleName = NULL
-analysisName = NULL
-sample_name_with_repnb = samplelist[id %in% sample_id, sampleName]
-analysis_name = samplelist[id %in% sample_id, analysisName]
-
-return(list(sample_name = sample_name_with_repnb, analysis_name = analysis_name))
 }

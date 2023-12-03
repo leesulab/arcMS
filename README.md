@@ -91,27 +91,29 @@ samples
 Once we get a sample ID, we can use it to download the sample data:
 
 ``` r
-convert_one_sample_data(con, sample_id = "0134efbf-c75a-411b-842a-4f35e2b76347", "sample1", "analysis_name")
+convert_one_sample_data(con, sample_id = "0134efbf-c75a-411b-842a-4f35e2b76347")
 ```
 
-This command will create a folder named `analysis_name` in the working
-directory and save the sample data with the name `sample1.parquet` and
-its metadata with the name `sample1metadata.parquet`.
+This command will get the sample name (`sample_name`) and its parent
+analysis (`analysis_name`), create a folder named `analysis_name` in the
+working directory and save the sample data with the name
+`sample_name.parquet` and its metadata with the name
+`sample_name-metadata.parquet`.
 
 With an Analysis ID, we can convert and save all samples from the chosen
 Analysis:
 
 ``` r
-convert_all_samples_data(con, analysis_id = "e236bf99-31cd-44ae-a4e7-74915697df65", "analysis_name")
+convert_all_samples_data(con, analysis_id = "e236bf99-31cd-44ae-a4e7-74915697df65")
 ```
 
 To use the HDF5 format instead of Parquet, the format argument can be
 used as below:
 
 ``` r
-convert_one_sample_data(con, sample_id = "0134efbf-c75a-411b-842a-4f35e2b76347", "sample1", "analysis_name", format = "hdf5")
+convert_one_sample_data(con, sample_id = "0134efbf-c75a-411b-842a-4f35e2b76347", format = "hdf5")
 
-convert_all_samples_data(con, analysis_id = "e236bf99-31cd-44ae-a4e7-74915697df65", "analysis_name", format = "hdf5")
+convert_all_samples_data(con, analysis_id = "e236bf99-31cd-44ae-a4e7-74915697df65", format = "hdf5")
 ```
 
 This will save the samples data and metadata in the same `file.h5` file.
@@ -119,13 +121,16 @@ This will save the samples data and metadata in the same `file.h5` file.
 Parquet or HDF5 files can be opened easily in `R` with the `arrow` or
 `rhdf5` packages. Parquet files contain both low and high energy spectra
 (HDMSe), and HDF5 files contain low energy in the “ms1” dataset, high
-energy in the “ms2” dataset, and metadata in the “metadata” dataset.
+energy in the “ms2” dataset, and metadata in the “metadata” dataset. The
+`fromJSON` function from `jsonlite` package will import the metadata
+json file (associated with the Parquet file) as a list of dataframes.
 
 ``` r
-sampleparquet = arrow::read_parquet("sample1.parquet")
-metadataparquet = arrow::read_parquet("sample1metadata.parquet")
+sampleparquet = arrow::read_parquet("sample.parquet")
+metadataparquet = jsonlite::fromJSON("sample-metadata.json")
 
-samplehdf5 = rhdf5::h5read("sample1.h5", name = "ms1")
-samplehdf5 = rhdf5::h5read("sample1.h5", name = "ms2")
-samplehdf5 = rhdf5::h5read("sample1.h5", name = "metadata")
+samplems1hdf5 = rhdf5::h5read("sample.h5", name = "ms1")
+samplems2hdf5 = rhdf5::h5read("sample.h5", name = "ms2")
+samplemetadatahdf5 = rhdf5::h5read("sample.h5", name = "samplemetadata")
+spectrummetadatahdf5 = rhdf5::h5read("sample.h5", name = "spectrummetadata")
 ```

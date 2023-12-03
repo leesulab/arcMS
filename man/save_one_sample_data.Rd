@@ -6,8 +6,8 @@
 \usage{
 save_one_sample_data(
   collected_data,
-  sample_name,
-  analysis_name,
+  sample_name = NULL,
+  analysis_name = NULL,
   format = "parquet"
 )
 }
