@@ -49,10 +49,8 @@ convert_all_samples_data <- function(connection_params, analysis_id, format = 'p
   for (i in 1:(nrow(samplelist))) {
     print(glue::glue("-------- Number of samples collected {i}/{nrow(samplelist)} -------- \n"))
     sample_id = samplelist$id[i]
-    sample_name = samplelist$sampleName[i]
-    analysis_name = samplelist$analysisName[i]
 
-    convert_one_sample_data(connection_params, sample_id, sample_name, analysis_name)
+    convert_one_sample_data(connection_params, sample_id, format = format)
   }
   printf("All done!\n")
 
