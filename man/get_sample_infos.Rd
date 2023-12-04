@@ -2,7 +2,7 @@
 % Please edit documentation in R/sample_infos.R
 \name{get_sample_infos}
 \alias{get_sample_infos}
-\title{Retrieve Sample Information from Unifi API}
+\title{Retrieve Sample Information from Unifi API with a sample id}
 \usage{
 get_sample_infos(connection_params, sample_id)
 }

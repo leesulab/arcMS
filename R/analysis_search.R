@@ -18,12 +18,9 @@ analysis_search <- function(connection_params, folder_id) {
   url <- connection_apihosturl(connection_params)
   token <- connection_token(connection_params)
 
-  url2 <- glue::glue("{url}/folders({folder_id})/items")
+  itemsEndpoint <- glue::glue("{url}/folders({folder_id})/items")
 
-  rg <- httr::GET(url2,
-                  add_headers("Content-Type"="application/x-www-form-urlencoded",
-                              Accept="text/plain",
-                              "Authorization"=paste("Bearer", token)))
+  rg <- httpClientPlain(itemsEndpoint, token)
 
 
   json_string <- httr::content(rg, "text", encoding = "UTF-8")

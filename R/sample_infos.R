@@ -27,7 +27,7 @@ setMethod("initialize", signature = "sample_infos",
             return(.Object)
           } )
 
-#' Retrieve Sample Information from Unifi API
+#' Retrieve Sample Information from Unifi API with a sample id
 #'
 #' This function retrieves spectrum information from the Unifi API for a specified sample result using the provided connection parameters.
 #' It extracts detailed spectrum information associated with the given sample result identifier.
@@ -53,7 +53,7 @@ parentAnalysisEndpoint = glue::glue("{hostUrl}/sampleresults({sample_id})/analys
 parentAnalysis = httr::content(httpClientPlain(parentAnalysisEndpoint, token), "text", encoding = "utf-8")
 parentAnalysisInfo = jsonlite::fromJSON(parentAnalysis)
 parentAnalysisId = parentAnalysisInfo$value$id
-samplelist = get_sample_list(connection_params, parentAnalysisId)
+samplelist = get_samples_list(connection_params, parentAnalysisId)
 # defining data.table variable locally to avoid R cmd check NOTES due to NSE
 id = NULL
 sample_metadata = samplelist[id %in% sample_id, ]
@@ -70,25 +70,25 @@ ret = sample_infos(
 return(ret)
 }
 
-#' @describeIn sample_infos accessor method to obtain the sample_metadata table.
+#' @describeIn sample_infos Accessor method to obtain the sample_metadata table.
 #' @return \code{get_sample_metadata} returns a data.frame object containing the sample metadata.
 #' @aliases get_sample_metadata
 #' @export
 setMethod("get_sample_metadata", "sample_infos", function(obj) obj@sample_metadata)
 
-#' @describeIn sample_infos accessor method to obtain the sample name.
+#' @describeIn sample_infos Accessor method to obtain the sample name.
 #' @return \code{get_sample_metadata} returns a character object containing the sample name.
 #' @aliases get_sample_name
 #' @export
 setMethod("get_sample_name", "sample_infos", function(obj) obj@sample_metadata$sampleName)
 
-#' @describeIn sample_infos accessor method to obtain the analysis name.
+#' @describeIn sample_infos Accessor method to obtain the analysis name.
 #' @return \code{get_analysis_name} returns a character object containing the analysis name.
 #' @aliases get_analysis_name
 #' @export
 setMethod("get_analysis_name", "sample_infos", function(obj) obj@sample_metadata$analysisName)
 
-#' @describeIn sample_infos accessor method to obtain the sample metadata in json format.
+#' @describeIn sample_infos Accessor method to obtain the sample metadata in json format.
 #' @return \code{get_sample_metadata_json} returns a json character object containing the sample metadata.
 #' @aliases get_sample_metadata_json
 #' @export

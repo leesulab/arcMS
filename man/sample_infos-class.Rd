@@ -42,13 +42,13 @@ Objects for this class are returned by \code{\link{get_sample_infos}}.
 }
 \section{Methods (by generic)}{
 \itemize{
-\item \code{get_sample_metadata(sample_infos)}: accessor method to obtain the sample_metadata table.
+\item \code{get_sample_metadata(sample_infos)}: Accessor method to obtain the sample_metadata table.
 
-\item \code{get_sample_name(sample_infos)}: accessor method to obtain the sample name.
+\item \code{get_sample_name(sample_infos)}: Accessor method to obtain the sample name.
 
-\item \code{get_analysis_name(sample_infos)}: accessor method to obtain the analysis name.
+\item \code{get_analysis_name(sample_infos)}: Accessor method to obtain the analysis name.
 
-\item \code{get_sample_metadata_json(sample_infos)}: accessor method to obtain the sample metadata in json format.
+\item \code{get_sample_metadata_json(sample_infos)}: Accessor method to obtain the sample metadata in json format.
 
 }}
 \section{Slots}{
