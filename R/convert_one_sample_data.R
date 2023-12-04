@@ -1,3 +1,44 @@
+#' @include main.R
+#' @include sample_infos.R
+NULL
+
+#' Class containing a sample data and metadata
+#'
+#' Contains sample data, metadata and spectrum metadata in table and json formats.
+#'
+#' Objects for this class are returned by \code{\link{collect_one_sample_data}}.
+#'
+#' @slot sample_data Contains a \code{datatable} with the sample data.
+#' @slot sample_metadata Contains a \code{datatable} with the sample metadata.
+#' @slot spectrum_metadata Contains a \code{datatable} with the spectrum metadata.
+#' @slot sample_metadata_json Contains a \code{character} with the sample metadata.
+#' @slot spectrum_metadata_json Contains a \code{character} with the spectrum metadata.
+#'
+#' @section Use the \code{\link{collect_one_sample_data}} to:
+#'   store the sample data, metadata and spectrum metadata, in table and json formats.
+#'
+#' @param obj The \code{\link{sample_dataset}} object to access.
+#'
+#' @export
+
+sample_dataset <- setClass("sample_dataset",
+                        slots = c(sample_data = "data.table"),
+                        contains = "sample_infos")
+# initialize method during object instantiation
+setMethod("initialize", signature = "sample_dataset",
+          definition = function(.Object, sample_data, ...)
+          {
+            .Object@sample_data <- sample_data
+            .Object <- callNextMethod(.Object, ...)
+            return(.Object)
+          } )
+
+#' @describeIn sample_dataset Accessor method to obtain the sample_data table.
+#' @return \code{get_sample_data} returns a data.table object containing the sample data.
+#' @aliases get_sample_data
+#' @export
+setMethod("get_sample_data", "sample_dataset", function(obj) obj@sample_data)
+
 #' Convert one sample
 #'
 #' The function collects spectral data from a sample in a Unifi Analysis.
@@ -110,10 +151,19 @@ data_all <- data_all[order(data_all$energy_level),]
 explode_data = explode_spectra(data_all)
 explode_data_with_dt = add_drift_time(connection_params = connection_params, unnestdt = explode_data, sample_id = sample_id)
 spectrum_infos = get_spectrum_metadata(sample_infos)
+sample_metadata_json = as.character(get_sample_metadata_json(sample_infos))
+spectrum_metadata_json = as.character(get_spectrum_metadata_json(sample_infos))
 
-collecteddata <- list("data" = explode_data_with_dt, "samplemetadata" = sample_metadata, "spectrummetadata" = spectrum_infos$spectrum_infos)
+collecteddata <- sample_dataset(
+    sample_data = explode_data_with_dt,
+    sample_metadata = sample_metadata,
+    spectrum_metadata = spectrum_infos,
+    sample_metadata_json = sample_metadata_json,
+    spectrum_metadata_json = spectrum_metadata_json
+  )
 
 return(collecteddata)
+
 }
 
 #' Save collected data from one sample

@@ -42,6 +42,7 @@ Collate:
     'main.R'
     'api_connection.R'
     'convert_all_samples_data.R'
+    'sample_infos.R'
     'convert_one_sample_data.R'
     'decodeVarint.R'
     'deserialize_data.R'
@@ -49,4 +50,3 @@ Collate:
     'folders_search.R'
     'get_samples_list.R'
     'outputlist_to_df.R'
-    'sample_infos.R'
