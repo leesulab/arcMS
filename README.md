@@ -84,7 +84,7 @@ Finally, with an Analysis ID, we can get the list of samples
 (injections) acquired in this Analysis:
 
 ``` r
-samples = sample_search(con, "e236bf99-31cd-44ae-a4e7-74915697df65")
+samples = get_samples_list(con, "e236bf99-31cd-44ae-a4e7-74915697df65")
 samples
 ```
 

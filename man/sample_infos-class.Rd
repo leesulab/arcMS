@@ -12,6 +12,10 @@
 \alias{get_analysis_name}
 \alias{get_sample_metadata_json,sample_infos-method}
 \alias{get_sample_metadata_json}
+\alias{get_spectrum_metadata,sample_infos-method}
+\alias{get_spectrum_metadata}
+\alias{get_spectrum_metadata_json,sample_infos-method}
+\alias{get_spectrum_metadata_json}
 \title{Class containing a sample's information}
 \usage{
 \S4method{get_sample_metadata}{sample_infos}(obj)
@@ -21,28 +25,36 @@
 \S4method{get_analysis_name}{sample_infos}(obj)
 
 \S4method{get_sample_metadata_json}{sample_infos}(obj)
+
+\S4method{get_spectrum_metadata}{sample_infos}(obj)
+
+\S4method{get_spectrum_metadata_json}{sample_infos}(obj)
 }
 \arguments{
 \item{obj}{The \code{\link{sample_infos}} object to access.}
 }
 \value{
-\code{get_sample_metadata} returns a data.frame object containing the sample metadata.
+\code{get_sample_metadata} returns a data.table object containing the sample metadata.
 
-\code{get_sample_metadata} returns a character object containing the sample name.
+\code{get_sample_infos} returns a character object containing the sample name.
 
 \code{get_analysis_name} returns a character object containing the analysis name.
 
 \code{get_sample_metadata_json} returns a json character object containing the sample metadata.
+
+\code{get_spectrum_metadata} returns a data.table object containing the spectrum metadata of a sample.
+
+\code{get_spectrum_metadata_json} returns a json character object containing the spectrum metadata of a sample.
 }
 \description{
-Contains sample metadata in table and json formats.
+Contains sample metadata and spectrum metadata in table and json formats.
 }
 \details{
 Objects for this class are returned by \code{\link{get_sample_infos}}.
 }
 \section{Methods (by generic)}{
 \itemize{
-\item \code{get_sample_metadata(sample_infos)}: Accessor method to obtain the sample_metadata table.
+\item \code{get_sample_metadata(sample_infos)}: Accessor method to obtain the sample_infos table.
 
 \item \code{get_sample_name(sample_infos)}: Accessor method to obtain the sample name.
 
@@ -50,17 +62,25 @@ Objects for this class are returned by \code{\link{get_sample_infos}}.
 
 \item \code{get_sample_metadata_json(sample_infos)}: Accessor method to obtain the sample metadata in json format.
 
+\item \code{get_spectrum_metadata(sample_infos)}: Accessor method to obtain the spectrum_metadata table.
+
+\item \code{get_spectrum_metadata_json(sample_infos)}: Accessor method to obtain the spectrum metadata in json format.
+
 }}
 \section{Slots}{
 
 \describe{
-\item{\code{sample_metadata}}{Contains a \code{dataframe} with the sample metadata.}
+\item{\code{sample_metadata}}{Contains a \code{datatable} with the sample metadata.}
 
-\item{\code{formatted_json}}{Contains a \code{character} with the sample metadata.}
+\item{\code{spectrum_metadata}}{Contains a \code{datatable} with the spectrum metadata.}
+
+\item{\code{sample_metadata_json}}{Contains a \code{character} with the sample metadata.}
+
+\item{\code{spectrum_metadata_json}}{Contains a \code{character} with the spectrum metadata.}
 }}
 
 \section{Use the \code{\link{get_sample_infos}} to}{
 
-  store the sample metadata, in table and json formats.
+  store the sample metadata and spectrum metadata, in table and json formats.
 }
 

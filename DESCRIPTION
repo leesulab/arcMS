@@ -50,4 +50,3 @@ Collate:
     'get_samples_list.R'
     'outputlist_to_df.R'
     'sample_infos.R'
-    'spectrum_infos.R'

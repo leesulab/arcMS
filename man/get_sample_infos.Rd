@@ -19,7 +19,7 @@ con_params <- create_connection_params(api_host_url, api_token)
 results <- get_sample_infos(con_params, sample_result_id)
 }
 \description{
-This function retrieves spectrum information from the Unifi API for a specified sample result using the provided connection parameters.
+This function retrieves sample metadata and spectrum information from the Unifi API for a specified sample result using the provided connection parameters.
 It extracts detailed spectrum information associated with the given sample result identifier.
-The function returns both a dataframe containing the sample information and a formatted JSON string of the same data.
+The function returns two dataframes containing the sample information and spectrum informationn, and two formatted JSON strings of the same data.
 }

@@ -4,3 +4,5 @@ setGeneric("get_sample_metadata", function(obj, ...) standardGeneric("get_sample
 setGeneric("get_sample_name", function(obj, ...) standardGeneric("get_sample_name"))
 setGeneric("get_analysis_name", function(obj, ...) standardGeneric("get_analysis_name"))
 setGeneric("get_sample_metadata_json", function(obj, ...) standardGeneric("get_sample_metadata_json"))
+setGeneric("get_spectrum_metadata", function(obj, ...) standardGeneric("get_spectrum_metadata"))
+setGeneric("get_spectrum_metadata_json", function(obj, ...) standardGeneric("get_spectrum_metadata_json"))
