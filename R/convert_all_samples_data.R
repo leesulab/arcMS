@@ -6,7 +6,7 @@
 #' @param analysis_id The id of the analysis
 #' @param format The format chosen for the exported filed (parquet or HDF5)
 #'
-#' @return A ataframe for each sample is saved in parquet or HDF5 format in a folder named after the Analysis.
+#' @return A dataframe for each sample is saved in parquet or HDF5 format in a folder named after the Analysis.
 #' @export
 
 convert_all_samples_data <- function(connection_params, analysis_id, format = 'parquet') {

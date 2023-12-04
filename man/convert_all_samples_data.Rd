@@ -14,7 +14,7 @@ convert_all_samples_data(connection_params, analysis_id, format = "parquet")
 \item{format}{The format chosen for the exported filed (parquet or HDF5)}
 }
 \value{
-A ataframe for each sample is saved in parquet or HDF5 format in a folder named after the Analysis.
+A dataframe for each sample is saved in parquet or HDF5 format in a folder named after the Analysis.
 }
 \description{
 The function collects all samples data from an Analysis using the collect_one_sample_data() function and save them on disk.
