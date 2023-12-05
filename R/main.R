@@ -11,7 +11,7 @@
 #' @importFrom tidytable uncount unnest
 #' @importFrom RProtoBuf readProtoFiles
 #' @importFrom httr GET add_headers content POST
-#' @importFrom jsonlite fromJSON toJSON
+#' @importFrom jsonlite fromJSON toJSON prettify
 #' @importFrom glue glue
 #' @importFrom future plan multisession
 #' @importFrom future.apply future_lapply

@@ -7,16 +7,12 @@
 #' @export
 
 folders_search <- function(connection_params) {
-  url <- connection_apihosturl(connection_params)
+  hostUrl <- connection_apihosturl(connection_params)
   token <- connection_token(connection_params)
 
-  url2 <- glue::glue("{url}/folders")
+  foldersEndpoint <- glue::glue("{hostUrl}/folders")
 
-  rg <- httr::GET(url2,
-                  add_headers("Content-Type"="application/x-www-form-urlencoded",
-                              Accept="text/plain",
-                              "Authorization"=paste("Bearer", token)))
-
+  rg <- httpClientPlain(foldersEndpoint, token)
 
   json_string <- httr::content(rg, "text", encoding = "UTF-8")
   folders <- jsonlite::fromJSON(json_string)

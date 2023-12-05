@@ -14,7 +14,8 @@ collect_one_sample_data(connection_params, sample_id, num_spectras = NULL)
 \item{num_spectras}{Number of spectras to be downloaded (OPTIONAL, only if whole sample data not needed)}
 }
 \value{
-A list of dataframes of the sample's deserialized spectral data and metadata.
+A \code{\link{sample_dataset}} object, containing the sample data,
+sample metadata and spectrum metadata datatables.
 }
 \description{
 The function collects spectral data from a sample in a Unifi Analysis.

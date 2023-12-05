@@ -5,14 +5,14 @@
 \title{Save collected data from one sample}
 \usage{
 save_one_sample_data(
-  collected_data,
+  sample_dataset,
   sample_name = NULL,
   analysis_name = NULL,
   format = "parquet"
 )
 }
 \arguments{
-\item{collected_data}{Collected data from sample}
+\item{sample_dataset}{Collected data from a sample, stored in a \code{\link{sample_dataset}} object}
 
 \item{sample_name}{The sample name (to be used for naming the saved file)}
 
