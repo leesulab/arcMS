@@ -17,6 +17,5 @@ folders_search <- function(connection_params) {
   json_string <- httr::content(rg, "text", encoding = "UTF-8")
   folders <- jsonlite::fromJSON(json_string)
   folders <- data.frame(folders$value)
-
   return(folders)
 }

@@ -35,6 +35,8 @@ Imports:
     tidytable,
     rhdf5,
     magrittr
+Depends:
+    shiny
 Collate:
     'add_drift_time.R'
     'analysis_search.R'
@@ -50,3 +52,4 @@ Collate:
     'folders_search.R'
     'get_samples_list.R'
     'outputlist_to_df.R'
+    'run_app.R'
