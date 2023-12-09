@@ -25,6 +25,7 @@ analysis_search <- function(connection_params, folder_id) {
 
   json_string <- httr::content(rg, "text", encoding = "UTF-8")
   items <- jsonlite::fromJSON(json_string)
+  if(length(items$value) != 0) {
   analyses = items$value[items$value$type == 'Analysis',]
   analyses <- data.frame(analyses)
 
@@ -33,4 +34,8 @@ analysis_search <- function(connection_params, folder_id) {
     "restoredAt", "restoredByFullName", "dataType", "remark", "summary", "lockedByFullName"))]
 
   return(analyses)
+} else {
+  stop("There is no Analysis in this folder")
+}
+
 }
