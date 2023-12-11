@@ -57,19 +57,18 @@ setMethod("get_sample_data", "sample_dataset", function(obj) obj@sample_data)
 #' @export
 
 convert_one_sample_data <- function(connection_params, sample_id, format = 'parquet', num_spectras = NULL){
-
   if (!format %in% c('parquet', 'hdf5')) {
   stop("The format argument must be either 'parquet' or 'hdf5'")
+  } else {
+
+  sample_infos = get_sample_infos(connection_params, sample_id)
+  sample_name = get_sample_name(sample_infos)
+  analysis_name = get_analysis_name(sample_infos)
+
+  collected_data = collect_one_sample_data(connection_params, sample_id, num_spectras)
+  save_one_sample_data(collected_data, sample_name, analysis_name, format = format)
+  }
 }
-
-sample_infos = get_sample_infos(connection_params, sample_id)
-sample_name = get_sample_name(sample_infos)
-analysis_name = get_analysis_name(sample_infos)
-
-collected_data = collect_one_sample_data(connection_params, sample_id, num_spectras)
-save_one_sample_data(collected_data, sample_name, analysis_name, format = format)
-}
-
 
 #' Collect data from one sample
 #'
@@ -94,7 +93,7 @@ collect_one_sample_data <- function(connection_params, sample_id, num_spectras =
   analysis_name = get_analysis_name(sample_infos)
   sample_metadata = get_sample_metadata(sample_infos)
 
-  printf("Downloading sample '%s'...\n", sample_name)
+  message(glue::glue("Downloading sample '{sample_name}'..."))
 
   hostUrl = connection_apihosturl(connection_params)
   token = connection_token(connection_params)
@@ -113,7 +112,7 @@ collect_one_sample_data <- function(connection_params, sample_id, num_spectras =
     numSpectra = as.numeric(iconv(spectrumCount, 'utf-8', 'ascii', sub=''))
   }
   numLogicalSpectra =  numSpectra * 200
-  printf("Number of spectra to download: %s\n", numSpectra)
+  message(glue::glue("Number of spectra to download: {numSpectra}"))
   chunkSize = 500 #default value in msconvert = 20
   nchunks = ceiling(numSpectra / chunkSize)
   # nchunks = 5
@@ -138,7 +137,7 @@ future::plan(multisession)
 }
 response = with_progress(resp(skips))
 
-printf("Deserializing '%s' sample data...\n", sample_name)
+message(glue::glue("Deserializing '{sample_name}' sample data..."))
 
 deseria = lapply(response, deserialize_data)
 output = lapply(deseria, outputlist_to_df)
@@ -186,7 +185,7 @@ save_one_sample_data <- function(sample_dataset, sample_name = NULL, analysis_na
 
     if (!format %in% c('parquet', 'hdf5')) {
     stop("The format argument must be either 'parquet' or 'hdf5'")
-  }
+  } else {
   if (!is.null(sample_name)) {
     sample_name = sample_name
   } else {
@@ -197,8 +196,7 @@ save_one_sample_data <- function(sample_dataset, sample_name = NULL, analysis_na
   } else {
     analysis_name = get_analysis_name(sample_dataset)
   }
-printf("Saving sample '%s' to folder '%s'...\n", sample_name, analysis_name)
-
+message(glue::glue("Saving sample '{sample_name}' to folder '{analysis_name}'..."))
 path = analysis_name
 if (!file.exists(path))
   dir.create(path, showWarnings = TRUE, recursive = FALSE, mode = "0777")
@@ -213,7 +211,7 @@ if (format == "parquet") {
   arrow::write_parquet(sample_data, glue("{path}/{sample_name}.parquet"), compression = "gzip")
   write(metadatajson, glue("{path}/{sample_name}-metadata.json"))
 
-  printf("Sample '%s' saved as parquet file! \n", sample_name)
+  message(glue::glue("Sample '{sample_name}' saved as parquet file!"))
 } else {
   hdf5_file <- glue::glue("{path}/{sample_name}.h5")
   rhdf5::h5createFile(hdf5_file)
@@ -226,6 +224,7 @@ if (format == "parquet") {
   rhdf5::h5write(obj = sample_metadata, file = hdf5_file, name = "samplemetadata")
   rhdf5::h5write(obj = spectrum_metadata, file = hdf5_file, name = "spectrummetadata")
 
-  printf("Sample '%s' saved as HDF5 file! \n", sample_name)
+  message(glue::glue("Sample '{sample_name}' saved as HDF5 file!"))
+}
 }
 }

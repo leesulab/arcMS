@@ -17,11 +17,11 @@ convert_all_samples_data <- function(connection_params, analysis_id, format = 'p
 
   samples_list = get_samples_list(connection_params, analysis_id)
   for (i in 1:(nrow(samples_list))) {
-    print(glue::glue("-------- Number of samples collected {i}/{nrow(samplelist)} -------- \n"))
+    message(glue::glue("-------- Number of samples collected {i}/{nrow(samplelist)} -------- \n"))
     sample_id = samples_list$id[i]
 
     convert_one_sample_data(connection_params, sample_id, format = format)
   }
-  printf("All done!\n")
+  message("All done!")
 
 }
