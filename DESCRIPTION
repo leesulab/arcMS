@@ -37,6 +37,19 @@ Imports:
     magrittr
 Depends:
     shiny
+    shinydashboard
+    shinythemes
+    shinyjqui
+    shinycssloaders
+    shinyWidgets
+    spsComps
+    jsTreeR
+    progressr
+    DT
+    tidyr
+    sortable
+    dplyr
+    dtplyr
 Collate:
     'add_drift_time.R'
     'analysis_search.R'

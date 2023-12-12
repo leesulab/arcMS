@@ -5,5 +5,5 @@ run_app <- function() {
     stop("Could not find example directory. Try re-installing parquetMS.", call. = FALSE)
   }
 
-  shiny::runApp(appDir, display.mode = "normal")
+  shiny::runApp(appDir)
 }

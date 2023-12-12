@@ -1,136 +1,133 @@
 # Define server logic
+
 server <- function(input, output, session) {
   options(shiny.maxRequestSize=2000*1024^2)
 
-###############################
-token = "ce42ee6bc3ba4e9c4c5a63f70f400447"
+  # UNIFI API panel
+  # ================
 
-rv = reactiveValues()
+  rv = reactiveValues()
 
-observeEvent(input$connexion, {
-  con = patRunifi::create_connection_params(apihosturl = "http://localhost:50034/unifi/v1", identityurl = "http://localhost:50333/identity/connect/token" )
-  if (!is.null(con)) {
-    output$connexion_status <- renderText("Connexion réussie")
-  } else {
-    output$connexion_status <- renderText("Échec de la connexion")
+  observeEvent(input$connecttounifi, {
+      spsComps::shinyCatch({
+        rv$con = patRunifi::create_connection_params(apihosturl = input$serverurl, identityurl = input$authorizationurl, username = input$unifiuser, password = input$unifipwd)
+    }, prefix = "", blocking_level = "error")
+  })
+
+  observeEvent(rv$con, {
+  if(!is.null(rv$con)) {
+    output$connectionInfobox <- renderInfoBox({
+    infoBox("Connected to the UNIFI API",
+    tags$span(p("Navigate in the folders and data in the", style = "display: inline"), actionLink("switch_tab", "Navigate tab", style = "color: white; text-decoration: underline; display: inline")),
+      icon = icon("thumbs-up", lib = "glyphicon"), color = "green", fill = T
+    )
+  })
   }
-  
-})
+  })
 
-observeEvent(input$processing_2, {
-
-
-  folders = patRunifi::folders_research(con)
-
-      folders = data.frame(subset(folders, select = -c(path, folderType, parentId)))
+  observeEvent(input$switch_tab, {
+      updateTabItems(session, "inTab", selected = "navigate_folders")
+    })
 
 
-      rv$folders = folders
+# Navigation panel
+# ================
 
-      output$tablefolder = renderDT(
-        rv$folders,
-        style = "bootstrap",
-        filter = "top",
-        options = list(scrollX = TRUE),
-        selection = "single"
-                )
+  observeEvent(input$loadfolders, {
+        # js$loadFolders('foldersDiv')
 
-        observeEvent(input$tablefolder_rows_selected, {
-          row_chosen= input$tablefolder_rows_selected
-          table_row_chosen = folders[row_chosen,]
-          id_chosen = table_row_chosen$id
-          analysis_id = patRunifi::items_research(con, id_chosen)
-          rv$analysis_id = analysis_id
+            rv$folders = parquetMS::folders_search(rv$con)
+            nodes = makeNodes(rv$folders$path)
+            output$jstreefolders <- renderJstree(suppressMessages(jstree(nodes, theme = "proton")))
+      })
+      observe({
+        rv$sel = input[["jstreefolders_selected"]]
+    })
 
-          output$tableanalysisId = renderDT(
-            rv$analysis_id,
-            style = "bootstrap",
-            filter = "top",
-            options = list(scrollX = TRUE),
-            selection = "single"
-                    )
-        }) #end of observeEvent rows_selected
+  output$folders <- renderUI({
+      tags$span(HTML('<div id="foldersDiv"></div>'))
+  })
 
+  analysisList <- eventReactive(input$jstreefolders_selected, {
+    req(input$jstreefolders_selected)
+    print(input$jstreefolders_selected)
+    if(length(input$jstreefolders_selected) != 0) {
+    df = rv$folders
+    selfolder = input$jstreefolders_selected[[1]]$text
+    folderid = df[df$name %in% selfolder,]
+    folderid = folderid[,c("id")]
+    rv$analysislist = parquetMS::analysis_search(rv$con, folderid)
+    analysisList <- as.data.table(rv$analysislist)
+    return(analysisList)
+    }
+  })
 
-          observeEvent(input$tableanalysisId_rows_selected, {
-          row_chosen= input$tableanalysisId_rows_selected
-          analysis_id = rv$analysis_id
-          table_row_chosen = analysis_id[row_chosen,]
-          id_chosen = table_row_chosen$id
-          rv$analysis_id_chosen = id_chosen
-          analysis_name = table_row_chosen$name
+  analysisDt <- reactive({
+    req(analysisList())
+    analysisDt1 <- analysisList()
+    analysisDtCols <- c("id", "name", "description")
+    analysisDt <- analysisDt1[,..analysisDtCols]
+    return(analysisDt)
+  })
 
-          rv$analysis_name = analysis_name
-          sample = patRunifi::sample_research(con, id_chosen)
-          rv$sample = sample
+  output$analysis_datatable <- renderDT(
+    analysisDt(),
+    selection = "single"
+    )
 
-          }) #end of observeEvent rows_selected
+  # the selected analysis from Unifi
+  selAnalysis <- reactive({
+    req(input$analysis_datatable_rows_selected)
+    s = input$analysis_datatable_rows_selected
+    analysisList <- analysisList()
+    if(length(s)) {
+      sel <- analysisList[s,]
+    }
+    return(sel)
+  })
 
+  observeEvent(selAnalysis(), {
 
-          output$tableRow_3 = renderDT(
-            rv$sample[,1:2],
-            style = "bootstrap",
-            filter = "top",
-            options = list(scrollX = TRUE),
-            selection = "single"
-                    )
+    sel <- selAnalysis()
+      analysisId <- unlist(sel[,c("id")])
+      rv$samples_list <- parquetMS::get_samples_list(rv$con, analysisId)
 
-          observeEvent(input$tableRow_3_rows_selected, {
-          row_chosen = input$tableRow_3_rows_selected
+          }, ignoreNULL = TRUE)
 
-          table_row_chosen = rv$sample[row_chosen,]
-          id_chosen = table_row_chosen$id
-          name_chosen = table_row_chosen$name
+  output$samples_datatable <- renderDT(
+    rv$samples_list,
+    style = "bootstrap",
+    options = list(scrollX = TRUE),
+    selection = "single"
+    )
 
-          rv$sample_id = id_chosen
-          rv$name_chosen = name_chosen
+  # the selected sample from Unifi
+  selSample <- reactive({
+    # req(input$samples_datatable_rows_selected)
+    s = input$samples_datatable_rows_selected
+    samples_list <- rv$samples_list
+    if(length(s)) {
+      sel <- samples_list[s,]
+      return(sel)
+    }
+  })
 
-          sampleid = rv$sample_id
-          sample = rv$samples
+  # convert one sample
+  observeEvent(input$convert_one, {
+    # validate(need(length(input$samples_datatable_rows_selected) > 0, message = "No sample selected - please first select a sample in the table above"))
+    sel <- selSample()
+    sampleId <- unlist(sel[,c("id")])
+    if(input$fileFormat == 1) format = "parquet" else format = "hdf5"
 
-          output$sampleid_text <- renderText({
-            sample_id <- rv$sample_id
-            sample_name <- rv$sample_name
-
-            if (!is.null(sample_id)) {
-              text <- paste("Selected Analysis:", rv$analysis_name, "\nSelected Sample Name:", name_chosen)
-              HTML(text)
-            } else {
-              "No sample selected"
-            }
-          })
-
-          observeEvent(input$collect_one, {
-            progressMessage <- paste("Collecting data for sample:", samplename, "This may take a while...")
-            
-            withProgress(message = progressMessage, value = 0, {
-              incProgress(1, detail = "Please wait", session = session)
-              patRunifi::collect_one_sample_data(connection_params = con, sampleid = sampleid, samplename = samplename, analysis_name = analysis_name)
-                            setProgress(1)
-            })
-          })
-          
-          
-          
-          observeEvent(input$collect_all, {
-            progressMessage <- paste("Collecting all sample of :", analysis_name, "This may take a while...")
-            
-            withProgress(message = progressMessage, value = 0, {
-              incProgress(1, detail = "Please wait", session = session)
-              patRunifi::collect_all_samples_data(connection_params = con,analysis_id = rv$analysis_id_chosen )
-              setProgress(1)
-            })
-          })
-          
-          
-
-
-        })
-
-
-
-
-
-})# End of the observeEvent
+    spsComps::shinyCatch({
+      sampleId = "0134efbf-c75a-411b-842a-4f35e2b76347"
+          # withProgressShiny(message = "Conversion in progress", {
+      parquetMS::convert_one_sample_data(rv$con, sampleId, format = format, num_spectras = 5)
+    # })
+    },
+      prefix = "", blocking_level = "error"
+    )
+  output$conversion_end_message = renderText(glue::glue("Sample converted and saved!"))
+  })
 
 } #end of server function
