@@ -3,7 +3,7 @@
 # the 'Run App' button in Rstudio.
 #
 
-# Define UI for application that draws a histogram
+# Define UI for application
 ui <- dashboardPage(skin = "blue",
                     dashboardHeader(title = "Parquet MS data converter", titleWidth = 280),
                     dashboardSidebar(
@@ -84,6 +84,19 @@ ui <- dashboardPage(skin = "blue",
                                                     selected = 1)
                                                 )
                                                 ),
+                                        fluidRow(
+                                            column(width = 2,
+                                                shinyDirButton("selected_dir", "Select where to save files", "Select the directory where converted files will be saved")
+                                            ),
+                                            column(width = 3,
+                                                p("Selected download path:"),
+                                                align = "center"
+                                            ),
+                                            column(width = 3,
+                                                verbatimTextOutput("selected_dir", placeholder = TRUE),
+                                                align = "center"
+                                            )
+                                        ),
                                         actionButton(inputId = "convert_one", label = "Convert one sample selected in the Samples table"),
                                         actionButton(inputId = "convert_all", label = "Convert all samples from the selected Analysis"),
                                         textOutput("conversion_end_message")

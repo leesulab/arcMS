@@ -112,21 +112,35 @@ server <- function(input, output, session) {
     }
   })
 
+  ## This will not work to choose a folder to save files on client side
+  ## if app is running on a  server
+  shinyDirChoose(
+    input,
+    'selected_dir',
+    roots = c(home = '~')
+  )
+
+  selected_dir <- reactive(input$selected_dir)
+
+  output$selected_dir <- renderText({
+    parseDirPath(c(home = '~'), selected_dir())
+  })
   # convert one sample
   observeEvent(input$convert_one, {
     # validate(need(length(input$samples_datatable_rows_selected) > 0, message = "No sample selected - please first select a sample in the table above"))
     sel <- selSample()
     sampleId <- unlist(sel[,c("id")])
     if(input$fileFormat == 1) format = "parquet" else format = "hdf5"
-
+    withProgressShiny(message = "Conversion in progress", {
     spsComps::shinyCatch({
       sampleId = "0134efbf-c75a-411b-842a-4f35e2b76347"
-          # withProgressShiny(message = "Conversion in progress", {
-      parquetMS::convert_one_sample_data(rv$con, sampleId, format = format, num_spectras = 5)
-    # })
+          collected_data = parquetMS::collect_one_sample_data(rv$con, sampleId, num_spectras = 5)
+          parquetMS::save_one_sample_data(collected_data, path = parseDirPath(c(home = '~'), selected_dir()), format = format)
     },
-      prefix = "", blocking_level = "error"
+      prefix = "", blocking_level = "none"
     )
+  })
+
   output$conversion_end_message = renderText(glue::glue("Sample converted and saved!"))
   })
 

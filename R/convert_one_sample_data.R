@@ -178,10 +178,10 @@ return(collecteddata)
 #' @param format The format chosen for the exported file (parquet or hdf5)
 #'
 #' @return Datatables of the sample's spectral data and metadata are saved in Parquet or HDF5 format in the analysis name folder.
-#' @seealso \code{\link{collect_one_sample_data}} for only collecting data by dowloading from the API into the R environment, and \code{\link{convert_one_sample_data}} to both collect data and saving to files.
+#' @seealso \code{\link{collect_one_sample_data}} for only collecting data by downloading from the API into the R environment, and \code{\link{convert_one_sample_data}} to both collect data and saving to files.
 #' @export
 
-save_one_sample_data <- function(sample_dataset, sample_name = NULL, analysis_name = NULL, format = 'parquet'){
+save_one_sample_data <- function(sample_dataset, sample_name = NULL, analysis_name = NULL, path = NULL, format = 'parquet'){
 
     if (!format %in% c('parquet', 'hdf5')) {
     stop("The format argument must be either 'parquet' or 'hdf5'")
@@ -197,7 +197,11 @@ save_one_sample_data <- function(sample_dataset, sample_name = NULL, analysis_na
     analysis_name = get_analysis_name(sample_dataset)
   }
 message(glue::glue("Saving sample '{sample_name}' to folder '{analysis_name}'..."))
-path = analysis_name
+if(!is.null(path)) {
+  path = paste0(path, "/", analysis_name)
+} else {
+  path = analysis_name
+}
 if (!file.exists(path))
   dir.create(path, showWarnings = TRUE, recursive = FALSE, mode = "0777")
 
