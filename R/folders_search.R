@@ -8,7 +8,8 @@
 
 folders_search <- function(connection_params) {
   hostUrl <- connection_apihosturl(connection_params)
-  token <- connection_token(connection_params)
+  token <- get_unifi_api_token()
+  # token <- connection_token(connection_params)
 
   foldersEndpoint <- glue::glue("{hostUrl}/folders")
 

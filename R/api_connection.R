@@ -44,11 +44,11 @@ setMethod("initialize", signature = "connection_params",
 #' @param username The \code{username} to connect to the Unifi API identity server.
 #' @param password The \code{password} to connect to the Unifi API identity server.
 #' @param apihosturl The \code{url} to connect to the Unifi API server (host).
-#'
+#'#' @param install if TRUE, will install the token in your \code{.Renviron} file for use in future sessions.  Defaults to TRUE.
 #' @return A list containing all parameters needed for the connection, in a \code{\link{connection_params}} object.
 #' @export
 
-create_connection_params <- function(identityurl = "http://localhost:50333/identity/connect/token", username = "administrator", password = "administrator", apihosturl = "http://localhost:50034/unifi/v1")
+create_connection_params <- function(identityurl = "http://localhost:50333/identity/connect/token", username = "administrator", password = "administrator", apihosturl = "http://localhost:50034/unifi/v1", install = TRUE)
 {
     r <- POST(identityurl,
           config = list(),
@@ -64,6 +64,8 @@ create_connection_params <- function(identityurl = "http://localhost:50333/ident
       )
     c = content(r)
     bearer_token = c$access_token
+
+    store_unifi_api_token(bearer_token, install = install)
 
     ret <- connection_params(identityurl = identityurl,
                             username = username,
@@ -99,4 +101,91 @@ httpClientOctet = function(url, token) {
             add_headers("Content-Type"="application/x-www-form-urlencoded",
                         Accept="application/octet-stream",
               "Authorization"=paste("Bearer", token)))
+}
+
+
+#' Save the API token in the \code{.Renviron} file for repeated use
+#' @description This function will add the UNIFI API token to your \code{.Renviron} file so it can be called securely without being stored
+#' in your code. After you have installed your key, it can be called any time by typing \code{Sys.getenv("UNIFI_API_TOKEN")} and can be
+#' used in package functions by simply typing UNIFI_API_TOKEN
+#' If you do not have an \code{.Renviron} file, the function will create on for you.
+#' If you already have an \code{.Renviron} file, the function will append the key to your existing file, while making a backup of your
+#' original file for disaster recovery purposes.
+#' Function obtained and adapted from the tidycensus package
+#' @param token The API token retrieved from UNIFI formated in quotes.
+#' @param install if TRUE, will install the token in your \code{.Renviron} file for use in future sessions.  Defaults to FALSE.
+#' @param overwrite If this is set to TRUE, it will overwrite an existing UNIFI_API_TOKEN that you already have in your \code{.Renviron} file.
+#' @importFrom utils write.table read.table
+#' @examples
+#'
+#' \dontrun{
+#' unifi_api_token("111111abc", install = TRUE)
+#' # First time, reload your environment so you can use the key without restarting R.
+#' readRenviron("~/.Renviron")
+#' # You can check it with:
+#' Sys.getenv("UNIFI_API_TOKEN")
+#' }
+#'
+#' \dontrun{
+#' # If you need to overwrite an existing key:
+#' unifi_api_token("111111abc", overwrite = TRUE, install = TRUE)
+#' # First time, relead your environment so you can use the key without restarting R.
+#' readRenviron("~/.Renviron")
+#' # You can check it with:
+#' Sys.getenv("UNIFI_API_TOKEN")
+#' }
+#' @export
+
+store_unifi_api_token <- function(token, overwrite = FALSE, install = FALSE){
+
+  if (install) {
+    home <- Sys.getenv("HOME")
+    renv <- file.path(home, ".Renviron")
+    if(file.exists(renv)){
+      # Backup original .Renviron before doing anything else here.
+      file.copy(renv, file.path(home, ".Renviron_backup"))
+    }
+    if(!file.exists(renv)){
+      file.create(renv)
+    }
+    else{
+      if(isTRUE(overwrite)){
+        message("Your original .Renviron will be backed up and stored in your R HOME directory if needed.")
+        oldenv=read.table(renv, stringsAsFactors = FALSE)
+        newenv <- oldenv[-grep("UNIFI_API_TOKEN", oldenv),]
+        write.table(newenv, renv, quote = FALSE, sep = "\n",
+                    col.names = FALSE, row.names = FALSE)
+      }
+      else{
+        tv <- readLines(renv)
+        if(any(grepl("UNIFI_API_TOKEN",tv))){
+          stop("A UNIFI_API_TOKEN already exists. You can overwrite it with the argument overwrite=TRUE", call.=FALSE)
+        }
+      }
+    }
+
+    tokenconcat <- paste0("UNIFI_API_TOKEN='", token, "'")
+    # Append API key to .Renviron file
+    write(tokenconcat, renv, sep = "\n", append = TRUE)
+    message('Your API token has been stored in your .Renviron and can be accessed by Sys.getenv("UNIFI_API_TOKEN"). \nTo use now, restart R or run `readRenviron("~/.Renviron")`')
+    return(token)
+  } else {
+    message("To install your API token for use in future sessions, run this function with `install = TRUE`.")
+    Sys.setenv(UNIFI_API_TOKEN = token)
+  }
+
+}
+
+#' Retrieve the API token in the environment variable
+#' @description This function will retrieve the UNIFI API token from the OS environment
+
+get_unifi_api_token <- function(){
+
+  if (Sys.getenv("UNIFI_API_TOKEN") == "") {
+    stop("No UNIFI API token found. \nTo obtain one, use the `create_connection_params` function.")
+    return(NULL)
+  } else {
+return(Sys.getenv('UNIFI_API_TOKEN'))
+  }
+
 }
