@@ -56,7 +56,7 @@ setMethod("get_sample_data", "sample_dataset", function(obj) obj@sample_data)
 #' @seealso \code{\link{collect_one_sample_data}} for only collecting data by dowloading from the API into the R environment, and \code{\link{save_one_sample_data}} to save collected data from the R environment to Parquet or HDF5 files.
 #' @export
 
-convert_one_sample_data <- function(connection_params, sample_id, format = 'parquet', num_spectras = NULL){
+convert_one_sample_data <- function(connection_params, sample_id, format = 'parquet', path = NULL, num_spectras = NULL){
   if (!format %in% c('parquet', 'hdf5')) {
   stop("The format argument must be either 'parquet' or 'hdf5'")
   } else {
@@ -66,7 +66,7 @@ convert_one_sample_data <- function(connection_params, sample_id, format = 'parq
   analysis_name = get_analysis_name(sample_infos)
 
   collected_data = collect_one_sample_data(connection_params, sample_id, num_spectras)
-  save_one_sample_data(collected_data, sample_name, analysis_name, format = format)
+  save_one_sample_data(collected_data, sample_name, analysis_name, path = path, format = format)
   }
 }
 

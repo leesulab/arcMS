@@ -17,6 +17,7 @@ ui <- dashboardPage(skin = "blue",
 
                     ## Body content
                     dashboardBody(
+                        useShinyjs(),
                       tabItems(
                           # tab-content: Connect to UNIFI API to retrieve MS spectrum of markers
                           tabItem(tabName = "unificonnect",

@@ -9,18 +9,20 @@
 #' @return A dataframe for each sample is saved in parquet or HDF5 format in a folder named after the Analysis.
 #' @export
 
-convert_all_samples_data <- function(connection_params, analysis_id, format = 'parquet') {
+convert_all_samples_data <- function(connection_params, analysis_id, format = 'parquet', path = NULL, num_spectra = NULL) {
 
-      if (!format %in% c('parquet', 'HDF5')) {
-    stop("The format must be parquet or HDF5")
+      if (!format %in% c('parquet', 'hdf5')) {
+    stop("The format must be parquet or hdf5")
   }
-
   samples_list = get_samples_list(connection_params, analysis_id)
-  for (i in 1:(nrow(samples_list))) {
-    message(glue::glue("-------- Number of samples collected {i}/{nrow(samplelist)} -------- \n"))
+
+  X = 1:nrow(samples_list)
+  p <- progressor(along = X)
+  for (i in X) {
+    p(message(glue::glue("-------- Starting conversion of sample {i}/{nrow(samples_list)} -------- \n")))
     sample_id = samples_list$id[i]
 
-    convert_one_sample_data(connection_params, sample_id, format = format)
+    convert_one_sample_data(connection_params, sample_id, format = format, path = path, num_spectra = num_spectra)
   }
   message("All done!")
 

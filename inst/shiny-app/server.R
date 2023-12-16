@@ -133,7 +133,7 @@ server <- function(input, output, session) {
     if(input$fileFormat == 1) format = "parquet" else format = "hdf5"
     withProgressShiny(message = "Conversion in progress", {
     spsComps::shinyCatch({
-      sampleId = "0134efbf-c75a-411b-842a-4f35e2b76347"
+      # sampleId = "0134efbf-c75a-411b-842a-4f35e2b76347"
           collected_data = parquetMS::collect_one_sample_data(rv$con, sampleId, num_spectras = 5)
           parquetMS::save_one_sample_data(collected_data, path = parseDirPath(c(home = '~'), selected_dir()), format = format)
     },
@@ -141,6 +141,28 @@ server <- function(input, output, session) {
     )
   })
 
+  # output$conversion_end_message = renderText(glue::glue("Sample converted and saved!"))
+  })
+
+  # convert all samples from a selected Analysis
+  observeEvent(input$convert_all, {
+    # validate(need(length(input$samples_datatable_rows_selected) > 0, message = "No sample selected - please first select a sample in the table above"))
+    disable("convert_all")
+    disable("convert_one")
+
+        sel <- selAnalysis()
+        analysisId <- unlist(sel[,c("id")])
+        # analysisId = "e236bf99-31cd-44ae-a4e7-74915697df65"
+        if(input$fileFormat == 1) format = "parquet" else format = "hdf5"
+        withProgressShiny(message = "Conversion in progress", {
+          spsComps::shinyCatch({
+              parquetMS::convert_all_samples_data(rv$con, analysisId, format = format, path = parseDirPath(c(home = '~'), selected_dir()), num_spectra = 2)
+          },
+            prefix = "", blocking_level = "error"
+          )
+  })
+  enable("convert_all")
+  enable("convert_one")
   output$conversion_end_message = renderText(glue::glue("Sample converted and saved!"))
   })
 
