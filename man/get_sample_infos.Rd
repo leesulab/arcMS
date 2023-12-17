@@ -4,19 +4,21 @@
 \alias{get_sample_infos}
 \title{Retrieve Sample Information from Unifi API with a sample id}
 \usage{
-get_sample_infos(connection_params, sample_id)
+get_sample_infos(sample_id, connection_params = NULL)
 }
 \arguments{
-\item{connection_params}{Connection parameters to the Unifi API, including the API host URL and access token.}
-
 \item{sample_id}{The identifier of the sample result for which spectrum information is to be retrieved.}
+
+\item{connection_params}{OPTIONAL: Connection parameters object created by the
+\code{\link{create_connection_params}} function. If not provided, the
+\code{\link{get_connection_params}} will look for such object in the global environment}
 }
 \value{
 A \code{\link{sample_infos}} object, consisting of a list containing two elements: a dataframe with detailed sample information from the Unifi API, and a formatted JSON string of the sample information.
 
 Example usage:
-con_params <- create_connection_params(api_host_url, api_token)
-results <- get_sample_infos(con_params, sample_result_id)
+con_params <- create_connection_params()
+results <- get_sample_infos(sample_result_id, con_params)
 }
 \description{
 This function retrieves sample metadata and spectrum information from the Unifi API for a specified sample result using the provided connection parameters.

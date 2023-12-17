@@ -44,7 +44,7 @@ setMethod("initialize", signature = "connection_params",
 #' @param username The \code{username} to connect to the Unifi API identity server.
 #' @param password The \code{password} to connect to the Unifi API identity server.
 #' @param apihosturl The \code{url} to connect to the Unifi API server (host).
-#'#' @param install if TRUE, will install the token in your \code{.Renviron} file for use in future sessions.  Defaults to TRUE.
+#' @param install if TRUE, will install the token in your \code{.Renviron} file for use in future sessions.  Defaults to TRUE.
 #' @return A list containing all parameters needed for the connection, in a \code{\link{connection_params}} object.
 #' @export
 
@@ -65,7 +65,7 @@ create_connection_params <- function(identityurl = "http://localhost:50333/ident
     c = content(r)
     bearer_token = c$access_token
 
-    store_unifi_api_token(bearer_token, install = install)
+    store_unifi_api_token(bearer_token, install = install, overwrite = TRUE)
 
     ret <- connection_params(identityurl = identityurl,
                             username = username,
@@ -186,6 +186,27 @@ get_unifi_api_token <- function(){
     return(NULL)
   } else {
 return(Sys.getenv('UNIFI_API_TOKEN'))
+  }
+
+}
+
+#' Retrieve the connection parameters object
+#' @description This function will retrieve the connection parameters object from
+#' the global environment, created by the \code{\link{create_connection_params}} function
+#' @param envir The environment to look for object containing connection parameters
+#' @export
+get_connection_params <- function(envir = parent.frame()){
+  con_object_name = Filter(function(x) inherits(get(x), "connection_params"), ls(envir))
+  if (identical(con_object_name, character(0))) {
+    stop("No connection parameters found in the environment. \nTo create them, use the `create_connection_params` function.")
+    return(NULL)
+  } else {
+    if(length(con_object_name) > 1) {
+      stop("Several connection objects found. \nKeep only one of them, or select one of them as the `connection_params` argument of the selected function.")
+    } else {
+      con_object = get(con_object_name)
+      return(con_object)
+    }
   }
 
 }

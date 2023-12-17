@@ -4,7 +4,7 @@
 \alias{folders_search}
 \title{Retrieve Folders from Unifi API}
 \usage{
-folders_search(connection_params)
+folders_search(connection_params = NULL)
 }
 \arguments{
 \item{connection_params}{Connection parameters to the Unifi API, including the API host URL and access token.}
