@@ -1,3 +1,5 @@
+# parquetMS 1.0.0
+
 # parquetMS 0.3.0
 
 ## Changes
