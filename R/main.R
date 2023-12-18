@@ -15,7 +15,7 @@
 #' @importFrom glue glue
 #' @importFrom future plan multisession
 #' @importFrom future.apply future_lapply
-#' @importFrom progressr progressor with_progress
+#' @importFrom progressr progressor with_progress withProgressShiny
 #' @importFrom arrow write_parquet
 #' @importFrom rhdf5 h5write h5createFile
 NULL # need this for doc generation

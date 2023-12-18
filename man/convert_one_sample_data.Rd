@@ -5,20 +5,25 @@
 \title{Convert one sample}
 \usage{
 convert_one_sample_data(
-  connection_params,
   sample_id,
+  connection_params = NULL,
   format = "parquet",
+  path = NULL,
   num_spectras = NULL
 )
 }
 \arguments{
-\item{connection_params}{Connection parameters to the Unifi API - url and token}
-
 \item{sample_id}{The id of the sample to be collected}
 
-\item{format}{The format chosen for the exported file (parquet or hdf5)}
+\item{connection_params}{OPTIONAL: Connection parameters object created by the
+\code{\link{create_connection_params}} function. If not provided, the
+\code{\link{get_connection_params}} will look for such object in the global environment}
 
-\item{num_spectras}{Number of spectras to be downloaded (OPTIONAL, only if whole sample data not needed)}
+\item{format}{The format chosen for the exported file (Parquet or HDF5)}
+
+\item{path}{OPTIONAL The destination path for the exported file}
+
+\item{num_spectras}{OPTIONAL Number of spectras to be downloaded (OPTIONAL, only if whole sample data not needed, e.g. for testing purposes)}
 }
 \value{
 Datatables of the sample's spectral data and metadata are saved in Parquet or HDF5 format in the analysis name folder.

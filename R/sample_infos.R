@@ -77,18 +77,22 @@ setMethod("get_spectrum_metadata_json", "sample_infos", function(obj) jsonlite::
 #' It extracts detailed spectrum information associated with the given sample result identifier.
 #' The function returns two dataframes containing the sample information and spectrum informationn, and two formatted JSON strings of the same data.
 #'
-#' @param connection_params Connection parameters to the Unifi API, including the API host URL and access token.
 #' @param sample_id The identifier of the sample result for which spectrum information is to be retrieved.
+#' @param connection_params OPTIONAL: Connection parameters object created by the
+#' \code{\link{create_connection_params}} function. If not provided, the
+#' \code{\link{get_connection_params}} will look for such object in the global environment
+#'
 #' @return A \code{\link{sample_infos}} object, consisting of a list containing two elements: a dataframe with detailed sample information from the Unifi API, and a formatted JSON string of the sample information.
 #'
 #' Example usage:
-#' con_params <- create_connection_params(api_host_url, api_token)
-#' results <- get_sample_infos(con_params, sample_result_id)
+#' con_params <- create_connection_params()
+#' results <- get_sample_infos(sample_result_id, con_params)
 #'
 #' @export
 
-get_sample_infos <- function(connection_params, sample_id) {
-
+get_sample_infos <- function(sample_id, connection_params = NULL) {
+if(is.null(connection_params))
+  connection_params = get_connection_params(parent.frame())
 hostUrl = connection_apihosturl(connection_params)
 token = connection_token(connection_params)
 
@@ -97,7 +101,7 @@ parentAnalysisEndpoint = glue::glue("{hostUrl}/sampleresults({sample_id})/analys
 parentAnalysis = httr::content(httpClientPlain(parentAnalysisEndpoint, token), "text", encoding = "utf-8")
 parentAnalysisInfo = jsonlite::fromJSON(parentAnalysis)
 parentAnalysisId = parentAnalysisInfo$value$id
-samplelist = get_samples_list(connection_params, parentAnalysisId)
+samplelist = get_samples_list(parentAnalysisId, connection_params)
 # defining data.table variable locally to avoid R cmd check NOTES due to NSE
 id = NULL
 sample_metadata = samplelist[id %in% sample_id, ]

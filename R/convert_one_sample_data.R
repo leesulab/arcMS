@@ -47,26 +47,30 @@ setMethod("get_sample_data", "sample_dataset", function(obj) obj@sample_data)
 #' The S3 object containing the spectral data is adapted into a dataframe by the \code{\link{outputlist_to_df}} function.
 #' Finally, the data is saved on disk to the Parquet or HDF5 format with the \code{\link{save_one_sample_data}} function.
 #'
-#' @param connection_params Connection parameters to the Unifi API - url and token
 #' @param sample_id The id of the sample to be collected
-#' @param num_spectras Number of spectras to be downloaded (OPTIONAL, only if whole sample data not needed)
-#' @param format The format chosen for the exported file (parquet or hdf5)
+#' @param connection_params OPTIONAL: Connection parameters object created by the
+#' \code{\link{create_connection_params}} function. If not provided, the
+#' \code{\link{get_connection_params}} will look for such object in the global environment
+#' @param format The format chosen for the exported file (Parquet or HDF5)
+#' @param path OPTIONAL The destination path for the exported file
+#' @param num_spectras OPTIONAL Number of spectras to be downloaded (OPTIONAL, only if whole sample data not needed, e.g. for testing purposes)
 #'
 #' @return Datatables of the sample's spectral data and metadata are saved in Parquet or HDF5 format in the analysis name folder.
 #' @seealso \code{\link{collect_one_sample_data}} for only collecting data by dowloading from the API into the R environment, and \code{\link{save_one_sample_data}} to save collected data from the R environment to Parquet or HDF5 files.
 #' @export
 
-convert_one_sample_data <- function(connection_params, sample_id, format = 'parquet', path = NULL, num_spectras = NULL){
+convert_one_sample_data <- function(sample_id, connection_params = NULL, format = 'parquet', path = NULL, num_spectras = NULL){
   if (!format %in% c('parquet', 'hdf5')) {
   stop("The format argument must be either 'parquet' or 'hdf5'")
   } else {
+    if(is.null(connection_params))
+      connection_params = get_connection_params(parent.frame())
+    sample_infos = get_sample_infos(sample_id, connection_params)
+    sample_name = get_sample_name(sample_infos)
+    analysis_name = get_analysis_name(sample_infos)
 
-  sample_infos = get_sample_infos(connection_params, sample_id)
-  sample_name = get_sample_name(sample_infos)
-  analysis_name = get_analysis_name(sample_infos)
-
-  collected_data = collect_one_sample_data(connection_params, sample_id, num_spectras)
-  save_one_sample_data(collected_data, sample_name, analysis_name, path = path, format = format)
+    collected_data = collect_one_sample_data(sample_id, connection_params, num_spectras)
+    save_one_sample_data(collected_data, sample_name, analysis_name, path = path, format = format)
   }
 }
 
@@ -77,18 +81,22 @@ convert_one_sample_data <- function(connection_params, sample_id, format = 'parq
 #' Then, the data is deserialized by the function deserialize_data().
 #' The S3 object containing the spectral data is adapted into a dataframe by the function outputlist_to_df().
 #'
-#' @param connection_params Connection parameters to the Unifi API - url and token
 #' @param sample_id The id of the sample to be collected
-#' @param num_spectras Number of spectras to be downloaded (OPTIONAL, only if whole sample data not needed)
+#' @param connection_params OPTIONAL: Connection parameters object created by the
+#' \code{\link{create_connection_params}} function. If not provided, the
+#' \code{\link{get_connection_params}} will look for such object in the global environment
+#' @param num_spectras OPTIONAL Number of spectras to be downloaded (OPTIONAL, only if whole sample data not needed, e.g. for testing purposes)
 #'
 #' @return A \code{\link{sample_dataset}} object, containing the sample data,
 #' sample metadata and spectrum metadata datatables.
 #' @seealso \code{\link{save_one_sample_data}} to save collected data from the R environment to Parquet or HDF5 files, and \code{\link{convert_one_sample_data}} to both collect data and saving to files.
 #' @export
 
-collect_one_sample_data <- function(connection_params, sample_id, num_spectras = NULL){
+collect_one_sample_data <- function(sample_id, connection_params = NULL, num_spectras = NULL){
 
-  sample_infos = get_sample_infos(connection_params, sample_id)
+  if(is.null(connection_params))
+    connection_params = get_connection_params(parent.frame())
+  sample_infos = get_sample_infos(sample_id, connection_params)
   sample_name = get_sample_name(sample_infos)
   analysis_name = get_analysis_name(sample_infos)
   sample_metadata = get_sample_metadata(sample_infos)
@@ -173,8 +181,9 @@ return(collecteddata)
 #' or one HDF5 file.
 #'
 #' @param sample_dataset Collected data from a sample, stored in a \code{\link{sample_dataset}} object
-#' @param sample_name The sample name (to be used for naming the saved file)
-#' @param analysis_name The name of the Analysis (to be used for naming the folder)
+#' @param sample_name OPTIONAL The sample name (to be used for naming the saved file)
+#' @param analysis_name OPTIONAL The name of the Analysis (to be used for naming the folder)
+#' @param path OPTIONAL The destination path for the exported file
 #' @param format The format chosen for the exported file (parquet or hdf5)
 #'
 #' @return Datatables of the sample's spectral data and metadata are saved in Parquet or HDF5 format in the analysis name folder.
