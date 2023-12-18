@@ -4,12 +4,14 @@
 \alias{get_samples_list}
 \title{Retrieve the list of Samples Results from an Analysis in Unifi API}
 \usage{
-get_samples_list(connection_params, analysis_id)
+get_samples_list(analysis_id, connection_params = NULL)
 }
 \arguments{
-\item{connection_params}{- Connection parameters to the Unifi API - url and token}
+\item{analysis_id}{The identifier of the Analysis}
 
-\item{analysis_id}{- The identifier of the Analysis}
+\item{connection_params}{OPTIONAL: Connection parameters object created by the
+\code{\link{create_connection_params}} function. If not provided, the
+\code{\link{get_connection_params}} will look for such object in the global environment}
 }
 \value{
 A dataframe wih sample names and their IDs, along with the analysis name and sample metadata.

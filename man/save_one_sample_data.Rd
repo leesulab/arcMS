@@ -8,15 +8,18 @@ save_one_sample_data(
   sample_dataset,
   sample_name = NULL,
   analysis_name = NULL,
+  path = NULL,
   format = "parquet"
 )
 }
 \arguments{
 \item{sample_dataset}{Collected data from a sample, stored in a \code{\link{sample_dataset}} object}
 
-\item{sample_name}{The sample name (to be used for naming the saved file)}
+\item{sample_name}{OPTIONAL The sample name (to be used for naming the saved file)}
 
-\item{analysis_name}{The name of the Analysis (to be used for naming the folder)}
+\item{analysis_name}{OPTIONAL The name of the Analysis (to be used for naming the folder)}
+
+\item{path}{OPTIONAL The destination path for the exported file}
 
 \item{format}{The format chosen for the exported file (parquet or hdf5)}
 }
@@ -29,5 +32,5 @@ Datatables of spectra and metadata are saved in either two Parquet files
 or one HDF5 file.
 }
 \seealso{
-\code{\link{collect_one_sample_data}} for only collecting data by dowloading from the API into the R environment, and \code{\link{convert_one_sample_data}} to both collect data and saving to files.
+\code{\link{collect_one_sample_data}} for only collecting data by downloading from the API into the R environment, and \code{\link{convert_one_sample_data}} to both collect data and saving to files.
 }

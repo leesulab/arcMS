@@ -14,8 +14,11 @@
 #'
 #' @export
 
-analysis_search <- function(connection_params, folder_id) {
+analysis_search <- function(folder_id, connection_params = NULL) {
+  if(is.null(connection_params))
+    connection_params = get_connection_params(parent.frame())
   url <- connection_apihosturl(connection_params)
+  # token <- get_unifi_api_token()
   token <- connection_token(connection_params)
 
   itemsEndpoint <- glue::glue("{url}/folders({folder_id})/items")

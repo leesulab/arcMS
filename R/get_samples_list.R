@@ -3,15 +3,18 @@
 #' The function connects to a Unifi Analysis and gets the list of all samples.
 #' It returns a dataframe with sample names and IDs, along with the analysis name.
 #'
-#' @param connection_params - Connection parameters to the Unifi API - url and token
-#' @param analysis_id - The identifier of the Analysis
+#' @param analysis_id The identifier of the Analysis
+#' @param connection_params OPTIONAL: Connection parameters object created by the
+#' \code{\link{create_connection_params}} function. If not provided, the
+#' \code{\link{get_connection_params}} will look for such object in the global environment
 #'
 #' @return A dataframe wih sample names and their IDs, along with the analysis name and sample metadata.
 #'
 #' @export
 
-get_samples_list <- function(connection_params, analysis_id) {
-
+get_samples_list <- function(analysis_id, connection_params = NULL) {
+  if(is.null(connection_params))
+    connection_params = get_connection_params(parent.frame())
   hostUrl = connection_apihosturl(connection_params)
   token = connection_token(connection_params)
 

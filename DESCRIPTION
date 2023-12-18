@@ -1,7 +1,7 @@
 Package: parquetMS
 Type: Package
 Title: Unifi MS converter to Parquet and HDF5 formats
-Version: 0.1.0
+Version: 0.2.0
 Authors@R: c(
     person("Julien", "Le Roux", email = "julien.le-roux@u-pec.fr", role = c("aut", "cre")),
     person("Julien", "Sade", email = "julien.sade@u-pec.fr", role = "aut")
@@ -13,7 +13,14 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.3
 Suggests:
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    spsComps,
+    jsTreeR,
+    shinyFiles,
+    shinyjs,
+    DT,
+    shiny,
+    shinydashboard
 Config/testthat/edition: 3
 Imports:
     methods,
@@ -50,3 +57,4 @@ Collate:
     'folders_search.R'
     'get_samples_list.R'
     'outputlist_to_df.R'
+    'run_app.R'

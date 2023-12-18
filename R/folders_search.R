@@ -6,8 +6,11 @@
 #' @return A data frame containing folder information from the Unifi API.
 #' @export
 
-folders_search <- function(connection_params) {
+folders_search <- function(connection_params = NULL) {
+  if(is.null(connection_params))
+    connection_params = get_connection_params(parent.frame())
   hostUrl <- connection_apihosturl(connection_params)
+  # token <- get_unifi_api_token()
   token <- connection_token(connection_params)
 
   foldersEndpoint <- glue::glue("{hostUrl}/folders")
@@ -17,6 +20,5 @@ folders_search <- function(connection_params) {
   json_string <- httr::content(rg, "text", encoding = "UTF-8")
   folders <- jsonlite::fromJSON(json_string)
   folders <- data.frame(folders$value)
-
   return(folders)
 }
