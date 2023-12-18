@@ -14,20 +14,21 @@
 #'
 #' @export
 
-analysis_search <- function(connection_params, folder_id) {
+analysis_search <- function(folder_id, connection_params = NULL) {
+  if(is.null(connection_params))
+    connection_params = get_connection_params(parent.frame())
   url <- connection_apihosturl(connection_params)
+  # token <- get_unifi_api_token()
   token <- connection_token(connection_params)
 
-  url2 <- glue::glue("{url}/folders({folder_id})/items")
+  itemsEndpoint <- glue::glue("{url}/folders({folder_id})/items")
 
-  rg <- httr::GET(url2,
-                  add_headers("Content-Type"="application/x-www-form-urlencoded",
-                              Accept="text/plain",
-                              "Authorization"=paste("Bearer", token)))
+  rg <- httpClientPlain(itemsEndpoint, token)
 
 
   json_string <- httr::content(rg, "text", encoding = "UTF-8")
   items <- jsonlite::fromJSON(json_string)
+  if(length(items$value) != 0) {
   analyses = items$value[items$value$type == 'Analysis',]
   analyses <- data.frame(analyses)
 
@@ -36,4 +37,8 @@ analysis_search <- function(connection_params, folder_id) {
     "restoredAt", "restoredByFullName", "dataType", "remark", "summary", "lockedByFullName"))]
 
   return(analyses)
+} else {
+  stop("There is no Analysis in this folder")
+}
+
 }

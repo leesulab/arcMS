@@ -56,12 +56,12 @@ of the Unifi API.
 con = create_connection_params(apihosturl = "http://192.0.2.0:50034/unifi/v1", identityurl = "http://192.0.2.0:50333/identity/connect/token")
 ```
 
-Now we can use these connection parameters to access the Unifi folders.
-The following function will show the list of folders and their IDs
-(e.g. `abe9c297-821e-4152-854a-17c73c9ff68c` in the example below).
+Now these connection parameters will be used to access the Unifi
+folders. The following function will show the list of folders and their
+IDs (e.g. `abe9c297-821e-4152-854a-17c73c9ff68c` in the example below).
 
 ``` r
-folders = folders_search(con)
+folders = folders_search()
 folders
 ```
 
@@ -76,7 +76,7 @@ With a folder ID, we can access the list of Analysis items in the
 folder:
 
 ``` r
-ana = analysis_search(con, "abe9c297-821e-4152-854a-17c73c9ff68c")
+ana = analysis_search("abe9c297-821e-4152-854a-17c73c9ff68c")
 ana
 ```
 
@@ -84,14 +84,14 @@ Finally, with an Analysis ID, we can get the list of samples
 (injections) acquired in this Analysis:
 
 ``` r
-samples = sample_search(con, "e236bf99-31cd-44ae-a4e7-74915697df65")
+samples = get_samples_list("e236bf99-31cd-44ae-a4e7-74915697df65")
 samples
 ```
 
 Once we get a sample ID, we can use it to download the sample data:
 
 ``` r
-convert_one_sample_data(con, sample_id = "0134efbf-c75a-411b-842a-4f35e2b76347")
+convert_one_sample_data(sample_id = "0134efbf-c75a-411b-842a-4f35e2b76347")
 ```
 
 This command will get the sample name (`sample_name`) and its parent
@@ -104,16 +104,16 @@ With an Analysis ID, we can convert and save all samples from the chosen
 Analysis:
 
 ``` r
-convert_all_samples_data(con, analysis_id = "e236bf99-31cd-44ae-a4e7-74915697df65")
+convert_all_samples_data(analysis_id = "e236bf99-31cd-44ae-a4e7-74915697df65")
 ```
 
 To use the HDF5 format instead of Parquet, the format argument can be
 used as below:
 
 ``` r
-convert_one_sample_data(con, sample_id = "0134efbf-c75a-411b-842a-4f35e2b76347", format = "hdf5")
+convert_one_sample_data(sample_id = "0134efbf-c75a-411b-842a-4f35e2b76347", format = "hdf5")
 
-convert_all_samples_data(con, analysis_id = "e236bf99-31cd-44ae-a4e7-74915697df65", format = "hdf5")
+convert_all_samples_data(analysis_id = "e236bf99-31cd-44ae-a4e7-74915697df65", format = "hdf5")
 ```
 
 This will save the samples data and metadata in the same `file.h5` file.
@@ -133,4 +133,14 @@ samplems1hdf5 = rhdf5::h5read("sample.h5", name = "ms1")
 samplems2hdf5 = rhdf5::h5read("sample.h5", name = "ms2")
 samplemetadatahdf5 = rhdf5::h5read("sample.h5", name = "samplemetadata")
 spectrummetadatahdf5 = rhdf5::h5read("sample.h5", name = "spectrummetadata")
+```
+
+## Shiny App
+
+A Shiny application is available to use the package easily. To run the
+app, just use the following command (it might need to install a few
+additional packages):
+
+``` r
+run_app()
 ```

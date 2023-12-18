@@ -4,12 +4,12 @@
 \alias{analysis_search}
 \title{Retrieve Analyses from Unifi API}
 \usage{
-analysis_search(connection_params, folder_id)
+analysis_search(folder_id, connection_params = NULL)
 }
 \arguments{
-\item{connection_params}{Connection parameters to the Unifi API, including the API host URL and access token.}
-
 \item{folder_id}{The identifier of the folder for which items are to be retrieved.}
+
+\item{connection_params}{Connection parameters to the Unifi API, including the API host URL and access token.}
 }
 \value{
 A data frame containing analysis item information from the Unifi API,

@@ -4,17 +4,24 @@
 \alias{collect_one_sample_data}
 \title{Collect data from one sample}
 \usage{
-collect_one_sample_data(connection_params, sample_id, num_spectras = NULL)
+collect_one_sample_data(
+  sample_id,
+  connection_params = NULL,
+  num_spectras = NULL
+)
 }
 \arguments{
-\item{connection_params}{Connection parameters to the Unifi API - url and token}
-
 \item{sample_id}{The id of the sample to be collected}
 
-\item{num_spectras}{Number of spectras to be downloaded (OPTIONAL, only if whole sample data not needed)}
+\item{connection_params}{OPTIONAL: Connection parameters object created by the
+\code{\link{create_connection_params}} function. If not provided, the
+\code{\link{get_connection_params}} will look for such object in the global environment}
+
+\item{num_spectras}{OPTIONAL Number of spectras to be downloaded (OPTIONAL, only if whole sample data not needed, e.g. for testing purposes)}
 }
 \value{
-A list of dataframes of the sample's deserialized spectral data and metadata.
+A \code{\link{sample_dataset}} object, containing the sample data,
+sample metadata and spectrum metadata datatables.
 }
 \description{
 The function collects spectral data from a sample in a Unifi Analysis.

@@ -4,17 +4,31 @@
 \alias{convert_all_samples_data}
 \title{Convert data from all samples in an Analysis}
 \usage{
-convert_all_samples_data(connection_params, analysis_id, format = "parquet")
+convert_all_samples_data(
+  analysis_id,
+  connection_params = NULL,
+  format = "parquet",
+  path = NULL,
+  num_spectras = NULL
+)
 }
 \arguments{
-\item{connection_params}{Connection parameters to the Unifi API - url and token}
-
 \item{analysis_id}{The id of the analysis}
 
-\item{format}{The format chosen for the exported filed (parquet or HDF5)}
+\item{connection_params}{OPTIONAL: Connection parameters object created by the
+\code{\link{create_connection_params}} function. If not provided, the
+\code{\link{get_connection_params}} will look for such object in the global environment}
+
+\item{format}{The format chosen for the exported file (Parquet or HDF5)}
+
+\item{path}{OPTIONAL The destination path for exported files}
+
+\item{num_spectras}{OPTIONAL A number of spectra to be collected and converted
+(if no need to convert whole samples, e.g. for testing purposes)}
 }
 \value{
-A ataframe for each sample is saved in parquet or HDF5 format in a folder named after the Analysis.
+A dataframe for each sample is saved in Parquet or HDF5 format
+in a folder named after the Analysis.
 }
 \description{
 The function collects all samples data from an Analysis using the collect_one_sample_data() function and save them on disk.
