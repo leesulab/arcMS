@@ -10,7 +10,7 @@ server <- function(input, output, session) {
 
   observeEvent(input$connecttounifi, {
       spsComps::shinyCatch({
-        rv$con = patRunifi::create_connection_params(apihosturl = input$serverurl, identityurl = input$authorizationurl, username = input$unifiuser, password = input$unifipwd)
+        rv$con = parquetMS::create_connection_params(apihosturl = input$serverurl, identityurl = input$authorizationurl, username = input$unifiuser, password = input$unifipwd)
     }, prefix = "", blocking_level = "error")
   })
 
@@ -137,7 +137,7 @@ server <- function(input, output, session) {
           collected_data = parquetMS::collect_one_sample_data(sampleId, rv$con, num_spectras = 5)
           parquetMS::save_one_sample_data(collected_data, path = shinyFiles::parseDirPath(c(home = '~'), selected_dir()), format = format)
     },
-      prefix = "", blocking_level = "none"
+      prefix = "", blocking_level = "error"
     )
   })
 
@@ -156,7 +156,7 @@ server <- function(input, output, session) {
         if(input$fileFormat == 1) format = "parquet" else format = "hdf5"
         progressr::withProgressShiny(message = "Conversion in progress", {
           spsComps::shinyCatch({
-              parquetMS::convert_all_samples_data(analysisId, rv$con, format = format, path = shinyFiles::parseDirPath(c(home = '~'), selected_dir()), num_spectra = 2)
+              parquetMS::convert_all_samples_data(analysisId, rv$con, format = format, path = shinyFiles::parseDirPath(c(home = '~'), selected_dir()))
           },
             prefix = "", blocking_level = "error"
           )
