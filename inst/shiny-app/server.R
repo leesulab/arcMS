@@ -128,18 +128,23 @@ server <- function(input, output, session) {
   # convert one sample
   observeEvent(input$convert_one, {
     # validate(need(length(input$samples_datatable_rows_selected) > 0, message = "No sample selected - please first select a sample in the table above"))
+    shinyjs::disable("convert_all")
+    shinyjs::disable("convert_one")
     sel <- selSample()
     sampleId <- unlist(sel[,c("id")])
     if(input$fileFormat == 1) format = "parquet" else format = "hdf5"
     progressr::withProgressShiny(message = "Conversion in progress", {
     spsComps::shinyCatch({
-      # sampleId = "0134efbf-c75a-411b-842a-4f35e2b76347"
-          collected_data = parquetMS::collect_one_sample_data(sampleId, rv$con, num_spectras = 5)
+      sampleId = "0134efbf-c75a-411b-842a-4f35e2b76347"
+          collected_data = parquetMS::collect_one_sample_data(sampleId, rv$con)
           parquetMS::save_one_sample_data(collected_data, path = shinyFiles::parseDirPath(c(home = '~'), selected_dir()), format = format)
     },
       prefix = "", blocking_level = "error"
     )
   })
+  shinyjs::enable("convert_all")
+  shinyjs::enable("convert_one")
+  rv$success = append(rv$success, TRUE)
 
   # output$conversion_end_message = renderText(glue::glue("Sample converted and saved!"))
   })
@@ -163,7 +168,22 @@ server <- function(input, output, session) {
   })
   shinyjs::enable("convert_all")
   shinyjs::enable("convert_one")
+  rv$success = append(rv$success, TRUE)
   output$conversion_end_message = renderText(glue::glue("Sample converted and saved!"))
   })
+
+
+  observeEvent(rv$success, {
+     showModal(modalDialog(
+       title = "Conversion finished!",
+       "All samples have been converted and saved.",
+       easyClose = TRUE,
+       footer = tagList(
+          modalButton("ok")
+        )
+     ))
+   })
+
+
 
 } #end of server function
