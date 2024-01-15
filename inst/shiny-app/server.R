@@ -10,7 +10,7 @@ server <- function(input, output, session) {
 
   observeEvent(input$connecttounifi, {
       spsComps::shinyCatch({
-        rv$con = parquetMS::create_connection_params(apihosturl = input$serverurl, identityurl = input$authorizationurl, username = input$unifiuser, password = input$unifipwd)
+        rv$con = arcMS::create_connection_params(apihosturl = input$serverurl, identityurl = input$authorizationurl, username = input$unifiuser, password = input$unifipwd)
     }, prefix = "", blocking_level = "error")
   })
 
@@ -36,7 +36,7 @@ server <- function(input, output, session) {
   observeEvent(input$loadfolders, {
         # js$loadFolders('foldersDiv')
 
-            rv$folders = parquetMS::folders_search(rv$con)
+            rv$folders = arcMS::folders_search(rv$con)
             nodes = makeNodes(rv$folders$path)
             output$jstreefolders <- jsTreeR::renderJstree(suppressMessages(jsTreeR::jstree(nodes, theme = "proton")))
       })
@@ -56,7 +56,7 @@ server <- function(input, output, session) {
     selfolder = input$jstreefolders_selected[[1]]$text
     folderid = df[df$name %in% selfolder,]
     folderid = folderid[,c("id")]
-    rv$analysislist = parquetMS::analysis_search(folderid, rv$con)
+    rv$analysislist = arcMS::analysis_search(folderid, rv$con)
     analysisList <- data.table::as.data.table(rv$analysislist)
     return(analysisList)
     }
@@ -90,7 +90,7 @@ server <- function(input, output, session) {
 
     sel <- selAnalysis()
       analysisId <- unlist(sel[,c("id")])
-      rv$samples_list <- parquetMS::get_samples_list(analysisId, rv$con)
+      rv$samples_list <- arcMS::get_samples_list(analysisId, rv$con)
 
           }, ignoreNULL = TRUE)
 
@@ -136,8 +136,8 @@ server <- function(input, output, session) {
     progressr::withProgressShiny(message = "Conversion in progress", {
     spsComps::shinyCatch({
       sampleId = "0134efbf-c75a-411b-842a-4f35e2b76347"
-          collected_data = parquetMS::collect_one_sample_data(sampleId, rv$con)
-          parquetMS::save_one_sample_data(collected_data, path = shinyFiles::parseDirPath(c(home = '~'), selected_dir()), format = format)
+          collected_data = arcMS::collect_one_sample_data(sampleId, rv$con)
+          arcMS::save_one_sample_data(collected_data, path = shinyFiles::parseDirPath(c(home = '~'), selected_dir()), format = format)
     },
       prefix = "", blocking_level = "error"
     )
@@ -161,7 +161,7 @@ server <- function(input, output, session) {
         if(input$fileFormat == 1) format = "parquet" else format = "hdf5"
         progressr::withProgressShiny(message = "Conversion in progress", {
           spsComps::shinyCatch({
-              parquetMS::convert_all_samples_data(analysisId, rv$con, format = format, path = shinyFiles::parseDirPath(c(home = '~'), selected_dir()))
+              arcMS::convert_all_samples_data(analysisId, rv$con, format = format, path = shinyFiles::parseDirPath(c(home = '~'), selected_dir()))
           },
             prefix = "", blocking_level = "error"
           )

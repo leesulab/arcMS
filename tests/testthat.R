@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 library(testthat)
-library(parquetMS)
+library(arcMS)
 
-test_check("parquetMS")
+test_check("arcMS")

@@ -1,4 +1,4 @@
-Package: parquetMS
+Package: arcMS
 Type: Package
 Title: Unifi MS converter to Parquet and HDF5 formats
 Version: 1.0.0
