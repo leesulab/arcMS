@@ -1,13 +1,11 @@
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
-
 # arcMS
 
 <!-- badges: start -->
 <!-- badges: end -->
 
-arcMS can convert HDMSe data acquired with Unifi to tabular format
-for use in R or Python, with a small filesize when saved on disk.
+`arcMS` can convert HDMSe data acquired with Unifi to tabular format for
+use in R or Python, with a small filesize when saved on disk.
 
 Two output data file formats can be obtained:
 
@@ -18,9 +16,14 @@ Two output data file formats can be obtained:
 - the [HDF5](https://www.hdfgroup.org/solutions/hdf5/) format with all
   data and metadata in one file, fast access but larger filesize.
 
+`arcMS` stands for *accessible*, *rapid* and *compact*, and is also
+based on the french word *arc*, which means *bow,* to emphasize that it
+is compatible with the [Apache Arrow
+library](https://arrow.apache.org/).
+
 ## Installation
 
-You can install arcMS in R with the following command:
+You can install `arcMS` in R with the following command:
 
 ``` r
 install.packages("devtools")
@@ -42,15 +45,15 @@ First load the package:
 library("arcMS")
 ```
 
-Then create connection parameters to the Unifi API (retrieve token).
+Then create connection parameters to the Unifi API (retrieve token):
 
 ``` r
 con = create_connection_params(apihosturl = "http://localhost:50034/unifi/v1", identityurl = "http://localhost:50333/identity/connect/token")
 ```
 
-If the `arcMS` and `R` session are run from another computer than
-where the Unifi API is installed, replace `localhost` by the IP address
-of the Unifi API.
+If `arcMS` and the `R` session are run from another computer than where
+the Unifi API is installed, replace `localhost` by the IP address of the
+Unifi API.
 
 ``` r
 con = create_connection_params(apihosturl = "http://192.0.2.0:50034/unifi/v1", identityurl = "http://192.0.2.0:50333/identity/connect/token")

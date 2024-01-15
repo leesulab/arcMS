@@ -4,25 +4,25 @@
 #
 
 # Define UI for application
-ui <- shinydashboard::dashboardPage(skin = "blue",
-                    shinydashboard::dashboardHeader(title = "Parquet MS data converter", titleWidth = 280),
-                    shinydashboard::dashboardSidebar(
+ui <- bs4Dash::dashboardPage(skin = "blue",
+                    bs4Dash::dashboardHeader(title = "Parquet MS data converter", titleWidth = 280),
+                    bs4Dash::dashboardSidebar(
                        width = 280,
-                      shinydashboard::sidebarMenu(
+                      bs4Dash::sidebarMenu(
                           id = "inTab",
-                          shinydashboard::menuItem("Connect to UNIFI API", tabName = "unificonnect", icon = icon("plug")),
-                          shinydashboard::menuItem("Navigate", tabName = "navigate_folders", icon = icon("list"))
+                          bs4Dash::menuItem("Connect to UNIFI API", tabName = "unificonnect", icon = icon("plug")),
+                          bs4Dash::menuItem("Navigate", tabName = "navigate_folders", icon = icon("list"))
                           )
                       ),
 
                     ## Body content
-                    shinydashboard::dashboardBody(
+                    bs4Dash::dashboardBody(
                         shinyjs::useShinyjs(),
-                        shinydashboard::tabItems(
+                        bs4Dash::tabItems(
                           # tab-content: Connect to UNIFI API to retrieve MS spectrum of markers
-                          shinydashboard::tabItem(tabName = "unificonnect",
+                          bs4Dash::tabItem(tabName = "unificonnect",
                               shiny::fluidRow(
-                                  shinydashboard::box(width = 12,
+                                  bs4Dash::box(width = 12,
                                           title = "Connect to UNIFI API to retrieve MS spectra of markers",
                                           status = "primary",
                                           p("To connect to the UNIFI API, the API must first be installed in UNIFI. Create a client ID in the UNIFI API with the following parameters :"),
@@ -41,13 +41,13 @@ ui <- shinydashboard::dashboardPage(skin = "blue",
                                           p("Clicking on the following button will open a connection window (Waters UNIFI Identity Server), please enter your credentials to access Unifi."),
                                           shiny::actionButton("connecttounifi", "Connect to UNIFI API"),
                                           br(), br(),
-                                          shinydashboard::infoBoxOutput("connectionInfobox")
+                                          bs4Dash::infoBoxOutput("connectionInfobox")
                                         )
                     ) #end fluidrow
                 ), #end tab
-                    shinydashboard::tabItem(tabName = "navigate_folders",
+                    bs4Dash::tabItem(tabName = "navigate_folders",
                         shiny::fluidRow(
-                                        shinydashboard::box(
+                                        bs4Dash::box(
                                           title = "Folders",
                                           width = 12,
                                           status = "primary",
@@ -58,7 +58,7 @@ ui <- shinydashboard::dashboardPage(skin = "blue",
                                           jsTreeR::jstreeOutput("jstreefolders"),
                                           shiny::htmlOutput("folders")
                                         ),
-                                        shinydashboard::box(
+                                        bs4Dash::box(
                                           title = "Select an Analysis",
                                           width = 12,
                                           status = "primary",
@@ -66,14 +66,14 @@ ui <- shinydashboard::dashboardPage(skin = "blue",
 
                                         DT::dataTableOutput("analysis_datatable")
                                         ),
-                                        shinydashboard::box(
+                                        bs4Dash::box(
                                           title = "Samples",
                                           width = 12,
                                           status = "primary",
                                           collapsible = TRUE,
                                           DT::dataTableOutput("samples_datatable")
                                       ),
-                                      shinydashboard::box(
+                                      bs4Dash::box(
                                         title = "Collect and convert data",
                                         width = 12,
                                         status = "primary",
