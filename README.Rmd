@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 
 <!-- badges: end -->
 
-`arcMS` can convert HDMSe data acquired with Unifi to tabular format for use in R or Python, with a small filesize when saved on disk.
+`arcMS` can convert HDMS<sup>E</sup> data acquired with Unifi to tabular format for use in R or Python, with a small filesize when saved on disk.
 
 Two output data file formats can be obtained:
 
