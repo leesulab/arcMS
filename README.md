@@ -1,12 +1,12 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# parquetMS
+# arcMS
 
 <!-- badges: start -->
 <!-- badges: end -->
 
-ParquetMS can convert HDMSe data acquired with Unifi to tabular format
+arcMS can convert HDMSe data acquired with Unifi to tabular format
 for use in R or Python, with a small filesize when saved on disk.
 
 Two output data file formats can be obtained:
@@ -20,11 +20,11 @@ Two output data file formats can be obtained:
 
 ## Installation
 
-You can install parquetMS in R with the following command:
+You can install arcMS in R with the following command:
 
 ``` r
 install.packages("devtools")
-devtools::install_github("leesulab/parquetMS")
+devtools::install_github("leesulab/arcMS")
 ```
 
 To use the HDF5 format, the `rhdf5` package needs to be installed:
@@ -39,7 +39,7 @@ BiocManager::install("rhdf5")
 First load the package:
 
 ``` r
-library("parquetMS")
+library("arcMS")
 ```
 
 Then create connection parameters to the Unifi API (retrieve token).
@@ -48,7 +48,7 @@ Then create connection parameters to the Unifi API (retrieve token).
 con = create_connection_params(apihosturl = "http://localhost:50034/unifi/v1", identityurl = "http://localhost:50333/identity/connect/token")
 ```
 
-If the `parquetMS` and `R` session are run from another computer than
+If the `arcMS` and `R` session are run from another computer than
 where the Unifi API is installed, replace `localhost` by the IP address
 of the Unifi API.
 

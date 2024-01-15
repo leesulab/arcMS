@@ -2,7 +2,7 @@
 #'
 #' This function takes a wide format dataframe and unnests (explodes) it into a long format.
 #' The unnested table contains the columns rt (retention time), scanid (id of each scan),
-#' energy_level (low or high), mz (m/z values) and intensities.
+#' energy_level (low or high), mz (m/z values), bin (drift time bin) and intensities.
 #'
 #' @param wide_df A wide format dataframe with columns 'masses', 'intensities', and 'scan_size'.
 #' @return A long format dataframe with the exploded spectral data.
@@ -21,12 +21,11 @@ explode_spectra <- function(wide_df) {
   setnames(unnestdt, c("rt", "scanid", "energy_level", "mz", "intensities"))
 
   # Adding bin number to each line/mz value
-  scansizes <- spectra[, unlist(scan_size), by = scanid]
+  scansizes <- spectra[, unlist(scan_size), by = .(rt, scanid, energy_level)]
   setnames(scansizes, "V1", "scan_size")
   scansizes$bin <- rep(1:200, times = nrow(spectra))
   scansizedf <- tidytable::uncount(scansizes, scan_size, .remove = F)
 
   unnestdt <- cbind(unnestdt, bin = scansizedf$bin)
-
   return(unnestdt)
 }

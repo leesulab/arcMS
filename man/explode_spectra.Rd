@@ -15,6 +15,6 @@ A long format dataframe with the exploded spectral data.
 \description{
 This function takes a wide format dataframe and unnests (explodes) it into a long format.
 The unnested table contains the columns rt (retention time), scanid (id of each scan),
-energy_level (low or high), mz (m/z values) and intensities.
+energy_level (low or high), mz (m/z values), bin (drift time bin) and intensities.
 }
 \keyword{internal}

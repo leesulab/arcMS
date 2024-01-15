@@ -7,9 +7,9 @@
 #'
 #' @export
 run_app <- function() {
-  appDir <- system.file("shiny-app", package = "parquetMS")
+  appDir <- system.file("shiny-app", package = "arcMS")
   if (appDir == "") {
-    stop("Could not find example directory. Try re-installing parquetMS.", call. = FALSE)
+    stop("Could not find example directory. Try re-installing arcMS.", call. = FALSE)
   }
 
   shiny::runApp(appDir)

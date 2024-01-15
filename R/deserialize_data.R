@@ -7,7 +7,7 @@
 #' @keywords internal
 
 deserialize_data <- function(rg_content) {
-  file = system.file("message", "message.proto", package = "parquetMS")
+  file = system.file("message", "message.proto", package = "arcMS")
   RProtoBuf::readProtoFiles(file)
   protoenv = as.environment("RProtoBuf:DescriptorPool")
   alldata = rg_content

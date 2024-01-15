@@ -1,4 +1,4 @@
-# This is a Shiny web application for the parquetMS package.
+# This is a Shiny web application for the arcMS package.
 #' You can run the application by clicking
 # the 'Run App' button in Rstudio.
 #

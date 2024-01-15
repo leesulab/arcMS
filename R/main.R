@@ -43,7 +43,7 @@ NULL
 
 #' Unifi MS converter to Parquet and HDF5 formats
 #'
-#' \Sexpr[results=text,echo=FALSE]{packageDescription("parquetMS", fields = "Description")}
+#' \Sexpr[results=text,echo=FALSE]{packageDescription("arcMS", fields = "Description")}
 #'
 "_PACKAGE"
 NULL
