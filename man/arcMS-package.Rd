@@ -8,6 +8,13 @@
 \description{
 \Sexpr[results=text,echo=FALSE]{packageDescription("arcMS", fields = "Description")}
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://leesulab.github.io/arcMS/}
+}
+
+}
 \author{
 \strong{Maintainer}: Julien Le Roux \email{julien.le-roux@u-pec.fr}
 
