@@ -27,8 +27,8 @@ library](https://arrow.apache.org/).
 You can install `arcMS` in R with the following command:
 
 ``` r
-install.packages("devtools")
-devtools::install_github("leesulab/arcMS")
+install.packages("pak")
+pak::pkg_install("leesulab/arcMS") 
 ```
 
 To use the HDF5 format, the `rhdf5` package needs to be installed:
