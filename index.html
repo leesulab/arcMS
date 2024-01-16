@@ -65,7 +65,7 @@
 </h1></div>
 <!-- badges: start -->
 <!-- badges: end -->
-<p><code>arcMS</code> can convert HDMS<sup>E</sup> data acquired with Unifi to tabular format for use in R or Python, with a small filesize when saved on disk.</p>
+<p><code>arcMS</code> can convert HDMS<sup>E</sup> data acquired with Waters UNIFI to tabular format for use in R or Python, with a small filesize when saved on disk.</p>
 <p>Two output data file formats can be obtained:</p>
 <ul>
 <li><p>the <a href="https://parquet.apache.org/" class="external-link">Apache Parquet</a> format for minimal filesize and fast access. Two files are produced: one for MS data, one for metadata.</p></li>
@@ -90,13 +90,13 @@
 <p>First load the package:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/leesulab/arcMS/" class="external-link">"arcMS"</a></span><span class="op">)</span></span></code></pre></div>
-<p>Then create connection parameters to the Unifi API (retrieve token):</p>
+<p>Then create connection parameters to the UNIFI API (retrieve token):</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">con</span> <span class="op">=</span> <span class="fu"><a href="reference/create_connection_params.html">create_connection_params</a></span><span class="op">(</span>apihosturl <span class="op">=</span> <span class="st">"http://localhost:50034/unifi/v1"</span>, identityurl <span class="op">=</span> <span class="st">"http://localhost:50333/identity/connect/token"</span><span class="op">)</span></span></code></pre></div>
-<p>If <code>arcMS</code> and the <code>R</code> session are run from another computer than where the Unifi API is installed, replace <code>localhost</code> by the IP address of the Unifi API.</p>
+<p>If <code>arcMS</code> and the <code>R</code> session are run from another computer than where the UNIFI API is installed, replace <code>localhost</code> by the IP address of the UNIFI API.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">con</span> <span class="op">=</span> <span class="fu"><a href="reference/create_connection_params.html">create_connection_params</a></span><span class="op">(</span>apihosturl <span class="op">=</span> <span class="st">"http://192.0.2.0:50034/unifi/v1"</span>, identityurl <span class="op">=</span> <span class="st">"http://192.0.2.0:50333/identity/connect/token"</span><span class="op">)</span></span></code></pre></div>
-<p>Now these connection parameters will be used to access the Unifi folders. The following function will show the list of folders and their IDs (e.g. <code>abe9c297-821e-4152-854a-17c73c9ff68c</code> in the example below).</p>
+<p>Now these connection parameters will be used to access the UNIFI folders. The following function will show the list of folders and their IDs (e.g. <code>abe9c297-821e-4152-854a-17c73c9ff68c</code> in the example below).</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">folders</span> <span class="op">=</span> <span class="fu"><a href="reference/folders_search.html">folders_search</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">folders</span></span></code></pre></div>
