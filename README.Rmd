@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 
 <!-- badges: end -->
 
-`arcMS` can convert HDMS<sup>E</sup> data acquired with Unifi to tabular format for use in R or Python, with a small filesize when saved on disk.
+`arcMS` can convert HDMS<sup>E</sup> data acquired with Waters UNIFI to tabular format for use in R or Python, with a small filesize when saved on disk. test
 
 Two output data file formats can be obtained:
 
@@ -55,13 +55,13 @@ library("arcMS")
 library("arcMS")
 ```
 
-Then create connection parameters to the Unifi API (retrieve token):
+Then create connection parameters to the UNIFI API (retrieve token):
 
 ```{r eval=FALSE}
 con = create_connection_params(apihosturl = "http://localhost:50034/unifi/v1", identityurl = "http://localhost:50333/identity/connect/token")
 ```
 
-If `arcMS` and the `R` session are run from another computer than where the Unifi API is installed, replace `localhost` by the IP address of the Unifi API.
+If `arcMS` and the `R` session are run from another computer than where the UNIFI API is installed, replace `localhost` by the IP address of the UNIFI API.
 
 ```{r eval=FALSE}
 con = create_connection_params(apihosturl = "http://192.0.2.0:50034/unifi/v1", identityurl = "http://192.0.2.0:50333/identity/connect/token")
@@ -73,7 +73,7 @@ con = create_connection_params(apihosturl = "http://192.0.2.0:50034/unifi/v1", i
 con = create_connection_params(apihosturl = "http://localhost:50034/unifi/v1", identityurl = "http://localhost:50333/identity/connect/token")
 ```
 
-Now these connection parameters will be used to access the Unifi folders. The following function will show the list of folders and their IDs (e.g. `abe9c297-821e-4152-854a-17c73c9ff68c` in the example below).
+Now these connection parameters will be used to access the UNIFI folders. The following function will show the list of folders and their IDs (e.g. `abe9c297-821e-4152-854a-17c73c9ff68c` in the example below).
 
 ```{r eval=FALSE}
 folders = folders_search()

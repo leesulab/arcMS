@@ -11,6 +11,7 @@
 \seealso{
 Useful links:
 \itemize{
+  \item \url{https://github.com/leesulab/arcMS/}
   \item \url{https://leesulab.github.io/arcMS/}
 }
 
