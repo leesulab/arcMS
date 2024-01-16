@@ -30,6 +30,12 @@ jobs:
         with:
           use-public-rspm: true
 
+# need to install protobuf libs or else installing package RProtoBuf will fail
+      - name: install protobuf libs
+        run: |
+          sudo apt install protobuf-compiler protobuf-c-compiler libprotobuf-c-dev libprotobuf-dev libprotoc-dev
+
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::pkgdown, local::.
