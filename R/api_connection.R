@@ -50,18 +50,28 @@ setMethod("initialize", signature = "connection_params",
 
 create_connection_params <- function(identityurl = "http://localhost:50333/identity/connect/token", username = "administrator", password = "administrator", apihosturl = "http://localhost:50034/unifi/v1", install = TRUE)
 {
+    parsed_url = httr::parse_url(apihosturl)
+    api_version = if (parsed_url$port == 50034) 3 else 4
+    client_scope = if (api_version == 3) "unifi" else "webapi"
+    # don't check certificate for LAN access with IP address:
+    httr::set_config(config(ssl_verifypeer = 0L, ssl_verifyhost = 0L))
+
+    # with httr2
+    # req <- request("https://example.com") %>%
+    #   req_options(ssl_verifypeer = 0, ssl_verifyhost = 0)
     r <- POST(identityurl,
           config = list(),
           body = list(
             grant_type="password",
             client_id="resourceownerclient",
             client_secret="secret",
-            scope="unifi",
+            scope=client_scope,
             username=username,
             password=password
           ),
           encode = "form"
       )
+
     c = content(r)
     bearer_token = c$access_token
 
