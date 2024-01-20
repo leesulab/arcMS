@@ -1,11 +1,12 @@
 
-# arcMS
+# 🏹 arcMS
 
 <!-- badges: start -->
 <!-- badges: end -->
 
-`arcMS` can convert HDMSe data acquired with Unifi to tabular format for
-use in R or Python, with a small filesize when saved on disk.
+`arcMS` can convert HDMS<sup>E</sup> data acquired with Waters UNIFI to
+tabular format for use in R or Python, with a small filesize when saved
+on disk. test
 
 Two output data file formats can be obtained:
 
@@ -21,13 +22,13 @@ based on the french word *arc*, which means *bow,* to emphasize that it
 is compatible with the [Apache Arrow
 library](https://arrow.apache.org/).
 
-## Installation
+## :arrow_down: Installation
 
 You can install `arcMS` in R with the following command:
 
 ``` r
-install.packages("devtools")
-devtools::install_github("leesulab/arcMS")
+install.packages("pak")
+pak::pkg_install("leesulab/arcMS") 
 ```
 
 To use the HDF5 format, the `rhdf5` package needs to be installed:
@@ -37,7 +38,7 @@ install.packages("BiocManager")
 BiocManager::install("rhdf5")
 ```
 
-## Usage
+## 🚀 Usage
 
 First load the package:
 
@@ -45,21 +46,21 @@ First load the package:
 library("arcMS")
 ```
 
-Then create connection parameters to the Unifi API (retrieve token):
+Then create connection parameters to the UNIFI API (retrieve token):
 
 ``` r
 con = create_connection_params(apihosturl = "http://localhost:50034/unifi/v1", identityurl = "http://localhost:50333/identity/connect/token")
 ```
 
 If `arcMS` and the `R` session are run from another computer than where
-the Unifi API is installed, replace `localhost` by the IP address of the
-Unifi API.
+the UNIFI API is installed, replace `localhost` by the IP address of the
+UNIFI API.
 
 ``` r
 con = create_connection_params(apihosturl = "http://192.0.2.0:50034/unifi/v1", identityurl = "http://192.0.2.0:50333/identity/connect/token")
 ```
 
-Now these connection parameters will be used to access the Unifi
+Now these connection parameters will be used to access the UNIFI
 folders. The following function will show the list of folders and their
 IDs (e.g. `abe9c297-821e-4152-854a-17c73c9ff68c` in the example below).
 
@@ -138,7 +139,7 @@ samplemetadatahdf5 = rhdf5::h5read("sample.h5", name = "samplemetadata")
 spectrummetadatahdf5 = rhdf5::h5read("sample.h5", name = "spectrummetadata")
 ```
 
-## Shiny App
+## ✨ Shiny App
 
 A Shiny application is available to use the package easily. To run the
 app, just use the following command (it might need to install a few

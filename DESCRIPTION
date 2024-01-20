@@ -58,3 +58,4 @@ Collate:
     'get_samples_list.R'
     'outputlist_to_df.R'
     'run_app.R'
+URL: https://github.com/leesulab/arcMS/, https://leesulab.github.io/arcMS/
