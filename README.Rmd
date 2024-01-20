@@ -39,8 +39,7 @@ pak::pkg_install("leesulab/arcMS")
 To use the HDF5 format, the `rhdf5` package needs to be installed:
 
 ```{r eval=FALSE}
-install.packages("BiocManager")
-BiocManager::install("rhdf5")
+pak::pkg_install("rhdf5")
 ```
 
 ## 🚀 Usage
