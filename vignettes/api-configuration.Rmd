@@ -1,0 +1,81 @@
+---
+title: "api-configuration"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{api-configuration}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(arcMS)
+```
+
+# UNIFI API configuration
+
+The UNIFI API must be configured properly for `arcMS` to connect correctly.
+
+The installation, configuration and connection parameters all depend on the version of UNIFI running.
+
+## With UNIFI
+
+Details about the Waters UNIFI API installation and configuration can be found in https://www.waters.com/webassets/cms/support/docs/715005443rc.pdf
+
+### Installation
+
+The UNIFI Web API is not directly installed with a UNIFI Workstation, it must be installed from the installation DVD drive or the folder where the installation files were copied, with the `UNIFIWebAPISetup.exe` installer.
+
+### Configuration
+
+Applications to be used with the Web API must be registered in the UNIFI Client Authorization Application. It can be accessed from the UNIFI Administration page, by clicking "External Application Security Configuration".
+
+A "new client" must be created with the following configuration:
+
+| Client name | resourceownerclient |
+| Client Id | resourceownerclient |
+| OAuth 2.0 Flow | ResourceOwner |
+
+secret
+Scope: Unifi
+
+```
+
+
+### Connection parameters
+
+The URL to be used for connection and retrieval of token are the following (if not changed during installation):
+
+```{r}
+con = create_connection_params(apihosturl = "http://localhost:50034/unifi/v1", identityurl = "http://localhost:50333/identity/connect/token")
+```
+
+Default `username` and `password` are `administrator` and `administrator` but you can pass other values to the command above if necessary.
+
+## With UNIFI (Waters_connect)
+
+Details about the waters_connect configuration can be found in this video: https://videos.waters.com/detail/video/6342765707112/set-up-msconvert-with-waters_connect-3.0.0
+
+### Installation
+
+With waters_connect, the API is directly installed, no additional installation step is required.
+
+### Configuration
+
+
+
+### Connection parameters
+
+The URL to be used for connection and retrieval of token are the following:
+
+```{r}
+con = create_connection_params(apihosturl = "https://localhost:48505/unifi/v1", identityurl = "https://localhost:48333/connect/token")
+```
+
+Default `username` and `password` are `administrator` and `administrator` but you can pass other values to the command above if necessary.

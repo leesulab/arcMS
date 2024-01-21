@@ -20,7 +20,9 @@ Suggests:
     shinyjs,
     DT,
     shiny,
-    bs4Dash
+    bs4Dash,
+    knitr,
+    rmarkdown
 Config/testthat/edition: 3
 Imports:
     methods,
@@ -59,3 +61,4 @@ Collate:
     'outputlist_to_df.R'
     'run_app.R'
 URL: https://github.com/leesulab/arcMS/, https://leesulab.github.io/arcMS/
+VignetteBuilder: knitr
