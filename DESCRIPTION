@@ -11,7 +11,7 @@ Description: Functions to connect to Waters Unifi API and convert data to parque
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.0
 Suggests:
     testthat (>= 3.0.0),
     spsComps,
@@ -20,7 +20,9 @@ Suggests:
     shinyjs,
     DT,
     shiny,
-    bs4Dash
+    bs4Dash,
+    knitr,
+    rmarkdown
 Config/testthat/edition: 3
 Imports:
     methods,
@@ -59,3 +61,4 @@ Collate:
     'outputlist_to_df.R'
     'run_app.R'
 URL: https://github.com/leesulab/arcMS/, https://leesulab.github.io/arcMS/
+VignetteBuilder: knitr
