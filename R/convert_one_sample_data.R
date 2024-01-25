@@ -41,7 +41,7 @@ setMethod("get_sample_data", "sample_dataset", function(obj) obj@sample_data)
 
 #' Convert one sample
 #'
-#' The function collects spectral data from a sample in a Unifi Analysis.
+#' The function collects spectral data from a sample in a UNIFI Analysis.
 #' First, asynchronous queries are performed for each sample.
 #' Then, the data is deserialized by the \code{\link{deserialize_data}} function.
 #' The S3 object containing the spectral data is adapted into a dataframe by the \code{\link{outputlist_to_df}} function.
@@ -76,7 +76,7 @@ convert_one_sample_data <- function(sample_id, connection_params = NULL, format 
 
 #' Collect data from one sample
 #'
-#' The function collects spectral data from a sample in a Unifi Analysis.
+#' The function collects spectral data from a sample in a UNIFI Analysis.
 #' First, asynchronous queries are performed for each sample.
 #' Then, the data is deserialized by the function deserialize_data().
 #' The S3 object containing the spectral data is adapted into a dataframe by the function outputlist_to_df().

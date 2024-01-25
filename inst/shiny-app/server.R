@@ -75,7 +75,7 @@ server <- function(input, output, session) {
     selection = "single"
     )
 
-  # the selected analysis from Unifi
+  # the selected analysis from UNIFI
   selAnalysis <- reactive({
     req(input$analysis_datatable_rows_selected)
     s = input$analysis_datatable_rows_selected
@@ -101,7 +101,7 @@ server <- function(input, output, session) {
     selection = "single"
     )
 
-  # the selected sample from Unifi
+  # the selected sample from UNIFI
   selSample <- reactive({
     # req(input$samples_datatable_rows_selected)
     s = input$samples_datatable_rows_selected

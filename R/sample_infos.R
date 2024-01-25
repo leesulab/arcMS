@@ -71,9 +71,9 @@ setMethod("get_spectrum_metadata", "sample_infos", function(obj) obj@spectrum_me
 #' @export
 setMethod("get_spectrum_metadata_json", "sample_infos", function(obj) jsonlite::prettify(obj@spectrum_metadata_json))
 
-#' Retrieve Sample Information from Unifi API with a sample id
+#' Retrieve Sample Information from UNIFI API with a sample id
 #'
-#' This function retrieves sample metadata and spectrum information from the Unifi API for a specified sample result using the provided connection parameters.
+#' This function retrieves sample metadata and spectrum information from the UNIFI API for a specified sample result using the provided connection parameters.
 #' It extracts detailed spectrum information associated with the given sample result identifier.
 #' The function returns two dataframes containing the sample information and spectrum informationn, and two formatted JSON strings of the same data.
 #'
@@ -82,7 +82,7 @@ setMethod("get_spectrum_metadata_json", "sample_infos", function(obj) jsonlite::
 #' \code{\link{create_connection_params}} function. If not provided, the
 #' \code{\link{get_connection_params}} will look for such object in the global environment
 #'
-#' @return A \code{\link{sample_infos}} object, consisting of a list containing two elements: a dataframe with detailed sample information from the Unifi API, and a formatted JSON string of the sample information.
+#' @return A \code{\link{sample_infos}} object, consisting of a list containing two elements: a dataframe with detailed sample information from the UNIFI API, and a formatted JSON string of the sample information.
 #'
 #' Example usage:
 #' con_params <- create_connection_params()
@@ -101,7 +101,7 @@ parentAnalysisEndpoint = glue::glue("{hostUrl}/sampleresults({sample_id})/analys
 parentAnalysis = httr::content(httpClientPlain(parentAnalysisEndpoint, token), "text", encoding = "utf-8")
 parentAnalysisInfo = jsonlite::fromJSON(parentAnalysis)
 parentAnalysisId = parentAnalysisInfo$value$id
-# save sample list with custom names avoiding duplicates 
+# save sample list with custom names avoiding duplicates
 samplelist = get_samples_list(parentAnalysisId, connection_params)
 # defining data.table variable locally to avoid R cmd check NOTES due to NSE
 id = NULL

@@ -4,7 +4,7 @@
 \name{arcMS-package}
 \alias{arcMS}
 \alias{arcMS-package}
-\title{Unifi MS converter to Parquet and HDF5 formats}
+\title{UNIFI MS converter to Parquet and HDF5 formats}
 \description{
 \Sexpr[results=text,echo=FALSE]{packageDescription("arcMS", fields = "Description")}
 }

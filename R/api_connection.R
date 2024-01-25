@@ -1,22 +1,22 @@
 #' @include main.R
 NULL
 
-#' Class containing Unifi API connection parameters
+#' Class containing UNIFI API connection parameters
 #'
-#' Contains url and token for connection to Unifi API.
+#' Contains url and token for connection to UNIFI API.
 #'
 #' Objects for this class are returned by \code{\link{create_connection_params}}.
 #'
-#' @slot identityurl Contains a \code{character} with the URL for connection to the Unifi identity server.
-#' @slot username Contains a \code{character} with the user name for connection to the Unifi identity server (e.g. administrator).
-#' @slot password Contains a \code{character} with the user password for connection to the Unifi identity server (e.g. administrator).
-#' @slot apihosturl Contains a \code{character} with the URL for connection to the Unifi API server (host).
-#' @slot token A \code{character} with the token sent back from the Unifi API.
+#' @slot identityurl Contains a \code{character} with the URL for connection to the UNIFI identity server.
+#' @slot username Contains a \code{character} with the user name for connection to the UNIFI identity server (e.g. administrator).
+#' @slot password Contains a \code{character} with the user password for connection to the UNIFI identity server (e.g. administrator).
+#' @slot apihosturl Contains a \code{character} with the URL for connection to the UNIFI API server (host).
+#' @slot token A \code{character} with the token sent back from the UNIFI API.
 #'
 #' @section Use the \code{\link{create_connection_params}} to:
 #'   store the connection parameters,
 #'   using the default parameters or replacing them with the needed URLs,
-#'   username and password to the Unifi API. It will request a connection
+#'   username and password to the UNIFI API. It will request a connection
 #'   token that will be used by other functions to retrieve data.
 #'
 #' @param obj The \code{\link{connection_params}} object to access.
@@ -38,12 +38,12 @@ setMethod("initialize", signature = "connection_params",
           } )
 #' Create connection parameters
 #'
-#' @details \code{create_connection_params} is an utility function that returns the url and token for Unifi API connection
+#' @details \code{create_connection_params} is an utility function that returns the url and token for UNIFI API connection
 #'
-#' @param identityurl The \code{url} to connect to the Unifi API identity server.
-#' @param username The \code{username} to connect to the Unifi API identity server.
-#' @param password The \code{password} to connect to the Unifi API identity server.
-#' @param apihosturl The \code{url} to connect to the Unifi API server (host).
+#' @param identityurl The \code{url} to connect to the UNIFI API identity server.
+#' @param username The \code{username} to connect to the UNIFI API identity server.
+#' @param password The \code{password} to connect to the UNIFI API identity server.
+#' @param apihosturl The \code{url} to connect to the UNIFI API server (host).
 #' @param install if TRUE, will install the token in your \code{.Renviron} file for use in future sessions.  Defaults to TRUE.
 #' @return A list containing all parameters needed for the connection, in a \code{\link{connection_params}} object.
 #' @export

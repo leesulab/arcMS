@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_samples_list.R
 \name{get_samples_list}
 \alias{get_samples_list}
-\title{Retrieve the list of Samples Results from an Analysis in Unifi API}
+\title{Retrieve the list of Samples Results from an Analysis in UNIFI API}
 \usage{
 get_samples_list(analysis_id, connection_params = NULL)
 }
@@ -17,6 +17,6 @@ get_samples_list(analysis_id, connection_params = NULL)
 A dataframe wih sample names and their IDs, along with the analysis name and sample metadata.
 }
 \description{
-The function connects to a Unifi Analysis and gets the list of all samples.
+The function connects to a UNIFI Analysis and gets the list of all samples.
 It returns a dataframe with sample names and IDs, along with the analysis name.
 }

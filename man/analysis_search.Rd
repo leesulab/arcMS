@@ -2,17 +2,17 @@
 % Please edit documentation in R/analysis_search.R
 \name{analysis_search}
 \alias{analysis_search}
-\title{Retrieve Analyses from Unifi API}
+\title{Retrieve Analyses from UNIFI API}
 \usage{
 analysis_search(folder_id, connection_params = NULL)
 }
 \arguments{
 \item{folder_id}{The identifier of the folder for which items are to be retrieved.}
 
-\item{connection_params}{Connection parameters to the Unifi API, including the API host URL and access token.}
+\item{connection_params}{Connection parameters to the UNIFI API, including the API host URL and access token.}
 }
 \value{
-A data frame containing analysis item information from the Unifi API,
+A data frame containing analysis item information from the UNIFI API,
         with unnecessary columns removed for clarity.
 
 Example usage:
@@ -20,6 +20,6 @@ con_params <- create_connection_params(api_host_url, api_token)
 analysis_items <- analysis_search(con_params, folder_id)
 }
 \description{
-This function retrieves items information from the Unifi API for a specified Unifi folder using the provided connection parameters.
+This function retrieves items information from the UNIFI API for a specified UNIFI folder using the provided connection parameters.
 The function filters and returns analysis items based on their type.
 }

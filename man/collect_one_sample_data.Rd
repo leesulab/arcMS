@@ -24,7 +24,7 @@ A \code{\link{sample_dataset}} object, containing the sample data,
 sample metadata and spectrum metadata datatables.
 }
 \description{
-The function collects spectral data from a sample in a Unifi Analysis.
+The function collects spectral data from a sample in a UNIFI Analysis.
 First, asynchronous queries are performed for each sample.
 Then, the data is deserialized by the function deserialize_data().
 The S3 object containing the spectral data is adapted into a dataframe by the function outputlist_to_df().

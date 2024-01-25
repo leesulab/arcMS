@@ -7,7 +7,7 @@
 add_drift_time(connection_params, unnestdt, sample_id)
 }
 \arguments{
-\item{connection_params}{Connection parameters to the Unifi API - url and token}
+\item{connection_params}{Connection parameters to the UNIFI API - url and token}
 
 \item{unnestdt}{An unnested data table that contains at least the columns 'bin'.}
 

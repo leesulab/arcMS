@@ -41,7 +41,7 @@ NULL
 
 #### Document generation
 
-#' Unifi MS converter to Parquet and HDF5 formats
+#' UNIFI MS converter to Parquet and HDF5 formats
 #'
 #' \Sexpr[results=text,echo=FALSE]{packageDescription("arcMS", fields = "Description")}
 #'
