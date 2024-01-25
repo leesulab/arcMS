@@ -1,9 +1,9 @@
-#' Retrieve Folders from Unifi API
+#' Retrieve Folders from UNIFI API
 #'
-#' This function retrieves folder information from the Unifi API using the provided connection parameters.
+#' This function retrieves folder information from the UNIFI API using the provided connection parameters.
 #'
-#' @param connection_params Connection parameters to the Unifi API, including the API host URL and access token.
-#' @return A data frame containing folder information from the Unifi API.
+#' @param connection_params Connection parameters to the UNIFI API, including the API host URL and access token.
+#' @return A data frame containing folder information from the UNIFI API.
 #' @export
 
 folders_search <- function(connection_params = NULL) {

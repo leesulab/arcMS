@@ -1,6 +1,6 @@
-#' Retrieve the list of Samples Results from an Analysis in Unifi API
+#' Retrieve the list of Samples Results from an Analysis in UNIFI API
 #'
-#' The function connects to a Unifi Analysis and gets the list of all samples.
+#' The function connects to a UNIFI Analysis and gets the list of all samples.
 #' It returns a dataframe with sample names and IDs, along with the analysis name.
 #'
 #' @param analysis_id The identifier of the Analysis
@@ -36,7 +36,7 @@ get_samples_list <- function(analysis_id, connection_params = NULL) {
 }
 
 # create unique sample names
-# duplicate names are changed by Unifi when generating the marker table, e.g. (A1, A1, A1, B1) gives (A1, A1_2, A1_3, B1)
+# duplicate names are changed by UNIFI when generating the marker table, e.g. (A1, A1, A1, B1) gives (A1, A1_2, A1_3, B1)
 # so we must use a custom make.unique function to append a suffix starting with 2 at the second occurence
 custom_make_unique <- function(v1, sep = '.') {
     vec <- as.numeric(ave(v1, v1, FUN = seq_along))

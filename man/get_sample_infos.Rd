@@ -2,7 +2,7 @@
 % Please edit documentation in R/sample_infos.R
 \name{get_sample_infos}
 \alias{get_sample_infos}
-\title{Retrieve Sample Information from Unifi API with a sample id}
+\title{Retrieve Sample Information from UNIFI API with a sample id}
 \usage{
 get_sample_infos(sample_id, connection_params = NULL)
 }
@@ -14,14 +14,14 @@ get_sample_infos(sample_id, connection_params = NULL)
 \code{\link{get_connection_params}} will look for such object in the global environment}
 }
 \value{
-A \code{\link{sample_infos}} object, consisting of a list containing two elements: a dataframe with detailed sample information from the Unifi API, and a formatted JSON string of the sample information.
+A \code{\link{sample_infos}} object, consisting of a list containing two elements: a dataframe with detailed sample information from the UNIFI API, and a formatted JSON string of the sample information.
 
 Example usage:
 con_params <- create_connection_params()
 results <- get_sample_infos(sample_result_id, con_params)
 }
 \description{
-This function retrieves sample metadata and spectrum information from the Unifi API for a specified sample result using the provided connection parameters.
+This function retrieves sample metadata and spectrum information from the UNIFI API for a specified sample result using the provided connection parameters.
 It extracts detailed spectrum information associated with the given sample result identifier.
 The function returns two dataframes containing the sample information and spectrum informationn, and two formatted JSON strings of the same data.
 }

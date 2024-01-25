@@ -2,16 +2,16 @@
 % Please edit documentation in R/folders_search.R
 \name{folders_search}
 \alias{folders_search}
-\title{Retrieve Folders from Unifi API}
+\title{Retrieve Folders from UNIFI API}
 \usage{
 folders_search(connection_params = NULL)
 }
 \arguments{
-\item{connection_params}{Connection parameters to the Unifi API, including the API host URL and access token.}
+\item{connection_params}{Connection parameters to the UNIFI API, including the API host URL and access token.}
 }
 \value{
-A data frame containing folder information from the Unifi API.
+A data frame containing folder information from the UNIFI API.
 }
 \description{
-This function retrieves folder information from the Unifi API using the provided connection parameters.
+This function retrieves folder information from the UNIFI API using the provided connection parameters.
 }

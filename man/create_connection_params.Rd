@@ -13,13 +13,13 @@ create_connection_params(
 )
 }
 \arguments{
-\item{identityurl}{The \code{url} to connect to the Unifi API identity server.}
+\item{identityurl}{The \code{url} to connect to the UNIFI API identity server.}
 
-\item{username}{The \code{username} to connect to the Unifi API identity server.}
+\item{username}{The \code{username} to connect to the UNIFI API identity server.}
 
-\item{password}{The \code{password} to connect to the Unifi API identity server.}
+\item{password}{The \code{password} to connect to the UNIFI API identity server.}
 
-\item{apihosturl}{The \code{url} to connect to the Unifi API server (host).}
+\item{apihosturl}{The \code{url} to connect to the UNIFI API server (host).}
 
 \item{install}{if TRUE, will install the token in your \code{.Renviron} file for use in future sessions.  Defaults to TRUE.}
 }
@@ -30,5 +30,5 @@ A list containing all parameters needed for the connection, in a \code{\link{con
 Create connection parameters
 }
 \details{
-\code{create_connection_params} is an utility function that returns the url and token for Unifi API connection
+\code{create_connection_params} is an utility function that returns the url and token for UNIFI API connection
 }

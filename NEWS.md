@@ -1,3 +1,10 @@
+# arcMS 1.1.0
+
+## Changes
+
+- Compatibility with waters_connect UNIFI
+- Adding vignette to describe how to configure the API and register client app
+
 # arcMS 1.0.0
 
 ## Changes

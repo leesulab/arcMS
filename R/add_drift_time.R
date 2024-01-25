@@ -2,7 +2,7 @@
 #'
 #' This function takes an unnested data table with spectral data and adds drift time
 #'
-#' @param connection_params Connection parameters to the Unifi API - url and token
+#' @param connection_params Connection parameters to the UNIFI API - url and token
 #' @param unnestdt An unnested data table that contains at least the columns 'bin'.
 #' @param sample_id The sample ID to be used in the API call.
 #' @return The unnested data table with an additional column 'dt' for drift time.

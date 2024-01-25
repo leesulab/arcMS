@@ -1,11 +1,11 @@
-#' Retrieve Analyses from Unifi API
+#' Retrieve Analyses from UNIFI API
 #'
-#' This function retrieves items information from the Unifi API for a specified Unifi folder using the provided connection parameters.
+#' This function retrieves items information from the UNIFI API for a specified UNIFI folder using the provided connection parameters.
 #' The function filters and returns analysis items based on their type.
 #'
-#' @param connection_params Connection parameters to the Unifi API, including the API host URL and access token.
+#' @param connection_params Connection parameters to the UNIFI API, including the API host URL and access token.
 #' @param folder_id The identifier of the folder for which items are to be retrieved.
-#' @return A data frame containing analysis item information from the Unifi API,
+#' @return A data frame containing analysis item information from the UNIFI API,
 #'         with unnecessary columns removed for clarity.
 #'
 #' Example usage:

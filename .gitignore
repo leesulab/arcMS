@@ -6,3 +6,4 @@
 *.sqlite
 docs
 arcMS.Rproj
+inst/doc

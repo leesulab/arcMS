@@ -8,7 +8,7 @@
 \alias{connection_apihosturl}
 \alias{connection_token,connection_params-method}
 \alias{connection_token}
-\title{Class containing Unifi API connection parameters}
+\title{Class containing UNIFI API connection parameters}
 \usage{
 \S4method{connection_apihosturl}{connection_params}(obj)
 
@@ -23,7 +23,7 @@
 \code{connection_token} returns a character object containing the connection token.
 }
 \description{
-Contains url and token for connection to Unifi API.
+Contains url and token for connection to UNIFI API.
 }
 \details{
 Objects for this class are returned by \code{\link{create_connection_params}}.
@@ -38,22 +38,22 @@ Objects for this class are returned by \code{\link{create_connection_params}}.
 \section{Slots}{
 
 \describe{
-\item{\code{identityurl}}{Contains a \code{character} with the URL for connection to the Unifi identity server.}
+\item{\code{identityurl}}{Contains a \code{character} with the URL for connection to the UNIFI identity server.}
 
-\item{\code{username}}{Contains a \code{character} with the user name for connection to the Unifi identity server (e.g. administrator).}
+\item{\code{username}}{Contains a \code{character} with the user name for connection to the UNIFI identity server (e.g. administrator).}
 
-\item{\code{password}}{Contains a \code{character} with the user password for connection to the Unifi identity server (e.g. administrator).}
+\item{\code{password}}{Contains a \code{character} with the user password for connection to the UNIFI identity server (e.g. administrator).}
 
-\item{\code{apihosturl}}{Contains a \code{character} with the URL for connection to the Unifi API server (host).}
+\item{\code{apihosturl}}{Contains a \code{character} with the URL for connection to the UNIFI API server (host).}
 
-\item{\code{token}}{A \code{character} with the token sent back from the Unifi API.}
+\item{\code{token}}{A \code{character} with the token sent back from the UNIFI API.}
 }}
 
 \section{Use the \code{\link{create_connection_params}} to}{
 
   store the connection parameters,
   using the default parameters or replacing them with the needed URLs,
-  username and password to the Unifi API. It will request a connection
+  username and password to the UNIFI API. It will request a connection
   token that will be used by other functions to retrieve data.
 }
 

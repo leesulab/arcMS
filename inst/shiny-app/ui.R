@@ -38,7 +38,7 @@ ui <- bs4Dash::dashboardPage(skin = "blue",
                                           shiny::textInput("authorizationurl", label = "Authorization URL", value = "http://localhost:50333/identity/connect/token", placeholder = "http://localhost:50333/identity/connect/token"),
                                           shiny::textInput("unifiuser", label = "User name", value = "administrator", placeholder = "administrator"),
                                           shiny::textInput("unifipwd", label = "Password", value = "administrator", placeholder = "administrator"),
-                                          p("Clicking on the following button will open a connection window (Waters UNIFI Identity Server), please enter your credentials to access Unifi."),
+                                          p("Clicking on the following button will open a connection window (Waters UNIFI Identity Server), please enter your credentials to access UNIFI."),
                                           shiny::actionButton("connecttounifi", "Connect to UNIFI API"),
                                           br(), br(),
                                           bs4Dash::infoBoxOutput("connectionInfobox")
@@ -53,7 +53,7 @@ ui <- bs4Dash::dashboardPage(skin = "blue",
                                           status = "primary",
                                           collapsible = TRUE,
 
-                                          p(strong("Click on the following button to load folders available in Unifi")), p("Once the list of folders is displayed, select a folder."),
+                                          p(strong("Click on the following button to load folders available in UNIFI")), p("Once the list of folders is displayed, select a folder."),
                                           shiny::actionButton("loadfolders", "Load Folders"),
                                           jsTreeR::jstreeOutput("jstreefolders"),
                                           shiny::htmlOutput("folders")
