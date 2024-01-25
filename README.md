@@ -34,8 +34,7 @@ pak::pkg_install("leesulab/arcMS")
 To use the HDF5 format, the `rhdf5` package needs to be installed:
 
 ``` r
-install.packages("BiocManager")
-BiocManager::install("rhdf5")
+pak::pkg_install("rhdf5")
 ```
 
 ## 🚀 Usage
@@ -46,7 +45,9 @@ First load the package:
 library("arcMS")
 ```
 
-Then create connection parameters to the UNIFI API (retrieve token):
+Then create connection parameters to the UNIFI API (retrieve token). See
+`vignette("api-configuration")` to know how to configure the API and
+register a client app.
 
 ``` r
 con = create_connection_params(apihosturl = "http://localhost:50034/unifi/v1", identityurl = "http://localhost:50333/identity/connect/token")

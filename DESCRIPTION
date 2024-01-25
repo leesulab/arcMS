@@ -11,7 +11,7 @@ Description: Functions to connect to Waters Unifi API and convert data to parque
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.0
 Suggests:
     testthat (>= 3.0.0),
     spsComps,

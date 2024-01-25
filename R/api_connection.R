@@ -54,7 +54,7 @@ create_connection_params <- function(identityurl = "http://localhost:50333/ident
     api_version = if (parsed_url$port == 50034) 3 else 4
     client_scope = if (api_version == 3) "unifi" else "webapi"
     # don't check certificate for LAN access with IP address:
-    httr::set_config(config(ssl_verifypeer = 0L, ssl_verifyhost = 0L))
+    httr::set_config(httr::config(ssl_verifypeer = 0L, ssl_verifyhost = 0L))
 
     # with httr2
     # req <- request("https://example.com") %>%

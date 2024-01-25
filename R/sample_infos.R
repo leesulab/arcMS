@@ -101,6 +101,7 @@ parentAnalysisEndpoint = glue::glue("{hostUrl}/sampleresults({sample_id})/analys
 parentAnalysis = httr::content(httpClientPlain(parentAnalysisEndpoint, token), "text", encoding = "utf-8")
 parentAnalysisInfo = jsonlite::fromJSON(parentAnalysis)
 parentAnalysisId = parentAnalysisInfo$value$id
+# save sample list with custom names avoiding duplicates 
 samplelist = get_samples_list(parentAnalysisId, connection_params)
 # defining data.table variable locally to avoid R cmd check NOTES due to NSE
 id = NULL
