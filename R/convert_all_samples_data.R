@@ -15,7 +15,7 @@
 #' in a folder named after the Analysis.
 #' @export
 
-convert_all_samples_data <- function(analysis_id, connection_params = NULL, format = 'parquet', path = NULL, num_spectras = NULL) {
+convert_all_samples_data <- function(analysis_id, connection_params = NULL, format = 'parquet', path = NULL, overwrite = T, num_spectras = NULL) {
 
       if (!format %in% c('parquet', 'hdf5')) {
     stop("The format must be parquet or hdf5")
@@ -31,7 +31,7 @@ convert_all_samples_data <- function(analysis_id, connection_params = NULL, form
     p(message(glue::glue("-------- Starting conversion of sample {i}/{nrow(samples_list)} -------- \n")))
     sample_id = samples_list$id[i]
 
-    convert_one_sample_data(sample_id, connection_params = connection_params, format = format, path = path, num_spectras = num_spectras)
+    convert_one_sample_data(sample_id, connection_params = connection_params, format = format, path = path, overwrite = overwrite, num_spectras = num_spectras)
   }
   message("All done!")
 

@@ -59,7 +59,7 @@ setMethod("get_sample_data", "sample_dataset", function(obj) obj@sample_data)
 #' @seealso \code{\link{collect_one_sample_data}} for only collecting data by dowloading from the API into the R environment, and \code{\link{save_one_sample_data}} to save collected data from the R environment to Parquet or HDF5 files.
 #' @export
 
-convert_one_sample_data <- function(sample_id, connection_params = NULL, format = 'parquet', path = NULL, num_spectras = NULL){
+convert_one_sample_data <- function(sample_id, connection_params = NULL, format = 'parquet', path = NULL, overwrite = T, num_spectras = NULL){
   if (!format %in% c('parquet', 'hdf5')) {
   stop("The format argument must be either 'parquet' or 'hdf5'")
   } else {
@@ -69,8 +69,17 @@ convert_one_sample_data <- function(sample_id, connection_params = NULL, format 
     sample_name = get_sample_name(sample_infos)
     analysis_name = get_analysis_name(sample_infos)
 
-    collected_data = collect_one_sample_data(sample_id, connection_params, num_spectras)
-    save_one_sample_data(collected_data, sample_name, analysis_name, path = path, format = format)
+    if(!is.null(path)) {
+      path2 = paste0(path, "/", analysis_name)
+    } else {
+      path2 = analysis_name
+    }
+    if (file.exists(glue("{path2}/{sample_name}.parquet")) & overwrite == F) {
+      message(glue::glue("File '{sample_name}' already exists..."))
+    } else {
+      collected_data = collect_one_sample_data(sample_id, connection_params, num_spectras)
+      save_one_sample_data(collected_data, sample_name, analysis_name, path = path, format = format)
+    }
   }
 }
 
@@ -100,6 +109,8 @@ collect_one_sample_data <- function(sample_id, connection_params = NULL, num_spe
   sample_name = get_sample_name(sample_infos)
   analysis_name = get_analysis_name(sample_infos)
   sample_metadata = get_sample_metadata(sample_infos)
+
+  httr::set_config(httr::config(ssl_verifypeer = 0L, ssl_verifyhost = 0L))
 
   message(glue::glue("Downloading sample '{sample_name}'..."))
 
