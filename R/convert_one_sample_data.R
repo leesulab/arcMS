@@ -66,7 +66,7 @@ convert_one_sample_data <- function(sample_id, connection_params = NULL, format 
     if(is.null(connection_params))
       connection_params = get_connection_params(parent.frame())
     sample_infos = get_sample_infos(sample_id, connection_params)
-    sample_name = get_sample_name(sample_infos)
+    sample_name = fs::path_sanitize(get_sample_name(sample_infos))
     analysis_name = get_analysis_name(sample_infos)
 
     if(!is.null(path)) {
@@ -207,9 +207,9 @@ save_one_sample_data <- function(sample_dataset, sample_name = NULL, analysis_na
     stop("The format argument must be either 'parquet' or 'hdf5'")
   } else {
   if (!is.null(sample_name)) {
-    sample_name = sample_name
+    sample_name = fs::path_sanitize(sample_name)
   } else {
-    sample_name = get_sample_name(sample_dataset)
+    sample_name = fs::path_sanitize(get_sample_name(sample_dataset))
   }
   if (!is.null(analysis_name)) {
     analysis_name = analysis_name
