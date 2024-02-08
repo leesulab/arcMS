@@ -3,7 +3,7 @@ Type: Package
 Title: MS converter from UNIFI to Parquet and HDF5 formats
 Version: 1.1.0
 Authors@R: c(
-    person("Julien", "Le Roux", email = "julien.le-roux@u-pec.fr", role = c("aut", "cre")),
+    person("Julien", "Le Roux", email = "julien.le-roux@u-pec.fr", role = c("aut", "cre"), comment = c(ORCID = "0000-0003-0245-8536")),
     person("Julien", "Sade", email = "julien.sade@u-pec.fr", role = "aut")
     )
 Maintainer: Julien Le Roux <julien.le-roux@u-pec.fr>

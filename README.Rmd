@@ -33,13 +33,13 @@ You can install `arcMS` in R with the following command:
 
 ```{r eval=FALSE}
 install.packages("pak")
-pak::pkg_install("leesulab/arcMS") 
+pak::pak("leesulab/arcMS") 
 ```
 
 To use the HDF5 format, the `rhdf5` package needs to be installed:
 
 ```{r eval=FALSE}
-pak::pkg_install("rhdf5")
+pak::pak("rhdf5")
 ```
 
 ## 🚀 Usage
