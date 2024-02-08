@@ -148,7 +148,7 @@ collect_one_sample_data <- function(sample_id, connection_params = NULL, num_spe
    return(res)
  }
 
-future::plan(multisession)
+# future::plan(multisession)
  resp = function(skips) {
   p <- progressor(along = skips)
   response = future.apply::future_lapply(skips, ParallelDownloadQueue, chunkSize = chunkSize, p = p)
