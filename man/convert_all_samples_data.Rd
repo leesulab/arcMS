@@ -9,6 +9,7 @@ convert_all_samples_data(
   connection_params = NULL,
   format = "parquet",
   path = NULL,
+  overwrite = T,
   num_spectras = NULL
 )
 }

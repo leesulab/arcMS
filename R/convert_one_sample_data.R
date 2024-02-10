@@ -110,8 +110,6 @@ collect_one_sample_data <- function(sample_id, connection_params = NULL, num_spe
   analysis_name = get_analysis_name(sample_infos)
   sample_metadata = get_sample_metadata(sample_infos)
 
-  httr::set_config(httr::config(ssl_verifypeer = 0L, ssl_verifyhost = 0L))
-
   message(glue::glue("Downloading sample '{sample_name}'..."))
 
   hostUrl = connection_apihosturl(connection_params)
@@ -120,7 +118,10 @@ collect_one_sample_data <- function(sample_id, connection_params = NULL, num_spe
   sampleUrl = glue::glue("{hostUrl}/sampleresults({sample_id})")
 
   spectrumEndpoint = function(skip, top) { glue::glue(sampleUrl, "/spectra/mass.mse?$skip=", skip, "&$top=", top) }
-  request = function(skip, top) {httr::content(httpClientOctet(spectrumEndpoint(skip, top), token))}
+  request = function(skip, top) {
+    httr::set_config(httr::config(ssl_verifypeer = 0L, ssl_verifyhost = 0L))
+    httr::content(httpClientOctet(spectrumEndpoint(skip, top), token))
+  }
 
   spectrumCountEndpoint = glue::glue(sampleUrl, "/spectra/mass.mse/$count")
   spectrumCount = httr::content(httpClientPlain(spectrumCountEndpoint, token), "text", encoding = "utf-8")
