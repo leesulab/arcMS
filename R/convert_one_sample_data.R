@@ -81,6 +81,7 @@ convert_one_sample_data <- function(sample_id, connection_params = NULL, format 
       printf("Start Saving")
       save_one_sample_data(collected_data, sample_name, analysis_name, path = path, format = format)
       printf("End Saving")
+      rm(collected_data)
     }
   }
 }
