@@ -78,7 +78,9 @@ convert_one_sample_data <- function(sample_id, connection_params = NULL, format 
       message(glue::glue("File '{sample_name}' already exists..."))
     } else {
       collected_data = collect_one_sample_data(sample_id, connection_params, num_spectras)
+      printf("Start Saving")
       save_one_sample_data(collected_data, sample_name, analysis_name, path = path, format = format)
+      printf("End Saving")
     }
   }
 }
@@ -156,12 +158,15 @@ collect_one_sample_data <- function(sample_id, connection_params = NULL, num_spe
   return(response)
 }
 response = with_progress(resp(skips))
-
 message(glue::glue("Deserializing '{sample_name}' sample data..."))
 
 deseria = lapply(response, deserialize_data)
 output = lapply(deseria, outputlist_to_df)
+rm(deseria)
+
 data_all = data.table::rbindlist(output)
+rm(output)
+
 
 # defining data.table variable locally to avoid R cmd check NOTES due to NSE
 energy_level = NULL
