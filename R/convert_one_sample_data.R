@@ -73,6 +73,7 @@ convert_one_sample_data <- function(sample_id, connection_params = NULL, format 
     printf("Start Saving")
     save_one_sample_data(collected_data, sample_name, analysis_name, path = path, format = format)
     printf("End Saving")
+    rm(collected_data)
     
   }
 }
@@ -103,6 +104,7 @@ collect_one_sample_data <- function(sample_id, connection_params = NULL, num_spe
   sample_name = get_sample_name(sample_infos)
   analysis_name = get_analysis_name(sample_infos)
   sample_metadata = get_sample_metadata(sample_infos)
+  print("START COLLECT V2")
 
   message(glue::glue("Downloading sample '{sample_name}'..."))
 
