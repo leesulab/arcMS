@@ -45,6 +45,7 @@ Imports:
     rhdf5,
     magrittr
 Collate:
+    'CCS_collect.R'
     'add_drift_time.R'
     'analysis_search.R'
     'generics.R'
