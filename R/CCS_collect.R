@@ -43,7 +43,7 @@ convert_bin_to_ccs <- function(sample_id, unnestdt, connection_params = NULL) {
         bins = unnestdt$bin,
         mzs = unnestdt$mz,
         charges = rep(1, nrow(unnestdt)),
-        retentiontimes = unnestdrt
+        retentiontimes = unnestdt$rt
     ))
     
     # Make the API request
