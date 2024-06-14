@@ -1,4 +1,8 @@
 #' Convert bin data to CCS (Collision Cross Sections)
+#' This function converts bin data to CCS values for the given sample.
+#' It is recommended to perform this conversion after peak detection, which can be effectively done using DEIMoS.
+#' For more information on DEIMoS, see \url{https://deimos.readthedocs.io/en/latest/}.
+#'
 #'
 #' @param sample_id The id of the sample to be collected.
 #' @param unnestdt A data frame containing the sample data, expected to include columns `bin`, `mz`, and `rt`.
@@ -62,4 +66,4 @@ convert_bin_to_ccs <- function(sample_id, unnestdt, connection_params = NULL) {
     unnestdt$CCS <- ccs_values$value
     
     return(unnestdt)
-}
+}  

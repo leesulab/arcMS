@@ -2,7 +2,10 @@
 % Please edit documentation in R/CCS_collect.R
 \name{convert_bin_to_ccs}
 \alias{convert_bin_to_ccs}
-\title{Convert bin data to CCS (Collision Cross Sections)}
+\title{Convert bin data to CCS (Collision Cross Sections)
+This function converts bin data to CCS values for the given sample.
+It is recommended to perform this conversion after peak detection, which can be effectively done using DEIMoS.
+For more information on DEIMoS, see \url{https://deimos.readthedocs.io/en/latest/}.}
 \usage{
 convert_bin_to_ccs(sample_id, unnestdt, connection_params = NULL)
 }
@@ -20,4 +23,7 @@ A data frame with an additional column `CCS` containing the converted values.
 }
 \description{
 Convert bin data to CCS (Collision Cross Sections)
+This function converts bin data to CCS values for the given sample.
+It is recommended to perform this conversion after peak detection, which can be effectively done using DEIMoS.
+For more information on DEIMoS, see \url{https://deimos.readthedocs.io/en/latest/}.
 }
