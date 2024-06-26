@@ -252,8 +252,8 @@ if (format == "parquet") {
   rhdf5::h5createFile(hdf5_file)
   # defining data.table variable locally to avoid R cmd check NOTES due to NSE
   energy_level = NULL
-  low_data <- subset(sample_data, energy_level == "Low")
-  high_data <- subset(sample_data, energy_level == "High")
+  low_data <- subset(sample_data, energy_level == "1")
+  high_data <- subset(sample_data, energy_level == "2")
   rhdf5::h5write(obj = low_data, file = hdf5_file, name = "ms1")
   rhdf5::h5write(obj = high_data, file = hdf5_file, name = "ms2")
   rhdf5::h5write(obj = sample_metadata, file = hdf5_file, name = "samplemetadata")
