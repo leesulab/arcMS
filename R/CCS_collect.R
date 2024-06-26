@@ -28,6 +28,10 @@ convert_bin_to_ccs <- function(sample_id, unnestdt, connection_params = NULL) {
         stop("Invalid 'connection_params': Must be an object of class 'connection_params'.")
     }
 
+    if ("retention_time" %in% names(unnestdt)) {
+        unnestdt$rt <- unnestdt$retention_time
+    }
+
     # Ensure the unnestdt contains the required columns
     if (!all(c("bin", "mz", "rt") %in% names(unnestdt))) {
         stop("The data frame 'unnestdt' must contain 'bin', 'mz', and 'rt' columns.")

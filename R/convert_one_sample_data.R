@@ -235,6 +235,10 @@ if (!file.exists(path))
 sample_data = get_sample_data(sample_dataset)
 sample_metadata = get_sample_metadata(sample_dataset)
 spectrum_metadata = get_spectrum_metadata(sample_dataset)
+
+sample_data = arrow::arrow_table(sample_data)
+sample_data$metadata = sample_metadata
+
 #save data
 if (format == "parquet") {
   metadatalist = list("sampleinfos" = sample_metadata, "spectruminfos" = spectrum_metadata)
