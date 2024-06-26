@@ -22,7 +22,7 @@ outputlist_to_df <- function(outputlist){
     data_all[i,]$ionization_polarity = outputlist[[i]]$MassSpectrum$MSeMassSpectrum$IonizationPolarity
 
   }
-  data_all$energy_level <- ifelse(data_all$energy_level == 1, "Low", "High")
+  #data_all$energy_level <- ifelse(data_all$energy_level == 1, "Low", "High")
   data_all$ionization_polarity <- ifelse(data_all$ionization_polarity == 2, 1, 0)
 
 

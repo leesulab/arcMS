@@ -172,7 +172,7 @@ rm(output)
 # defining data.table variable locally to avoid R cmd check NOTES due to NSE
 energy_level = NULL
 
-data_all$energy_level <- factor(data_all$energy_level, levels = c("Low", "High"))
+data_all$energy_level <- factor(data_all$energy_level, levels = c("1", "2"))
 data_all <- data_all[order(data_all$energy_level),]
 explode_data = explode_spectra(data_all)
 explode_data_with_dt = add_drift_time(connection_params = connection_params, unnestdt = explode_data, sample_id = sample_id)
