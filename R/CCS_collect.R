@@ -3,54 +3,62 @@
 #' It is recommended to perform this conversion after peak detection, which can be effectively done using DEIMoS.
 #' For more information on DEIMoS, see \url{https://deimos.readthedocs.io/en/latest/}.
 #'
-#'
-#' @param sample_id The id of the sample to be collected.
-#' @param unnestdt A data frame containing the sample data, expected to include columns `bin`, `mz`, and `rt`.
+#' @param data An Arrow table object containing the sample data.
+#'   This data should include the necessary columns: `bin`, `mz`, and `rt`.
+#'   The metadata of this Arrow table should contain the `id` of the sample under `data$metadata$id`.
 #' @param connection_params OPTIONAL: Connection parameters object created by the
 #' \code{\link{create_connection_params}} function. If not provided, the
 #' \code{\link{get_connection_params}} will look for such an object in the global environment.
 #'
-#' @return A data frame with an additional column `CCS` containing the converted values.
-
+#' @return An Arrow table that includes the original data along with an additional column `CCS` containing the CCS values.
+#'   The returned Arrow table will also retain the original metadata.
 #' @export
-convert_bin_to_ccs <- function(sample_id, unnestdt, connection_params = NULL) {
-    # Check if connection parameters were provided, if not, attempt to retrieve them
+
+
+convert_bin_to_ccs <- function(data, connection_params = NULL) {
+    # Check if sample_id is accessible
+    if (!"id" %in% names(data$metadata)) {
+        stop("Sample ID is missing.")
+    }
+    sample_id <- data$metadata$id
+
+    # Check connection parameters
     if (is.null(connection_params)) {
-        # Attempt to retrieve connection parameters from the global environment or other default
-        connection_params <- get_connection_params()  # Assumes this function can handle fetching or creating parameters
+        connection_params <- get_connection_params() 
         if (is.null(connection_params)) {
             stop("Connection parameters are required but were not provided or found.")
         }
     }
-    
-    # Validate connection parameters
+
     if (!inherits(connection_params, "connection_params")) {
         stop("Invalid 'connection_params': Must be an object of class 'connection_params'.")
     }
 
+    unnestdt <- dplyr::collect(data) %>% as.data.frame()
+
+    # Add the rt column if necessary
     if ("retention_time" %in% names(unnestdt)) {
         unnestdt$rt <- unnestdt$retention_time
     }
 
-    # Ensure the unnestdt contains the required columns
+    # Check for required columns
     if (!all(c("bin", "mz", "rt") %in% names(unnestdt))) {
         stop("The data frame 'unnestdt' must contain 'bin', 'mz', and 'rt' columns.")
     }
-    
-    # Retrieve the API host URL and token from the connection parameters
+
+    # Prepare the API call
     hostUrl <- connection_apihosturl(connection_params)
     token <- connection_token(connection_params)
-    
-    # Prepare the API URL and request body
     sampleUrl <- glue::glue("{hostUrl}/sampleresults({sample_id})/spectra/mass.mse/convertbintoccs")
+
     body <- jsonlite::toJSON(list(
         bins = unnestdt$bin,
         mzs = unnestdt$mz,
         charges = rep(1, nrow(unnestdt)),
         retentiontimes = unnestdt$rt
     ))
-    
-    # Make the API request
+
+    # Make API call
     response <- httr::POST(
         url = sampleUrl,
         body = body,
@@ -59,15 +67,18 @@ convert_bin_to_ccs <- function(sample_id, unnestdt, connection_params = NULL) {
             "Authorization" = paste("Bearer", token)
         )
     )
-    
+
     # Check the response status
     if (httr::status_code(response) != 200) {
         stop("Error in API request: ", httr::content(response, "text", encoding = "UTF-8"))
     }
-    
-    # Parse the JSON response and update the data frame with CCS values
+
+    # Update unnestdt with CCS values
     ccs_values <- jsonlite::fromJSON(httr::content(response, "text", encoding = "UTF-8"))
     unnestdt$CCS <- ccs_values$value
-    
-    return(unnestdt)
-}  
+
+    arrow_table <- arrow::as_arrow_table(unnestdt)
+    arrow_table$metadata <- data$metadata
+
+    return(arrow_table)
+}
