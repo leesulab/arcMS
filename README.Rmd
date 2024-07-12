@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 
 <!-- badges: end -->
 
-`arcMS` can convert HDMS<sup>E</sup> data acquired with Waters UNIFI to tabular format for use in R or Python, with a small filesize when saved on disk. test
+`arcMS` can convert HDMS<sup>E</sup> data acquired with Waters UNIFI to tabular format for use in R or Python, with a small filesize when saved on disk.
 
 Two output data file formats can be obtained:
 
@@ -108,9 +108,10 @@ samples = get_samples_list("e236bf99-31cd-44ae-a4e7-74915697df65")
 samples[2:5,]
 ```
 
-Once we get a sample ID, we can use it to download the sample data:
+Once we get a sample ID, we can use it to download the sample data, using the `future` framework for parallel processing:
 
 ```{r eval=FALSE}
+future::plan(multisession)
 convert_one_sample_data(sample_id = "0134efbf-c75a-411b-842a-4f35e2b76347")
 ```
 
