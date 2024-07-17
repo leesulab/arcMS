@@ -24,6 +24,8 @@ convert_all_samples_data(
 
 \item{path}{OPTIONAL The destination path for exported files}
 
+\item{overwrite}{OPTIONAL overwrite the sample if already present on disk}
+
 \item{num_spectras}{OPTIONAL A number of spectra to be collected and converted
 (if no need to convert whole samples, e.g. for testing purposes)}
 }

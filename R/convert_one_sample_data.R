@@ -53,6 +53,7 @@ setMethod("get_sample_data", "sample_dataset", function(obj) obj@sample_data)
 #' \code{\link{get_connection_params}} will look for such object in the global environment
 #' @param format The format chosen for the exported file (Parquet or HDF5)
 #' @param path OPTIONAL The destination path for the exported file
+#' @param overwrite OPTIONAL overwrite the sample if already present on disk
 #' @param num_spectras OPTIONAL Number of spectras to be downloaded (OPTIONAL, only if whole sample data not needed, e.g. for testing purposes)
 #'
 #' @return Datatables of the sample's spectral data and metadata are saved in Parquet or HDF5 format in the analysis name folder.

@@ -24,6 +24,8 @@ convert_one_sample_data(
 
 \item{path}{OPTIONAL The destination path for the exported file}
 
+\item{overwrite}{OPTIONAL overwrite the sample if already present on disk}
+
 \item{num_spectras}{OPTIONAL Number of spectras to be downloaded (OPTIONAL, only if whole sample data not needed, e.g. for testing purposes)}
 }
 \value{

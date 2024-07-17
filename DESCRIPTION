@@ -43,15 +43,16 @@ Imports:
     withr,
     tidytable,
     rhdf5,
-    magrittr
+    magrittr,
+    fs
 Collate:
-    'CCS_collect.R'
     'add_drift_time.R'
     'analysis_search.R'
     'generics.R'
     'main.R'
     'api_connection.R'
     'convert_all_samples_data.R'
+    'convert_bin_to_ccs.R'
     'sample_infos.R'
     'convert_one_sample_data.R'
     'decodeVarint.R'
