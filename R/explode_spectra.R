@@ -25,7 +25,10 @@ explode_spectra <- function(wide_df) {
 
   scansizes <- spectra[, .(scan_size = unlist(scan_size)), by = .(rt, scanid, energy_level)]
 
-  scansizes[, bin := rep(1:200, each = .N / 200), by = .(rt, scanid, energy_level)]
+  # test if has ion mobility data (200 scan size values)
+  if(length(spectra[["scan_size"]][[1]]) == 200) {
+    scansizes[, bin := rep(1:200, each = .N / 200), by = .(rt, scanid, energy_level)]
+  }
 
   manual_uncount <- function(dt, count_col) {
     setDT(dt)
@@ -34,7 +37,10 @@ explode_spectra <- function(wide_df) {
     return(dt_repeated)
   }
   scansizedf <- manual_uncount(scansizes, "scan_size")
-  unnestdt = unnestdt[, bin := scansizedf$bin]
+  if ("bin" %in% colnames(scansizedf)) {
+    unnestdt = unnestdt[, bin := scansizedf$bin]
+  }
+
   rm(scansizedf)
   return(unnestdt)
 }

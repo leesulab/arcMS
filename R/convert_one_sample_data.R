@@ -175,14 +175,17 @@ energy_level = NULL
 
 data_all$energy_level <- factor(data_all$energy_level, levels = c("1", "2"))
 data_all <- data_all[order(data_all$energy_level),]
-explode_data = explode_spectra(data_all)
-explode_data_with_dt = add_drift_time(connection_params = connection_params, unnestdt = explode_data, sample_id = sample_id)
+long_data = explode_spectra(data_all)
+
+if("bin" %in% colnames(long_data)) {
+  long_data = add_drift_time(connection_params = connection_params, unnestdt = explode_data, sample_id = sample_id)
+}
 spectrum_infos = get_spectrum_metadata(sample_infos)
 sample_metadata_json = as.character(get_sample_metadata_json(sample_infos))
 spectrum_metadata_json = as.character(get_spectrum_metadata_json(sample_infos))
 
 collecteddata <- sample_dataset(
-    sample_data = explode_data_with_dt,
+    sample_data = long_data,
     sample_metadata = sample_metadata,
     spectrum_metadata = spectrum_infos,
     sample_metadata_json = sample_metadata_json,
