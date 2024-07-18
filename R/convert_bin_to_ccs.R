@@ -1,6 +1,9 @@
-#' Convert bin data to CCS (Collision Cross Sections)
-#' This function converts bin data to CCS values for the given sample.
-#' It is recommended to perform this conversion after peak detection, which can be effectively done using DEIMoS.
+#' Convert bin value to CCS (Collision Cross Section) value
+#' This function converts bin values to CCS values for the given sample.
+#' This conversion should be performed for a limited number of detected peaks
+#' and not on raw data to avoid too many requests and useless CCS calculations
+#' for all m/z peaks and fragments.
+#' Peak lists can be obtained after peak detection, for example using the DEIMoS Python library.
 #' For more information on DEIMoS, see \url{https://deimos.readthedocs.io/en/latest/}.
 #'
 #' @param data An Arrow table object containing the sample data.
@@ -24,7 +27,7 @@ convert_bin_to_ccs <- function(data, connection_params = NULL) {
 
     # Check connection parameters
     if (is.null(connection_params)) {
-        connection_params <- get_connection_params() 
+        connection_params <- get_connection_params()
         if (is.null(connection_params)) {
             stop("Connection parameters are required but were not provided or found.")
         }
