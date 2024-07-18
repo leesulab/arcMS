@@ -8,6 +8,7 @@
 #' \code{\link{get_connection_params}} will look for such object in the global environment
 #' @param format The format chosen for the exported file (Parquet or HDF5)
 #' @param path OPTIONAL The destination path for exported files
+#' @param overwrite OPTIONAL overwrite the sample if already present on disk
 #' @param num_spectras OPTIONAL A number of spectra to be collected and converted
 #' (if no need to convert whole samples, e.g. for testing purposes)
 #'

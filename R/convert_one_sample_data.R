@@ -53,6 +53,7 @@ setMethod("get_sample_data", "sample_dataset", function(obj) obj@sample_data)
 #' \code{\link{get_connection_params}} will look for such object in the global environment
 #' @param format The format chosen for the exported file (Parquet or HDF5)
 #' @param path OPTIONAL The destination path for the exported file
+#' @param overwrite OPTIONAL overwrite the sample if already present on disk
 #' @param num_spectras OPTIONAL Number of spectras to be downloaded (OPTIONAL, only if whole sample data not needed, e.g. for testing purposes)
 #'
 #' @return Datatables of the sample's spectral data and metadata are saved in Parquet or HDF5 format in the analysis name folder.
@@ -78,7 +79,10 @@ convert_one_sample_data <- function(sample_id, connection_params = NULL, format 
       message(glue::glue("File '{sample_name}' already exists..."))
     } else {
       collected_data = collect_one_sample_data(sample_id, connection_params, num_spectras)
+      printf("Start Saving")
       save_one_sample_data(collected_data, sample_name, analysis_name, path = path, format = format)
+      printf("End Saving")
+      rm(collected_data)
     }
   }
 }
@@ -156,26 +160,32 @@ collect_one_sample_data <- function(sample_id, connection_params = NULL, num_spe
   return(response)
 }
 response = with_progress(resp(skips))
-
 message(glue::glue("Deserializing '{sample_name}' sample data..."))
 
 deseria = lapply(response, deserialize_data)
 output = lapply(deseria, outputlist_to_df)
+rm(deseria)
+
 data_all = data.table::rbindlist(output)
+rm(output)
+
 
 # defining data.table variable locally to avoid R cmd check NOTES due to NSE
 energy_level = NULL
 
-data_all$energy_level <- factor(data_all$energy_level, levels = c("Low", "High"))
+data_all$energy_level <- factor(data_all$energy_level, levels = c("1", "2"))
 data_all <- data_all[order(data_all$energy_level),]
-explode_data = explode_spectra(data_all)
-explode_data_with_dt = add_drift_time(connection_params = connection_params, unnestdt = explode_data, sample_id = sample_id)
+long_data = explode_spectra(data_all)
+
+if("bin" %in% colnames(long_data)) {
+  long_data = add_drift_time(connection_params = connection_params, unnestdt = explode_data, sample_id = sample_id)
+}
 spectrum_infos = get_spectrum_metadata(sample_infos)
 sample_metadata_json = as.character(get_sample_metadata_json(sample_infos))
 spectrum_metadata_json = as.character(get_spectrum_metadata_json(sample_infos))
 
 collecteddata <- sample_dataset(
-    sample_data = explode_data_with_dt,
+    sample_data = long_data,
     sample_metadata = sample_metadata,
     spectrum_metadata = spectrum_infos,
     sample_metadata_json = sample_metadata_json,
@@ -229,6 +239,10 @@ if (!file.exists(path))
 sample_data = get_sample_data(sample_dataset)
 sample_metadata = get_sample_metadata(sample_dataset)
 spectrum_metadata = get_spectrum_metadata(sample_dataset)
+
+sample_data = arrow::arrow_table(sample_data)
+sample_data$metadata = sample_metadata
+
 #save data
 if (format == "parquet") {
   metadatalist = list("sampleinfos" = sample_metadata, "spectruminfos" = spectrum_metadata)
@@ -242,8 +256,8 @@ if (format == "parquet") {
   rhdf5::h5createFile(hdf5_file)
   # defining data.table variable locally to avoid R cmd check NOTES due to NSE
   energy_level = NULL
-  low_data <- subset(sample_data, energy_level == "Low")
-  high_data <- subset(sample_data, energy_level == "High")
+  low_data <- subset(sample_data, energy_level == "1")
+  high_data <- subset(sample_data, energy_level == "2")
   rhdf5::h5write(obj = low_data, file = hdf5_file, name = "ms1")
   rhdf5::h5write(obj = high_data, file = hdf5_file, name = "ms2")
   rhdf5::h5write(obj = sample_metadata, file = hdf5_file, name = "samplemetadata")

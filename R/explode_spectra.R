@@ -8,24 +8,39 @@
 #' @return A long format dataframe with the exploded spectral data.
 #' @keywords internal
 
+
 explode_spectra <- function(wide_df) {
   # defining data.table variables locally to avoid R cmd check NOTES due to NSE
-  energy_level = rt = scanid = intensities = masses = scan_size = NULL
+  energy_level = rt = scanid = intensities = masses = scan_size = bin = NULL
 
   spectra <- as.data.table(wide_df)
+  rm(wide_df)
+
   spectra[, scanid := seq_len(.N), by = energy_level]
 
-  unnestmasses <- spectra[, unlist(masses), by = .(rt, scanid, energy_level)]
-  unnestintensities <- spectra[, unlist(intensities)]
-  unnestdt <- cbind(unnestmasses, unnestintensities)
-  setnames(unnestdt, c("rt", "scanid", "energy_level", "mz", "intensities"))
+  unnestmasses <- spectra[, .(mz = unlist(masses)), by = .(rt, scanid, energy_level)]
+  unnestintensities <- spectra[, .(intensity = unlist(intensities)), by = .(scanid)]
+  unnestdt = unnestmasses[, intensities := unnestintensities$intensity]
+  rm(unnestmasses,unnestintensities)
 
-  # Adding bin number to each line/mz value
-  scansizes <- spectra[, unlist(scan_size), by = .(rt, scanid, energy_level)]
-  setnames(scansizes, "V1", "scan_size")
-  scansizes$bin <- rep(1:200, times = nrow(spectra))
-  scansizedf <- tidytable::uncount(scansizes, scan_size, .remove = F)
+  scansizes <- spectra[, .(scan_size = unlist(scan_size)), by = .(rt, scanid, energy_level)]
 
-  unnestdt <- cbind(unnestdt, bin = scansizedf$bin)
+  # test if has ion mobility data (200 scan size values)
+  if(length(spectra[["scan_size"]][[1]]) == 200) {
+    scansizes[, bin := rep(1:200, each = .N / 200), by = .(rt, scanid, energy_level)]
+  }
+
+  manual_uncount <- function(dt, count_col) {
+    setDT(dt)
+    rep_indices <- rep(seq_len(nrow(dt)), dt[[count_col]])
+    dt_repeated <- dt[rep_indices, ]
+    return(dt_repeated)
+  }
+  scansizedf <- manual_uncount(scansizes, "scan_size")
+  if ("bin" %in% colnames(scansizedf)) {
+    unnestdt = unnestdt[, bin := scansizedf$bin]
+  }
+
+  rm(scansizedf)
   return(unnestdt)
 }

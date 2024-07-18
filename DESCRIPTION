@@ -11,7 +11,7 @@ Description: Functions to connect to Waters UNIFI API and convert data to parque
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.0
+RoxygenNote: 7.3.1
 Suggests:
     testthat (>= 3.0.0),
     spsComps,
@@ -43,7 +43,8 @@ Imports:
     withr,
     tidytable,
     rhdf5,
-    magrittr
+    magrittr,
+    fs
 Collate:
     'add_drift_time.R'
     'analysis_search.R'
@@ -51,6 +52,7 @@ Collate:
     'main.R'
     'api_connection.R'
     'convert_all_samples_data.R'
+    'convert_bin_to_ccs.R'
     'sample_infos.R'
     'convert_one_sample_data.R'
     'decodeVarint.R'
