@@ -113,7 +113,8 @@ samples[2:5,]
 Once we get a sample ID, we can use it to download the sample data, using the `future` framework for parallel processing:
 
 ```{r eval=FALSE}
-future::plan(multisession)
+library(future)
+plan(multisession)
 convert_one_sample_data(sample_id = "0134efbf-c75a-411b-842a-4f35e2b76347")
 ```
 

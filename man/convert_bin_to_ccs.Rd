@@ -4,7 +4,10 @@
 \alias{convert_bin_to_ccs}
 \title{Convert bin value to CCS (Collision Cross Section) value
 This function converts bin values to CCS values for the given sample.
-It is recommended to perform this conversion after peak detection, which can be effectively done using DEIMoS.
+This conversion should be performed for a limited number of detected peaks
+and not on raw data to avoid too many requests and useless CCS calculations
+for all m/z peaks and fragments.
+Peak lists can be obtained after peak detection, for example using the DEIMoS Python library.
 For more information on DEIMoS, see \url{https://deimos.readthedocs.io/en/latest/}.}
 \usage{
 convert_bin_to_ccs(data, connection_params = NULL)
@@ -25,6 +28,9 @@ An Arrow table that includes the original data along with an additional column `
 \description{
 Convert bin value to CCS (Collision Cross Section) value
 This function converts bin values to CCS values for the given sample.
-It is recommended to perform this conversion after peak detection, which can be effectively done using DEIMoS.
+This conversion should be performed for a limited number of detected peaks
+and not on raw data to avoid too many requests and useless CCS calculations
+for all m/z peaks and fragments.
+Peak lists can be obtained after peak detection, for example using the DEIMoS Python library.
 For more information on DEIMoS, see \url{https://deimos.readthedocs.io/en/latest/}.
 }
