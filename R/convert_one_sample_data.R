@@ -171,14 +171,15 @@ rm(output)
 
 
 # defining data.table variable locally to avoid R cmd check NOTES due to NSE
-energy_level = NULL
+mslevel = NULL
 
-data_all$energy_level <- factor(data_all$energy_level, levels = c("1", "2"))
-data_all <- data_all[order(data_all$energy_level),]
+data_all <- data_all[ , mslevel := as.factor(mslevel)]
+data_all <- data_all[order(data_all$mslevel),]
+
 long_data = explode_spectra(data_all)
 
 if("bin" %in% colnames(long_data)) {
-  long_data = add_drift_time(connection_params = connection_params, unnestdt = explode_data, sample_id = sample_id)
+  long_data = add_drift_time(connection_params = connection_params, unnestdt = long_data, sample_id = sample_id)
 }
 spectrum_infos = get_spectrum_metadata(sample_infos)
 sample_metadata_json = as.character(get_sample_metadata_json(sample_infos))
@@ -255,11 +256,11 @@ if (format == "parquet") {
   hdf5_file <- glue::glue("{path}/{sample_name}.h5")
   rhdf5::h5createFile(hdf5_file)
   # defining data.table variable locally to avoid R cmd check NOTES due to NSE
-  energy_level = NULL
-  low_data <- subset(sample_data, energy_level == "1")
-  high_data <- subset(sample_data, energy_level == "2")
-  rhdf5::h5write(obj = low_data, file = hdf5_file, name = "ms1")
-  rhdf5::h5write(obj = high_data, file = hdf5_file, name = "ms2")
+  mslevel = NULL
+  ms1data <- subset(sample_data, mslevel == "1")
+  ms2data <- subset(sample_data, mslevel == "2")
+  rhdf5::h5write(obj = ms1data, file = hdf5_file, name = "ms1")
+  rhdf5::h5write(obj = ms2data, file = hdf5_file, name = "ms2")
   rhdf5::h5write(obj = sample_metadata, file = hdf5_file, name = "samplemetadata")
   rhdf5::h5write(obj = spectrum_metadata, file = hdf5_file, name = "spectrummetadata")
 

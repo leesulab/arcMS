@@ -7,7 +7,7 @@
 explode_spectra(wide_df)
 }
 \arguments{
-\item{wide_df}{A wide format dataframe with columns 'masses', 'intensities', and 'scan_size'.}
+\item{wide_df}{A wide format dataframe with columns 'mz', 'intensity', and 'scan_size'.}
 }
 \value{
 A long format dataframe with the exploded spectral data.
@@ -15,6 +15,6 @@ A long format dataframe with the exploded spectral data.
 \description{
 This function takes a wide format dataframe and unnests (explodes) it into a long format.
 The unnested table contains the columns rt (retention time), scanid (id of each scan),
-energy_level (low or high), mz (m/z values), bin (drift time bin) and intensities.
+mslevel (1 or 2, i.e. low or high energy for MSe data), mz (m/z values), bin (drift time bin) and intensities.
 }
 \keyword{internal}
