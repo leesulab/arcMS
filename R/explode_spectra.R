@@ -20,7 +20,7 @@ explode_spectra <- function(wide_df) {
   spectra[, scanid := seq_len(.N), by = mslevel]
 
   unnestmasses <- spectra[, .(mz = unlist(mz)), by = .(rt, scanid, mslevel)]
-  unnestintensities <- spectra[, .(intensity = unlist(intensity)), by = .(scanid)]
+  unnestintensities <- spectra[, .(intensity = unlist(intensity)), by = .(scanid, mslevel)]
   unnestdt = unnestmasses[, intensity := unnestintensities$intensity]
   rm(unnestmasses,unnestintensities)
   gc(reset = T)
@@ -34,19 +34,17 @@ explode_spectra <- function(wide_df) {
   # test if has ion mobility data (200 scan size values)
   if(length(spectra[["scan_size"]][[1]]) == 200) {
     # Adding bin number to each line/mz value
-     scansizes <- spectra[, .(scan_size = unlist(scan_size)), by = .(rt, scanid, mslevel)]
-     scansizes$bin <- rep(1:200, times = nrow(spectra))
-     scansizedf <- tidytable::uncount(scansizes, scan_size, .remove = F)
+     # scansizes <- spectra[, .(scan_size = unlist(scan_size)), by = .(rt, scanid, mslevel)]
+     # scansizes$bin <- rep(1:200, times = nrow(spectra))
+     # scansizedf <- tidytable::uncount(scansizes, scan_size, .remove = F)
 
-     unnestdt = unnestdt[, bin := scansizedf$bin]
+    # unnestdt <- cbind(unnestdt, bin = scansizedf$bin)
 
-     # unnestdt <- cbind(unnestdt, bin = scansizedf$bin)
+    scansizes <- spectra[, .(scan_size = unlist(scan_size)), by = .(rt, scanid, mslevel)]
+    scansizes[, bin := rep(1:200, each = .N / 200), by = .(rt, scanid, mslevel)]
 
-    # scansizes <- spectra[, .(scan_size = unlist(scan_size)), by = .(rt, scanid, mslevel)]
-    # scansizes[, bin := rep(1:200, each = .N / 200), by = .(rt, scanid, mslevel)]
-    #
-    # scansizedf <- manual_uncount(scansizes, "scan_size")
-    # unnestdt = unnestdt[, bin := scansizedf$bin]
+    scansizedf <- manual_uncount(scansizes, "scan_size")
+    unnestdt = unnestdt[, bin := scansizedf$bin]
     rm(scansizedf)
     gc(reset = T)
   }
