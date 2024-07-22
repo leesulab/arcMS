@@ -99,7 +99,7 @@ setMethod("connection_apihosturl", "connection_params", function(obj) obj@apihos
 setMethod("connection_token", "connection_params", function(obj) obj@token)
 
 
-# Helper functions to connect to API with URL, either collecting plain text or binary response
+# Helper functions to connect to API with URL, either collecting plain text or binary response
 httpClientPlain = function(url, token) {
   httr::GET(url, add_headers(
                                    Accept="text/plain",
