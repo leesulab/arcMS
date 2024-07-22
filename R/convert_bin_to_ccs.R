@@ -78,7 +78,7 @@ convert_bin_to_ccs <- function(data, connection_params = NULL) {
 
     # Update unnestdt with CCS values
     ccs_values <- jsonlite::fromJSON(httr::content(response, "text", encoding = "UTF-8"))
-    unnestdt$CCS <- ccs_values$value
+    unnestdt$ccs <- ccs_values$value
 
     arrow_table <- arrow::as_arrow_table(unnestdt)
     arrow_table$metadata <- data$metadata

@@ -1,0 +1,37 @@
+---
+title: "Get CCS values"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Get CCS values}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, include = FALSE}
+library(arcMS)
+```
+
+# Get CCS values
+
+For HDMS<sup>E</sup> data (with IMS), CCS values can be retrieved from the UNIFI API.
+
+The API call requires passing m/z values, charges and retention times. Therefore, it is not recommended to use it for all peaks present in raw data to avoid excessive requests and unnecessary CCS calculations (e.g., for fragments or isotopes).
+
+The conversion should be performed for a limited number of detected peaks. Detected peak lists can be obtained after peak detection by any software or algorithm. The [DEIMoS Python library](https://deimos.readthedocs.io/en/latest/) can be easily used with MS data converted with `arcMS` to Parquet format. It can perform peak detection to obtain a reduced list of peaks for which CCS values can then be retrieved.
+
+The conversion operation is based on drift time calibration of an HDMSe result. It is possible only if CCS calibration was performed. It will convert bin index values to CCS calibrated values, expressed in angstrom squared.
+
+The `convert_bin_to_ccs()` function can be used as follows:
+
+```{r, eval=FALSE}
+convert_bin_to_ccs(arrow_data)
+```
+
+It takes an Arrow table object containing the sample data as input. This table must include the necessary columns: `bin`, `mz`, and `rt`, and the metadata must contain the `id` of the sample. The function returns the same Arrow table with an additional `ccs` column.

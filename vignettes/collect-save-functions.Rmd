@@ -1,0 +1,35 @@
+---
+title: "collect-save-functions"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{collect-save-functions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, echo = FALSE}
+library(arcMS)
+```
+
+## Functions to collect and save data
+
+The `collect_one_sample_data()` function can be used to only collect the data from the API into an R object for further processing without saving it to disk.
+
+```{r, eval = FALSE}
+collected_data = collect_one_sample_data(sample_id = "0134efbf-c75a-411b-842a-4f35e2b76347")
+```
+
+The `save_one_sample_data()` function can then be used to save this R object to a Parquet file.
+
+```{r, eval = FALSE}
+save_one_sample_data(collected_data)
+```
+
+The `convert_one_sample_data()` is just a combination of the two functions above.

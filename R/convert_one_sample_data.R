@@ -180,6 +180,10 @@ long_data = explode_spectra(data_all)
 
 if("bin" %in% colnames(long_data)) {
   long_data = add_drift_time(connection_params = connection_params, unnestdt = long_data, sample_id = sample_id)
+} else {
+  # add bin and dt columns even for data without IMS, for compatibility with viz app
+  long_data[, "bin" := 1]
+  long_data[, "dt" := 0]
 }
 spectrum_infos = get_spectrum_metadata(sample_infos)
 sample_metadata_json = as.character(get_sample_metadata_json(sample_infos))

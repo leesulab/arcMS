@@ -33,11 +33,20 @@ explode_spectra <- function(wide_df) {
   }
   # test if has ion mobility data (200 scan size values)
   if(length(spectra[["scan_size"]][[1]]) == 200) {
-    scansizes <- spectra[, .(scan_size = unlist(scan_size)), by = .(rt, scanid, mslevel)]
-    scansizes[, bin := rep(1:200, each = .N / 200), by = .(rt, scanid, mslevel)]
+    # Adding bin number to each line/mz value
+     scansizes <- spectra[, .(scan_size = unlist(scan_size)), by = .(rt, scanid, mslevel)]
+     scansizes$bin <- rep(1:200, times = nrow(spectra))
+     scansizedf <- tidytable::uncount(scansizes, scan_size, .remove = F)
 
-    scansizedf <- manual_uncount(scansizes, "scan_size")
-    unnestdt = unnestdt[, bin := scansizedf$bin]
+     unnestdt = unnestdt[, bin := scansizedf$bin]
+
+     # unnestdt <- cbind(unnestdt, bin = scansizedf$bin)
+
+    # scansizes <- spectra[, .(scan_size = unlist(scan_size)), by = .(rt, scanid, mslevel)]
+    # scansizes[, bin := rep(1:200, each = .N / 200), by = .(rt, scanid, mslevel)]
+    #
+    # scansizedf <- manual_uncount(scansizes, "scan_size")
+    # unnestdt = unnestdt[, bin := scansizedf$bin]
     rm(scansizedf)
     gc(reset = T)
   }
