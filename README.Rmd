@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 
 <!-- badges: end -->
 
-`arcMS` can convert HDMS<sup>E</sup> data acquired with Waters UNIFI to tabular format for use in R or Python, with a small filesize when saved on disk.
+`arcMS` can convert (HD)MS<sup>E</sup> data acquired with Waters UNIFI to tabular format for use in R or Python, with a small filesize when saved on disk. It is compatible with data containing ion mobility (HDMS<sup>E</sup>) or not (MS<sup>E</sup>).
 
 Two output data file formats can be obtained:
 
@@ -35,7 +35,7 @@ You can install `arcMS` in R with the following command:
 
 ```{r eval=FALSE}
 install.packages("pak")
-pak::pak("leesulab/arcMS") 
+pak::pak("leesulab/arcMS")
 ```
 
 To use the HDF5 format, the `rhdf5` package needs to be installed:
