@@ -245,14 +245,18 @@ sample_data = get_sample_data(sample_dataset)
 sample_metadata = get_sample_metadata(sample_dataset)
 spectrum_metadata = get_spectrum_metadata(sample_dataset)
 
-sample_data = arrow::arrow_table(sample_data)
-sample_data$metadata = sample_metadata
+attr(sample_data, "sample_metadata") = sample_metadata
+attr(sample_data, "spectrum_metadata") = spectrum_metadata
+attr(sample_data, "sample_metadata_json") = toJSON(sample_metadata, pretty = T)
+attr(sample_data, "spectrum_metadata_json") = toJSON(spectrum_metadata, pretty = T)
+
+sample_data_arrow = arrow::arrow_table(sample_data)
 
 #save data
 if (format == "parquet") {
   metadatalist = list("sampleinfos" = sample_metadata, "spectruminfos" = spectrum_metadata)
   metadatajson = toJSON(metadatalist, pretty = T)
-  arrow::write_parquet(sample_data, glue("{path}/{sample_name}.parquet"), compression = "gzip")
+  arrow::write_parquet(sample_data_arrow, glue("{path}/{sample_name}.parquet"), compression = "gzip")
   write(metadatajson, glue("{path}/{sample_name}-metadata.json"))
 
   message(glue::glue("Sample '{sample_name}' saved as parquet file!"))
