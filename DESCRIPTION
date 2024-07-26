@@ -53,7 +53,6 @@ Collate:
     'api_connection.R'
     'convert_all_samples_data.R'
     'convert_bin_to_ccs.R'
-    'sample_infos.R'
     'convert_one_sample_data.R'
     'decodeVarint.R'
     'deserialize_data.R'
@@ -62,5 +61,7 @@ Collate:
     'get_samples_list.R'
     'outputlist_to_df.R'
     'run_app.R'
+    'sample_infos.R'
+    'sample_dataset.R'
 URL: https://github.com/leesulab/arcMS/, https://leesulab.github.io/arcMS/
 VignetteBuilder: knitr
