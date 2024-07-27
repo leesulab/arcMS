@@ -204,6 +204,7 @@ sample_data = get_sample_data(sample_dataset)
 sample_metadata = get_sample_metadata(sample_dataset)
 spectrum_metadata = get_spectrum_metadata(sample_dataset)
 
+# attributes useful for direct opening in R with arrow::read_parquet
 attr(sample_data, "sample_metadata") = sample_metadata
 attr(sample_data, "spectrum_metadata") = spectrum_metadata
 attr(sample_data, "sample_metadata_json") = toJSON(sample_metadata, pretty = T)
@@ -217,6 +218,10 @@ attr(sample_data, "binmax") = max(sample_data$bin)
 attr(sample_data, "dims") = dim(sample_data)
 
 sample_data_arrow = arrow::arrow_table(sample_data)
+
+# saving metadata as JSON for opening in Python/pyarrow
+sample_data_arrow$metadata$sample_metadata = toJSON(sample_metadata, pretty = T)
+sample_data_arrow$metadata$spectrum_metadata = toJSON(spectrum_metadata, pretty = T)
 
 #save data
 if (format == "parquet") {
