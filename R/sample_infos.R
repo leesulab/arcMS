@@ -18,19 +18,22 @@ NULL
 #' @param obj The \code{\link{sample_infos}} object to access.
 #'
 #' @export
+setClassUnion("dataframeOrDatatable", c("data.frame", "data.table"))
 sample_infos <- setClass("sample_infos",
-                        slots = c(sample_metadata = "data.table",
-                                  spectrum_metadata = "data.table",
+                         slots = c(sample_metadata = "dataframeOrDatatable",
+                                   spectrum_metadata = "dataframeOrDatatable",
                                   sample_metadata_json = "character",
                                   spectrum_metadata_json = "character"))
 # initialize method during object instantiation
 setMethod("initialize", signature = "sample_infos",
-          definition = function(.Object, sample_metadata, spectrum_metadata, sample_metadata_json, spectrum_metadata_json)
+          definition = function(.Object, ...)
           {
-                    .Object@sample_metadata <- sample_metadata
-                    .Object@spectrum_metadata <- spectrum_metadata
-                    .Object@sample_metadata_json <- sample_metadata_json
-                    .Object@spectrum_metadata_json <- spectrum_metadata_json
+                    .Object <- callNextMethod()
+              if (length(.Object@sample_metadata) == 0L)
+                  warning("zero-length 'sample_metadata' slot")
+              if (length(.Object@spectrum_metadata) == 0L)
+                  warning("zero-length 'spectrum_metadata' slot")
+
             return(.Object)
           } )
 
@@ -57,7 +60,13 @@ setMethod("get_analysis_name", "sample_infos", function(obj) obj@sample_metadata
 #' @return \code{get_sample_metadata_json} returns a json character object containing the sample metadata.
 #' @aliases get_sample_metadata_json
 #' @export
-setMethod("get_sample_metadata_json", "sample_infos", function(obj) jsonlite::prettify(obj@sample_metadata_json))
+setMethod("get_sample_metadata_json", "sample_infos", function(obj) {
+          if (is.null(obj@sample_metadata_json)) {
+                    stop("The sample_metadata_json slot is empty")
+          } else {
+                    jsonlite::prettify(obj@sample_metadata_json)
+          }
+})
 
 #' @describeIn sample_infos Accessor method to obtain the spectrum_metadata table.
 #' @return \code{get_spectrum_metadata} returns a data.table object containing the spectrum metadata of a sample.
@@ -69,7 +78,13 @@ setMethod("get_spectrum_metadata", "sample_infos", function(obj) obj@spectrum_me
 #' @return \code{get_spectrum_metadata_json} returns a json character object containing the spectrum metadata of a sample.
 #' @aliases get_spectrum_metadata_json
 #' @export
-setMethod("get_spectrum_metadata_json", "sample_infos", function(obj) jsonlite::prettify(obj@spectrum_metadata_json))
+setMethod("get_spectrum_metadata_json", "sample_infos", function(obj) {
+          if (is.null(obj@spectrum_metadata_json)) {
+                    stop("The sample_metadata_json slot is empty")
+          } else {
+                  jsonlite::prettify(obj@spectrum_metadata_json)
+          }
+})
 
 #' Retrieve Sample Information from UNIFI API with a sample id
 #'
