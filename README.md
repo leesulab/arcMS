@@ -4,18 +4,18 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-`arcMS` can convert HDMS<sup>E</sup> data acquired with Waters UNIFI to
-tabular format for use in R or Python, with a small filesize when saved
-on disk.
+`arcMS` can convert (HD)MS<sup>E</sup> data acquired with Waters UNIFI
+to tabular format for use in R or Python, with a small filesize when
+saved on disk. It is compatible with data containing ion mobility
+(HDMS<sup>E</sup>) or not (MS<sup>E</sup>).
 
 Two output data file formats can be obtained:
 
 - the [Apache Parquet](https://parquet.apache.org/) format for minimal
-  filesize and fast access. Two files are produced: one for MS data, one
-  for metadata.
+  filesize and fast access.
 
-- the [HDF5](https://www.hdfgroup.org/solutions/hdf5/) format with all
-  data and metadata in one file, fast access but larger filesize.
+- the [HDF5](https://www.hdfgroup.org/solutions/hdf5/) format, with fast
+  access but larger filesize.
 
 `arcMS` stands for *accessible*, *rapid* and *compact*, and is also
 based on the french word *arc*, which means *bow,* to emphasize that it
@@ -27,13 +27,16 @@ A companion app (R/Shiny app) is provided at
 the converted data (Parquet format) as 2D plots, TIC, BPI or EIC
 chromatograms…
 
+Also, check the `vignette("open-files")` for details on how converted
+files can be opened in R or Python.
+
 ## :arrow_down: Installation
 
 You can install `arcMS` in R with the following command:
 
 ``` r
 install.packages("pak")
-pak::pak("leesulab/arcMS") 
+pak::pak("leesulab/arcMS")
 ```
 
 To use the HDF5 format, the `rhdf5` package needs to be installed:
@@ -102,7 +105,8 @@ Once we get a sample ID, we can use it to download the sample data,
 using the `future` framework for parallel processing:
 
 ``` r
-future::plan(multisession)
+library(future)
+plan(multisession)
 convert_one_sample_data(sample_id = "0134efbf-c75a-411b-842a-4f35e2b76347")
 ```
 
@@ -110,7 +114,8 @@ This command will get the sample name (`sample_name`) and its parent
 analysis (`analysis_name`), create a folder named `analysis_name` in the
 working directory and save the sample data with the name
 `sample_name.parquet` and its metadata with the name
-`sample_name-metadata.parquet`.
+`sample_name-metadata.json` (metadata is also saved in the parquet
+file).
 
 With an Analysis ID, we can convert and save all samples from the chosen
 Analysis:
@@ -129,6 +134,12 @@ convert_all_samples_data(analysis_id = "e236bf99-31cd-44ae-a4e7-74915697df65", f
 ```
 
 This will save the samples data and metadata in the same `file.h5` file.
+
+Other functions are available to only collect the data from the API to
+an R object, and then to save this R object to a Parquet file (see
+`vignette("collect-save-functions"))`. CCS values can also be retrieved
+in addition to bin index and drift time values, see
+`vignette("get-ccs-values").`
 
 Parquet or HDF5 files can be opened easily in `R` with the `arrow` or
 `rhdf5` packages. Parquet files contain both low and high energy spectra
