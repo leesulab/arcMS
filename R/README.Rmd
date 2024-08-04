@@ -21,15 +21,13 @@ knitr::opts_chunk$set(
 
 Two output data file formats can be obtained:
 
--   the [Apache Parquet](https://parquet.apache.org/) format for minimal filesize and fast access.
+-   the [Apache Parquet](https://parquet.apache.org/) format for minimal filesize and fast access. Two files are produced: one for MS data, one for metadata.
 
--   the [HDF5](https://www.hdfgroup.org/solutions/hdf5/) format, with fast access but larger filesize.
+-   the [HDF5](https://www.hdfgroup.org/solutions/hdf5/) format with all data and metadata in one file, fast access but larger filesize.
 
 `arcMS` stands for *accessible*, *rapid* and *compact*, and is also based on the french word *arc*, which means *bow,* to emphasize that it is compatible with the [Apache Arrow library](https://arrow.apache.org/).
 
 A companion app (R/Shiny app) is provided at <https://github.com/leesulab/arcms-dataviz> for fast visualization of the converted data (Parquet format) as 2D plots, TIC, BPI or EIC chromatograms...
-
-Also, check the `vignette("open-files")` for details on how converted files can be opened in R or Python.
 
 ## :arrow_down: Installation
 

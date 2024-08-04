@@ -1,0 +1,139 @@
+---
+title: "open-files"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{open-files}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, include = FALSE}
+library(arcMS)
+```
+
+## How to open converted files?
+
+Parquet files created by `arcMS` can be easily opened with R or Python. There are also functions included in the `arcMS` package to recreate `sample_dataset` objects from Parquet files. This class of object is associated with generic functions to quickly get data, metadata and simple plots like TIC.
+
+### 1. Load converted Parquet files in R without arcMS
+
+Files created by `arcMS` in the Parquet format can be opened in R with the Arrow library.
+
+Data can be loaded in RAM with the following commands:
+
+```{r, include = FALSE}
+library(arrow)
+data = read_parquet("../../arcMS-dataviz/cal1-full-long.parquet")
+```
+
+```{r, eval = FALSE}
+library(arrow)
+data = read_parquet("converted_file.parquet")
+```
+
+```{r}
+head(data)
+```
+
+Data can then be filtered and quickly aggregated, e.g. to obtain TIC plot:
+
+```{r}
+library(data.table)
+data = as.data.table(data)
+datalow = data[mslevel == 1, ]
+TIC = datalow[, list(intensity = sum(intensity)), by=list(rt)]
+plot(TIC$rt, TIC$intensity, type = "l")
+```
+
+To save RAM, data can also be manipulated directly on-disk thanks to the Arrow library (`open_dataset()` function):
+
+```{r, include = FALSE}
+data = open_dataset("../../arcMS-dataviz/cal1-full-long.parquet")
+```
+
+```{r, eval = FALSE}
+data = open_dataset("converted_file.parquet")
+```
+
+Data can be filtered, rearranged, sorted and aggregated with the dplyr syntax, and only the resulting data will be loaded in RAM (with the `collect()` function):
+
+```{r message=FALSE}
+library(dplyr)
+
+TIC = data |>
+  filter(mslevel == "1") |>
+  arrange(rt) |>
+  group_by(rt) |> 
+  summarise(int = sum(intensity)) |> 
+  collect()
+```
+
+### 2. Load converted Parquet files in Python
+
+Parquet files can be opened as a DataFrame in Python with the pandas library:
+
+```{python, include = FALSE}
+import pandas as pd
+data = pd.read_parquet("../../arcMS-dataviz/cal1-full-long.parquet")
+```
+
+```{python, eval = FALSE}
+import pandas as pd
+data = pd.read_parquet("converted_file.parquet")
+ms1 = data[data['mslevel'] == "1"]
+print(ms1)
+```
+
+It can also be loaded as an Arrow object (ParquetDataset) with the pyarrow library:
+
+```{python, include = FALSE, eval = FALSE}
+import pyarrow.parquet as pq
+data = pq.ParquetDataset("../../arcMS-dataviz/cal1-full-long.parquet")
+```
+
+```{python, eval = FALSE}
+import pyarrow.parquet as pq
+data = pq.ParquetDataset("converted_file.parquet")
+```
+
+### 3. Load converted Parquet files in R with arcMS
+
+The methods above only retrieve the main data from the Parquet file, but not metadata. Other functions must be used to retrieve metadata.
+
+To simplify opening both data and metadata, functions are available in `arcMS` to load a Parquet file as a `sample_dataset` object, also allowing easy manipulation with some generic functions.
+
+```{r}
+library(arcMS)
+dataset = create_sample_dataset("/media/julien/Data/SynologyDrive/code/R/parquet-MS/cal 1_replicate_1_with_metadata.parquet")  
+```
+
+```{r, eval= FALSE}
+library(arcMS)
+dataset = create_sample_dataset("converted_file.parquet")  
+```
+
+```{r}
+data = get_sample_data(dataset)
+head(data)
+```
+
+```{r}
+sample_metadata = get_sample_metadata(dataset)
+str(sample_metadata)
+```
+
+```{r}
+spectrum_metadata = get_spectrum_metadata(dataset)
+str(spectrum_metadata)
+```
+
+```{r}
+
+```

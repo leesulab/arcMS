@@ -1,44 +1,3 @@
-#' @include main.R
-#' @include sample_infos.R
-NULL
-
-#' Class containing a sample data and metadata
-#'
-#' Contains sample data, metadata and spectrum metadata in table and json formats.
-#'
-#' Objects for this class are returned by \code{\link{collect_one_sample_data}}.
-#'
-#' @slot sample_data Contains a \code{datatable} with the sample data.
-#' @slot sample_metadata Contains a \code{datatable} with the sample metadata.
-#' @slot spectrum_metadata Contains a \code{datatable} with the spectrum metadata.
-#' @slot sample_metadata_json Contains a \code{character} with the sample metadata.
-#' @slot spectrum_metadata_json Contains a \code{character} with the spectrum metadata.
-#'
-#' @section Use the \code{\link{collect_one_sample_data}} to:
-#'   store the sample data, metadata and spectrum metadata, in table and json formats.
-#'
-#' @param obj The \code{\link{sample_dataset}} object to access.
-#'
-#' @export
-
-sample_dataset <- setClass("sample_dataset",
-                        slots = c(sample_data = "data.table"),
-                        contains = "sample_infos")
-# initialize method during object instantiation
-setMethod("initialize", signature = "sample_dataset",
-          definition = function(.Object, sample_data, ...)
-          {
-            .Object@sample_data <- sample_data
-            .Object <- callNextMethod(.Object, ...)
-            return(.Object)
-          } )
-
-#' @describeIn sample_dataset Accessor method to obtain the sample_data table.
-#' @return \code{get_sample_data} returns a data.table object containing the sample data.
-#' @aliases get_sample_data
-#' @export
-setMethod("get_sample_data", "sample_dataset", function(obj) obj@sample_data)
-
 #' Convert one sample
 #'
 #' The function collects spectral data from a sample in a UNIFI Analysis.
@@ -245,14 +204,30 @@ sample_data = get_sample_data(sample_dataset)
 sample_metadata = get_sample_metadata(sample_dataset)
 spectrum_metadata = get_spectrum_metadata(sample_dataset)
 
-sample_data = arrow::arrow_table(sample_data)
-sample_data$metadata = sample_metadata
+# attributes useful for direct opening in R with arrow::read_parquet
+attr(sample_data, "sample_metadata") = sample_metadata
+attr(sample_data, "spectrum_metadata") = spectrum_metadata
+attr(sample_data, "sample_metadata_json") = toJSON(sample_metadata, pretty = T)
+attr(sample_data, "spectrum_metadata_json") = toJSON(spectrum_metadata, pretty = T)
+attr(sample_data, "rtmin") = min(sample_data$rt)
+attr(sample_data, "rtmax") = max(sample_data$rt)
+attr(sample_data, "mzmin") = min(sample_data$mz)
+attr(sample_data, "mzmax") = max(sample_data$mz)
+attr(sample_data, "binmin") = min(sample_data$bin)
+attr(sample_data, "binmax") = max(sample_data$bin)
+attr(sample_data, "dims") = dim(sample_data)
+
+sample_data_arrow = arrow::arrow_table(sample_data)
+
+# saving metadata as JSON for opening in Python/pyarrow
+sample_data_arrow$metadata$sample_metadata = toJSON(sample_metadata, pretty = T)
+sample_data_arrow$metadata$spectrum_metadata = toJSON(spectrum_metadata, pretty = T)
 
 #save data
 if (format == "parquet") {
   metadatalist = list("sampleinfos" = sample_metadata, "spectruminfos" = spectrum_metadata)
   metadatajson = toJSON(metadatalist, pretty = T)
-  arrow::write_parquet(sample_data, glue("{path}/{sample_name}.parquet"), compression = "gzip")
+  arrow::write_parquet(sample_data_arrow, glue("{path}/{sample_name}.parquet"), compression = "gzip")
   write(metadatajson, glue("{path}/{sample_name}-metadata.json"))
 
   message(glue::glue("Sample '{sample_name}' saved as parquet file!"))

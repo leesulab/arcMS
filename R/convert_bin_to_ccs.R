@@ -6,28 +6,29 @@
 #' Peak lists can be obtained after peak detection, for example using the DEIMoS Python library.
 #' For more information on DEIMoS, see \url{https://deimos.readthedocs.io/en/latest/}.
 #'
-#' @param data An Arrow table object containing the sample data.
+#' @param sample_dataset A sample_dataset object containing the sample data.
 #'   This data should include the necessary columns: `bin`, `mz`, and `rt`.
-#'   The metadata of this Arrow table should contain the `id` of the sample under `data$metadata$id`.
+#'   The `id` of the sample should be present in the `sample_metadata` slot of the sample_dataset object.
 #' @param connection_params OPTIONAL: Connection parameters object created by the
 #' \code{\link{create_connection_params}} function. If not provided, the
 #' \code{\link{get_connection_params}} will look for such an object in the global environment.
 #'
-#' @return An Arrow table that includes the original data along with an additional column `CCS` containing the CCS values.
-#'   The returned Arrow table will also retain the original metadata.
+#' @return A sample_dataset object including the original data and an additional column `CCS` containing the CCS values.
+#'
 #' @export
 
 
-convert_bin_to_ccs <- function(data, connection_params = NULL) {
+convert_bin_to_ccs <- function(sample_dataset, connection_params = NULL) {
     # Check if sample_id is accessible
-    if (!"id" %in% names(data$metadata)) {
+    sample_metadata = get_sample_metadata(sample_dataset)
+    if (!"id" %in% names(sample_metadata)) {
         stop("Sample ID is missing.")
     }
-    sample_id <- data$metadata$id
+    sample_id <- sample_metadata$id
 
     # Check connection parameters
     if (is.null(connection_params)) {
-        connection_params <- get_connection_params()
+        connection_params <- get_connection_params(parent.frame())
         if (is.null(connection_params)) {
             stop("Connection parameters are required but were not provided or found.")
         }
@@ -37,16 +38,16 @@ convert_bin_to_ccs <- function(data, connection_params = NULL) {
         stop("Invalid 'connection_params': Must be an object of class 'connection_params'.")
     }
 
-    unnestdt <- dplyr::collect(data) %>% as.data.frame()
+    sample_data = get_sample_data(sample_dataset)
 
-    # Add the rt column if necessary
-    if ("retention_time" %in% names(unnestdt)) {
-        unnestdt$rt <- unnestdt$retention_time
+    # Change rt column name if necessary
+    if ("retention_time" %in% names(sample_data)) {
+      setnames(sample_data, "retention_time", "rt")
     }
 
     # Check for required columns
-    if (!all(c("bin", "mz", "rt") %in% names(unnestdt))) {
-        stop("The data frame 'unnestdt' must contain 'bin', 'mz', and 'rt' columns.")
+    if (!all(c("bin", "mz", "rt") %in% names(sample_data))) {
+        stop("The data must contain 'bin', 'mz', and 'rt' columns.")
     }
 
     # Prepare the API call
@@ -55,10 +56,10 @@ convert_bin_to_ccs <- function(data, connection_params = NULL) {
     sampleUrl <- glue::glue("{hostUrl}/sampleresults({sample_id})/spectra/mass.mse/convertbintoccs")
 
     body <- jsonlite::toJSON(list(
-        bins = unnestdt$bin,
-        mzs = unnestdt$mz,
-        charges = rep(1, nrow(unnestdt)),
-        retentiontimes = unnestdt$rt
+        bins = sample_data$bin,
+        mzs = sample_data$mz,
+        charges = rep(1, nrow(sample_data)),
+        retentiontimes = sample_data$rt
     ))
 
     # Make API call
@@ -76,12 +77,11 @@ convert_bin_to_ccs <- function(data, connection_params = NULL) {
         stop("Error in API request: ", httr::content(response, "text", encoding = "UTF-8"))
     }
 
-    # Update unnestdt with CCS values
+    # Update data with CCS values
     ccs_values <- jsonlite::fromJSON(httr::content(response, "text", encoding = "UTF-8"))
-    unnestdt$ccs <- ccs_values$value
+    sample_data$ccs <- ccs_values$value
 
-    arrow_table <- arrow::as_arrow_table(unnestdt)
-    arrow_table$metadata <- data$metadata
+    sample_dataset@sample_data <- sample_data
 
-    return(arrow_table)
+    return(sample_dataset)
 }
