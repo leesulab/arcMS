@@ -6,7 +6,7 @@
 
 `arcMS` can convert HDMS<sup>E</sup> data acquired with Waters UNIFI to
 tabular format for use in R or Python, with a small filesize when saved
-on disk. test
+on disk.
 
 Two output data file formats can be obtained:
 
@@ -22,19 +22,24 @@ based on the french word *arc*, which means *bow,* to emphasize that it
 is compatible with the [Apache Arrow
 library](https://arrow.apache.org/).
 
+A companion app (R/Shiny app) is provided at
+<https://github.com/leesulab/arcms-dataviz> for fast visualization of
+the converted data (Parquet format) as 2D plots, TIC, BPI or EIC
+chromatograms…
+
 ## :arrow_down: Installation
 
 You can install `arcMS` in R with the following command:
 
 ``` r
 install.packages("pak")
-pak::pkg_install("leesulab/arcMS") 
+pak::pak("leesulab/arcMS") 
 ```
 
 To use the HDF5 format, the `rhdf5` package needs to be installed:
 
 ``` r
-pak::pkg_install("rhdf5")
+pak::pak("rhdf5")
 ```
 
 ## 🚀 Usage
@@ -70,12 +75,12 @@ folders = folders_search()
 folders
 ```
 
-    #>                                     id                name
-    #> 3 abe9c297-821e-4152-854a-17c73c9ff68c          Christelle
-    #> 4 dde4ecfc-fe08-4cb2-ad8a-c10f3e45f4dd Imports temporaires
-    #>                          path folderType                             parentId
-    #> 3          Company/Christelle    Project 7c3a0fc7-3805-4c14-ab68-8da3e115702e
-    #> 4 Company/Imports temporaires    Project 7c3a0fc7-3805-4c14-ab68-8da3e115702e
+    #>                                     id       name               path folderType
+    #> 3 abe9c297-821e-4152-854a-17c73c9ff68c Christelle Company/Christelle    Project
+    #> 4 abe7a0e6-99d2-4e57-a618-f4b085f48443 EMMANUELLE Company/EMMANUELLE    Project
+    #>                               parentId
+    #> 3 7c3a0fc7-3805-4c14-ab68-8da3e115702e
+    #> 4 7c3a0fc7-3805-4c14-ab68-8da3e115702e
 
 With a folder ID, we can access the list of Analysis items in the
 folder:
@@ -93,9 +98,11 @@ samples = get_samples_list("e236bf99-31cd-44ae-a4e7-74915697df65")
 samples
 ```
 
-Once we get a sample ID, we can use it to download the sample data:
+Once we get a sample ID, we can use it to download the sample data,
+using the `future` framework for parallel processing:
 
 ``` r
+future::plan(multisession)
 convert_one_sample_data(sample_id = "0134efbf-c75a-411b-842a-4f35e2b76347")
 ```
 

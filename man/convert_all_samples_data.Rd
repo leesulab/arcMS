@@ -9,6 +9,7 @@ convert_all_samples_data(
   connection_params = NULL,
   format = "parquet",
   path = NULL,
+  overwrite = T,
   num_spectras = NULL
 )
 }
@@ -22,6 +23,8 @@ convert_all_samples_data(
 \item{format}{The format chosen for the exported file (Parquet or HDF5)}
 
 \item{path}{OPTIONAL The destination path for exported files}
+
+\item{overwrite}{OPTIONAL overwrite the sample if already present on disk}
 
 \item{num_spectras}{OPTIONAL A number of spectra to be collected and converted
 (if no need to convert whole samples, e.g. for testing purposes)}

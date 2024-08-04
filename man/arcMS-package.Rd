@@ -17,7 +17,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Julien Le Roux \email{julien.le-roux@u-pec.fr}
+\strong{Maintainer}: Julien Le Roux \email{julien.le-roux@u-pec.fr} (\href{https://orcid.org/0000-0003-0245-8536}{ORCID})
 
 Authors:
 \itemize{

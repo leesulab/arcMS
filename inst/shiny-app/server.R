@@ -135,7 +135,7 @@ server <- function(input, output, session) {
     if(input$fileFormat == 1) format = "parquet" else format = "hdf5"
     progressr::withProgressShiny(message = "Conversion in progress", {
     spsComps::shinyCatch({
-      sampleId = "0134efbf-c75a-411b-842a-4f35e2b76347"
+      #sampleId = "0134efbf-c75a-411b-842a-4f35e2b76347"
           collected_data = arcMS::collect_one_sample_data(sampleId, rv$con)
           arcMS::save_one_sample_data(collected_data, path = shinyFiles::parseDirPath(c(home = '~'), selected_dir()), format = format)
     },

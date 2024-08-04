@@ -3,7 +3,7 @@ Type: Package
 Title: MS converter from UNIFI to Parquet and HDF5 formats
 Version: 1.1.0
 Authors@R: c(
-    person("Julien", "Le Roux", email = "julien.le-roux@u-pec.fr", role = c("aut", "cre")),
+    person("Julien", "Le Roux", email = "julien.le-roux@u-pec.fr", role = c("aut", "cre"), comment = c(ORCID = "0000-0003-0245-8536")),
     person("Julien", "Sade", email = "julien.sade@u-pec.fr", role = "aut")
     )
 Maintainer: Julien Le Roux <julien.le-roux@u-pec.fr>
@@ -11,7 +11,7 @@ Description: Functions to connect to Waters UNIFI API and convert data to parque
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.0
+RoxygenNote: 7.3.1
 Suggests:
     testthat (>= 3.0.0),
     spsComps,
@@ -43,7 +43,8 @@ Imports:
     withr,
     tidytable,
     rhdf5,
-    magrittr
+    magrittr,
+    fs
 Collate:
     'add_drift_time.R'
     'analysis_search.R'
@@ -51,7 +52,7 @@ Collate:
     'main.R'
     'api_connection.R'
     'convert_all_samples_data.R'
-    'sample_infos.R'
+    'convert_bin_to_ccs.R'
     'convert_one_sample_data.R'
     'decodeVarint.R'
     'deserialize_data.R'
@@ -60,5 +61,7 @@ Collate:
     'get_samples_list.R'
     'outputlist_to_df.R'
     'run_app.R'
+    'sample_infos.R'
+    'sample_dataset.R'
 URL: https://github.com/leesulab/arcMS/, https://leesulab.github.io/arcMS/
 VignetteBuilder: knitr

@@ -9,7 +9,7 @@
 
 ## Changes
 
-- Shiny app for easy used
+- Shiny app for easy use
 - No need for connection parameters in each function (looking for existing object in the environment)
 
 # arcMS 0.3.0

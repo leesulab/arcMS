@@ -1,44 +1,3 @@
-#' @include main.R
-#' @include sample_infos.R
-NULL
-
-#' Class containing a sample data and metadata
-#'
-#' Contains sample data, metadata and spectrum metadata in table and json formats.
-#'
-#' Objects for this class are returned by \code{\link{collect_one_sample_data}}.
-#'
-#' @slot sample_data Contains a \code{datatable} with the sample data.
-#' @slot sample_metadata Contains a \code{datatable} with the sample metadata.
-#' @slot spectrum_metadata Contains a \code{datatable} with the spectrum metadata.
-#' @slot sample_metadata_json Contains a \code{character} with the sample metadata.
-#' @slot spectrum_metadata_json Contains a \code{character} with the spectrum metadata.
-#'
-#' @section Use the \code{\link{collect_one_sample_data}} to:
-#'   store the sample data, metadata and spectrum metadata, in table and json formats.
-#'
-#' @param obj The \code{\link{sample_dataset}} object to access.
-#'
-#' @export
-
-sample_dataset <- setClass("sample_dataset",
-                        slots = c(sample_data = "data.table"),
-                        contains = "sample_infos")
-# initialize method during object instantiation
-setMethod("initialize", signature = "sample_dataset",
-          definition = function(.Object, sample_data, ...)
-          {
-            .Object@sample_data <- sample_data
-            .Object <- callNextMethod(.Object, ...)
-            return(.Object)
-          } )
-
-#' @describeIn sample_dataset Accessor method to obtain the sample_data table.
-#' @return \code{get_sample_data} returns a data.table object containing the sample data.
-#' @aliases get_sample_data
-#' @export
-setMethod("get_sample_data", "sample_dataset", function(obj) obj@sample_data)
-
 #' Convert one sample
 #'
 #' The function collects spectral data from a sample in a UNIFI Analysis.
@@ -53,24 +12,37 @@ setMethod("get_sample_data", "sample_dataset", function(obj) obj@sample_data)
 #' \code{\link{get_connection_params}} will look for such object in the global environment
 #' @param format The format chosen for the exported file (Parquet or HDF5)
 #' @param path OPTIONAL The destination path for the exported file
+#' @param overwrite OPTIONAL overwrite the sample if already present on disk
 #' @param num_spectras OPTIONAL Number of spectras to be downloaded (OPTIONAL, only if whole sample data not needed, e.g. for testing purposes)
 #'
 #' @return Datatables of the sample's spectral data and metadata are saved in Parquet or HDF5 format in the analysis name folder.
 #' @seealso \code{\link{collect_one_sample_data}} for only collecting data by dowloading from the API into the R environment, and \code{\link{save_one_sample_data}} to save collected data from the R environment to Parquet or HDF5 files.
 #' @export
 
-convert_one_sample_data <- function(sample_id, connection_params = NULL, format = 'parquet', path = NULL, num_spectras = NULL){
+convert_one_sample_data <- function(sample_id, connection_params = NULL, format = 'parquet', path = NULL, overwrite = T, num_spectras = NULL){
   if (!format %in% c('parquet', 'hdf5')) {
   stop("The format argument must be either 'parquet' or 'hdf5'")
   } else {
     if(is.null(connection_params))
       connection_params = get_connection_params(parent.frame())
     sample_infos = get_sample_infos(sample_id, connection_params)
-    sample_name = get_sample_name(sample_infos)
+    sample_name = fs::path_sanitize(get_sample_name(sample_infos))
     analysis_name = get_analysis_name(sample_infos)
 
-    collected_data = collect_one_sample_data(sample_id, connection_params, num_spectras)
-    save_one_sample_data(collected_data, sample_name, analysis_name, path = path, format = format)
+    if(!is.null(path)) {
+      path2 = paste0(path, "/", analysis_name)
+    } else {
+      path2 = analysis_name
+    }
+    if (file.exists(glue("{path2}/{sample_name}.parquet")) & overwrite == F) {
+      message(glue::glue("File '{sample_name}' already exists..."))
+    } else {
+      collected_data = collect_one_sample_data(sample_id, connection_params, num_spectras)
+      printf("Start Saving")
+      save_one_sample_data(collected_data, sample_name, analysis_name, path = path, format = format)
+      printf("End Saving")
+      rm(collected_data)
+    }
   }
 }
 
@@ -109,7 +81,10 @@ collect_one_sample_data <- function(sample_id, connection_params = NULL, num_spe
   sampleUrl = glue::glue("{hostUrl}/sampleresults({sample_id})")
 
   spectrumEndpoint = function(skip, top) { glue::glue(sampleUrl, "/spectra/mass.mse?$skip=", skip, "&$top=", top) }
-  request = function(skip, top) {httr::content(httpClientOctet(spectrumEndpoint(skip, top), token))}
+  request = function(skip, top) {
+    httr::set_config(httr::config(ssl_verifypeer = 0L, ssl_verifyhost = 0L))
+    httr::content(httpClientOctet(spectrumEndpoint(skip, top), token))
+  }
 
   spectrumCountEndpoint = glue::glue(sampleUrl, "/spectra/mass.mse/$count")
   spectrumCount = httr::content(httpClientPlain(spectrumCountEndpoint, token), "text", encoding = "utf-8")
@@ -137,33 +112,44 @@ collect_one_sample_data <- function(sample_id, connection_params = NULL, num_spe
    return(res)
  }
 
-future::plan(multisession)
+# future::plan(multisession)
  resp = function(skips) {
   p <- progressor(along = skips)
   response = future.apply::future_lapply(skips, ParallelDownloadQueue, chunkSize = chunkSize, p = p)
   return(response)
 }
 response = with_progress(resp(skips))
-
 message(glue::glue("Deserializing '{sample_name}' sample data..."))
 
 deseria = lapply(response, deserialize_data)
 output = lapply(deseria, outputlist_to_df)
+rm(deseria)
+
 data_all = data.table::rbindlist(output)
+rm(output)
+
 
 # defining data.table variable locally to avoid R cmd check NOTES due to NSE
-energy_level = NULL
+mslevel = NULL
 
-data_all$energy_level <- factor(data_all$energy_level, levels = c("Low", "High"))
-data_all <- data_all[order(data_all$energy_level),]
-explode_data = explode_spectra(data_all)
-explode_data_with_dt = add_drift_time(connection_params = connection_params, unnestdt = explode_data, sample_id = sample_id)
+data_all <- data_all[ , mslevel := as.factor(mslevel)]
+data_all <- data_all[order(data_all$mslevel),]
+
+long_data = explode_spectra(data_all)
+
+if("bin" %in% colnames(long_data)) {
+  long_data = add_drift_time(connection_params = connection_params, unnestdt = long_data, sample_id = sample_id)
+} else {
+  # add bin and dt columns even for data without IMS, for compatibility with viz app
+  long_data[, "bin" := 1]
+  long_data[, "dt" := 0]
+}
 spectrum_infos = get_spectrum_metadata(sample_infos)
 sample_metadata_json = as.character(get_sample_metadata_json(sample_infos))
 spectrum_metadata_json = as.character(get_spectrum_metadata_json(sample_infos))
 
 collecteddata <- sample_dataset(
-    sample_data = explode_data_with_dt,
+    sample_data = long_data,
     sample_metadata = sample_metadata,
     spectrum_metadata = spectrum_infos,
     sample_metadata_json = sample_metadata_json,
@@ -196,9 +182,9 @@ save_one_sample_data <- function(sample_dataset, sample_name = NULL, analysis_na
     stop("The format argument must be either 'parquet' or 'hdf5'")
   } else {
   if (!is.null(sample_name)) {
-    sample_name = sample_name
+    sample_name = fs::path_sanitize(sample_name)
   } else {
-    sample_name = get_sample_name(sample_dataset)
+    sample_name = fs::path_sanitize(get_sample_name(sample_dataset))
   }
   if (!is.null(analysis_name)) {
     analysis_name = analysis_name
@@ -217,11 +203,31 @@ if (!file.exists(path))
 sample_data = get_sample_data(sample_dataset)
 sample_metadata = get_sample_metadata(sample_dataset)
 spectrum_metadata = get_spectrum_metadata(sample_dataset)
+
+# attributes useful for direct opening in R with arrow::read_parquet
+attr(sample_data, "sample_metadata") = sample_metadata
+attr(sample_data, "spectrum_metadata") = spectrum_metadata
+attr(sample_data, "sample_metadata_json") = toJSON(sample_metadata, pretty = T)
+attr(sample_data, "spectrum_metadata_json") = toJSON(spectrum_metadata, pretty = T)
+attr(sample_data, "rtmin") = min(sample_data$rt)
+attr(sample_data, "rtmax") = max(sample_data$rt)
+attr(sample_data, "mzmin") = min(sample_data$mz)
+attr(sample_data, "mzmax") = max(sample_data$mz)
+attr(sample_data, "binmin") = min(sample_data$bin)
+attr(sample_data, "binmax") = max(sample_data$bin)
+attr(sample_data, "dims") = dim(sample_data)
+
+sample_data_arrow = arrow::arrow_table(sample_data)
+
+# saving metadata as JSON for opening in Python/pyarrow
+sample_data_arrow$metadata$sample_metadata = toJSON(sample_metadata, pretty = T)
+sample_data_arrow$metadata$spectrum_metadata = toJSON(spectrum_metadata, pretty = T)
+
 #save data
 if (format == "parquet") {
   metadatalist = list("sampleinfos" = sample_metadata, "spectruminfos" = spectrum_metadata)
   metadatajson = toJSON(metadatalist, pretty = T)
-  arrow::write_parquet(sample_data, glue("{path}/{sample_name}.parquet"), compression = "gzip")
+  arrow::write_parquet(sample_data_arrow, glue("{path}/{sample_name}.parquet"), compression = "gzip")
   write(metadatajson, glue("{path}/{sample_name}-metadata.json"))
 
   message(glue::glue("Sample '{sample_name}' saved as parquet file!"))
@@ -229,11 +235,11 @@ if (format == "parquet") {
   hdf5_file <- glue::glue("{path}/{sample_name}.h5")
   rhdf5::h5createFile(hdf5_file)
   # defining data.table variable locally to avoid R cmd check NOTES due to NSE
-  energy_level = NULL
-  low_data <- subset(sample_data, energy_level == "Low")
-  high_data <- subset(sample_data, energy_level == "High")
-  rhdf5::h5write(obj = low_data, file = hdf5_file, name = "ms1")
-  rhdf5::h5write(obj = high_data, file = hdf5_file, name = "ms2")
+  mslevel = NULL
+  ms1data <- subset(sample_data, mslevel == "1")
+  ms2data <- subset(sample_data, mslevel == "2")
+  rhdf5::h5write(obj = ms1data, file = hdf5_file, name = "ms1")
+  rhdf5::h5write(obj = ms2data, file = hdf5_file, name = "ms2")
   rhdf5::h5write(obj = sample_metadata, file = hdf5_file, name = "samplemetadata")
   rhdf5::h5write(obj = spectrum_metadata, file = hdf5_file, name = "spectrummetadata")
 

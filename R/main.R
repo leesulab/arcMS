@@ -16,7 +16,7 @@
 #' @importFrom future plan multisession
 #' @importFrom future.apply future_lapply
 #' @importFrom progressr progressor with_progress withProgressShiny
-#' @importFrom arrow write_parquet
+#' @importFrom arrow write_parquet read_parquet
 #' @importFrom rhdf5 h5write h5createFile
 NULL # need this for doc generation
 
@@ -47,3 +47,5 @@ NULL
 #'
 "_PACKAGE"
 NULL
+
+setClassUnion("dataframeOrDatatable", c("data.frame", "data.table"))
