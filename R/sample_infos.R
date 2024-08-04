@@ -18,7 +18,6 @@ NULL
 #' @param obj The \code{\link{sample_infos}} object to access.
 #'
 #' @export
-setClassUnion("dataframeOrDatatable", c("data.frame", "data.table"))
 sample_infos <- setClass("sample_infos",
                          slots = c(sample_metadata = "dataframeOrDatatable",
                                    spectrum_metadata = "dataframeOrDatatable",

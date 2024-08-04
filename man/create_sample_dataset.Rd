@@ -2,7 +2,7 @@
 % Please edit documentation in R/sample_dataset.R
 \name{create_sample_dataset}
 \alias{create_sample_dataset}
-\title{Create a sample dataset from a Parquet file}
+\title{Create a sample dataset from a Parquet file created by arcMS}
 \usage{
 create_sample_dataset(file, method = "inram")
 }

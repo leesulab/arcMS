@@ -10,20 +10,19 @@ for all m/z peaks and fragments.
 Peak lists can be obtained after peak detection, for example using the DEIMoS Python library.
 For more information on DEIMoS, see \url{https://deimos.readthedocs.io/en/latest/}.}
 \usage{
-convert_bin_to_ccs(data, connection_params = NULL)
+convert_bin_to_ccs(sample_dataset, connection_params = NULL)
 }
 \arguments{
-\item{data}{An Arrow table object containing the sample data.
+\item{sample_dataset}{A sample_dataset object containing the sample data.
 This data should include the necessary columns: `bin`, `mz`, and `rt`.
-The metadata of this Arrow table should contain the `id` of the sample under `data$metadata$id`.}
+The `id` of the sample should be present in the `sample_metadata` slot of the sample_dataset object.}
 
 \item{connection_params}{OPTIONAL: Connection parameters object created by the
 \code{\link{create_connection_params}} function. If not provided, the
 \code{\link{get_connection_params}} will look for such an object in the global environment.}
 }
 \value{
-An Arrow table that includes the original data along with an additional column `CCS` containing the CCS values.
-  The returned Arrow table will also retain the original metadata.
+A sample_dataset object including the original data and an additional column `CCS` containing the CCS values.
 }
 \description{
 Convert bin value to CCS (Collision Cross Section) value

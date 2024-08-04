@@ -47,3 +47,5 @@ NULL
 #'
 "_PACKAGE"
 NULL
+
+setClassUnion("dataframeOrDatatable", c("data.frame", "data.table"))

@@ -21,7 +21,6 @@ NULL
 #' @param obj The \code{\link{sample_dataset}} object to access.
 #'
 #' @export
-setClassUnion("dataframeOrDatatable", c("data.frame", "data.table"))
 sample_dataset <- setClass("sample_dataset",
                         slots = c(sample_data = "dataframeOrDatatable"),
                         contains = "sample_infos")
