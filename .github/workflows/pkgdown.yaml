@@ -36,6 +36,11 @@ jobs:
         run: |
           sudo apt install protobuf-compiler protobuf-c-compiler libprotobuf-c-dev libprotobuf-dev libprotoc-dev
 
+      - name: Install reticulates
+        run: |
+          Rscript -e "install.packages('remotes')"
+          Rscript -e "remotes::install_github('rstudio/reticulate')"
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::pkgdown, local::.

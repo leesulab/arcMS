@@ -30,7 +30,8 @@ Data can be loaded in RAM with the following commands:
 
 ```{r, include = FALSE}
 library(arrow)
-data = read_parquet("../../arcMS-dataviz/cal1-full-long.parquet")
+download.file("https://media.githubusercontent.com/media/leesulab/arcms-dataviz/main/cal1-full-long.parquet", "cal1.parquet")
+data = read_parquet("cal1.parquet")
 ```
 
 ```{r, eval = FALSE}
@@ -55,7 +56,7 @@ plot(TIC$rt, TIC$intensity, type = "l")
 To save RAM, data can also be manipulated directly on-disk thanks to the Arrow library (`open_dataset()` function):
 
 ```{r, include = FALSE}
-data = open_dataset("../../arcMS-dataviz/cal1-full-long.parquet")
+data = open_dataset("cal1.parquet")
 ```
 
 ```{r, eval = FALSE}
@@ -79,9 +80,9 @@ TIC = data |>
 
 Parquet files can be opened as a DataFrame in Python with the pandas library:
 
-```{python, include = FALSE}
+```{python, include = FALSE, eval = FALSE}
 import pandas as pd
-data = pd.read_parquet("../../arcMS-dataviz/cal1-full-long.parquet")
+data = pd.read_parquet("cal1.parquet")
 ```
 
 ```{python, eval = FALSE}
@@ -95,7 +96,7 @@ It can also be loaded as an Arrow object (ParquetDataset) with the pyarrow libra
 
 ```{python, include = FALSE, eval = FALSE}
 import pyarrow.parquet as pq
-data = pq.ParquetDataset("../../arcMS-dataviz/cal1-full-long.parquet")
+data = pq.ParquetDataset("cal1.parquet")
 ```
 
 ```{python, eval = FALSE}
@@ -111,7 +112,7 @@ To simplify opening both data and metadata, functions are available in `arcMS` t
 
 ```{r}
 library(arcMS)
-dataset = create_sample_dataset("/media/julien/Data/SynologyDrive/code/R/parquet-MS/cal 1_replicate_1_with_metadata.parquet")  
+dataset = create_sample_dataset("cal1.parquet")  
 ```
 
 ```{r, eval= FALSE}
