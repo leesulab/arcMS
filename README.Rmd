@@ -29,7 +29,7 @@ Two output data file formats can be obtained:
 
 A companion app (R/Shiny app) is provided at <https://github.com/leesulab/arcms-dataviz> for fast visualization of the converted data (Parquet format) as 2D plots, TIC, BPI or EIC chromatograms...
 
-Also, check the `vignette("open-files")` for details on how converted files can be opened in R or Python. t
+Also, check the `vignette("open-files")` for details on how converted files can be opened in R or Python.
 
 ## :arrow_down: Installation
 
