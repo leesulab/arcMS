@@ -1,5 +1,5 @@
 ---
-title: "open-files"
+title: "Open Parquet files"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{open-files}
@@ -110,7 +110,7 @@ The methods above only retrieve the main data from the Parquet file, but not met
 
 To simplify opening both data and metadata, functions are available in `arcMS` to load a Parquet file as a `sample_dataset` object, also allowing easy manipulation with some generic functions.
 
-```{r}
+```{r, include = FALSE}
 library(arcMS)
 dataset = create_sample_dataset("cal1.parquet")  
 ```
