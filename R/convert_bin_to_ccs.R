@@ -1,4 +1,5 @@
 #' Convert bin value to CCS (Collision Cross Section) value
+#'
 #' This function converts bin values to CCS values for the given sample.
 #' This conversion should be performed for a limited number of detected peaks
 #' and not on raw data to avoid too many requests and useless CCS calculations
