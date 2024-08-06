@@ -4,7 +4,7 @@
 \alias{create_sample_dataset}
 \title{Create a sample dataset from a Parquet file created by arcMS}
 \usage{
-create_sample_dataset(file, method = "inram")
+create_sample_dataset(file, method = c("inram", "ondisk"))
 }
 \arguments{
 \item{file}{A character file name or URI of Parquet file.}
