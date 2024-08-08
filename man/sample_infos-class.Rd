@@ -9,6 +9,7 @@
 \alias{get_sample_name,sample_infos-method}
 \alias{get_sample_name}
 \alias{get_sample_id,sample_infos-method}
+\alias{get_sample_id}
 \alias{get_analysis_name,sample_infos-method}
 \alias{get_analysis_name}
 \alias{get_sample_metadata_json,sample_infos-method}
@@ -17,6 +18,8 @@
 \alias{get_spectrum_metadata}
 \alias{get_spectrum_metadata_json,sample_infos-method}
 \alias{get_spectrum_metadata_json}
+\alias{add_sample_id,sample_infos-method}
+\alias{add_sample_id}
 \title{Class containing a sample's information}
 \usage{
 \S4method{get_sample_metadata}{sample_infos}(obj)
@@ -32,9 +35,13 @@
 \S4method{get_spectrum_metadata}{sample_infos}(obj)
 
 \S4method{get_spectrum_metadata_json}{sample_infos}(obj)
+
+\S4method{add_sample_id}{sample_infos}(obj, id)
 }
 \arguments{
 \item{obj}{The \code{\link{sample_infos}} object to access.}
+
+\item{id}{The identifier of the sample result for which spectrum information is to be retrieved.}
 }
 \value{
 \code{get_sample_metadata} returns a data.table object containing the sample metadata.
@@ -50,6 +57,8 @@
 \code{get_spectrum_metadata} returns a data.table object containing the spectrum metadata of a sample.
 
 \code{get_spectrum_metadata_json} returns a json character object containing the spectrum metadata of a sample.
+
+\code{add_sample_id} returns a character object containing the sample id.
 }
 \description{
 Contains sample metadata and spectrum metadata in table and json formats.
@@ -72,6 +81,8 @@ Objects for this class are returned by \code{\link{get_sample_infos}}.
 \item \code{get_spectrum_metadata(sample_infos)}: Accessor method to obtain the spectrum_metadata table.
 
 \item \code{get_spectrum_metadata_json(sample_infos)}: Accessor method to obtain the spectrum metadata in json format.
+
+\item \code{add_sample_id(sample_infos)}: Method to add a sample ID to the sample_infos object.
 
 }}
 \section{Slots}{

@@ -51,7 +51,7 @@ setMethod("get_sample_name", "sample_infos", function(obj) obj@sample_metadata$s
 
 #' @describeIn sample_infos Accessor method to obtain the sample id.
 #' @return \code{get_sample_id} returns a character object containing the sample id.
-#' @aliases get_sample_name
+#' @aliases get_sample_id
 #' @export
 setMethod("get_sample_id", "sample_infos", function(obj) obj@sample_metadata$id)
 
@@ -91,9 +91,10 @@ setMethod("get_spectrum_metadata_json", "sample_infos", function(obj) {
           }
 })
 
-#' @describeIn Method to add a sample ID to the sample_infos object.
+#' @describeIn sample_infos Method to add a sample ID to the sample_infos object.
+#' @param id The identifier of the sample result for which spectrum information is to be retrieved.
 #' @return \code{add_sample_id} returns a character object containing the sample id.
-#' @aliases get_sample_name
+#' @aliases add_sample_id
 #' @export
 setMethod("add_sample_id", "sample_infos", function(obj, id) {
           if (!is.character(id)) {

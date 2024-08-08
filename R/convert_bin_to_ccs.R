@@ -21,11 +21,10 @@
 
 convert_bin_to_ccs <- function(sample_dataset, connection_params = NULL) {
     # Check if sample_id is accessible
-    sample_metadata = get_sample_metadata(sample_dataset)
-    if (!"id" %in% names(sample_metadata)) {
-        stop("Sample ID is missing.")
+    sample_id = get_sample_id(sample_dataset)
+    if (is.null(sample_id)) {
+        stop("Sample ID is missing in sample_metadata. \nPlease add the sample ID to the sample_dataset object with the add_sample_id() method if needed.")
     }
-    sample_id <- sample_metadata$id
 
     # Check connection parameters
     if (is.null(connection_params)) {
@@ -40,6 +39,14 @@ convert_bin_to_ccs <- function(sample_dataset, connection_params = NULL) {
     }
 
     sample_data = get_sample_data(sample_dataset)
+    # check if sample_data is Arrow pointer or data.table in RAM
+    if (inherits(sample_data, "FileSystemDataset")) {
+        sample_data = sample_data |> collect()
+        attr(sample_data, "sample_metadata") = NULL
+        attr(sample_data, "spectrum_metadata") = NULL
+        attr(sample_data, "sample_metadata_json") = NULL
+        attr(sample_data, "spectrum_metadata_json") = NULL
+    }
 
     # Change rt column name if necessary
     if ("retention_time" %in% names(sample_data)) {
@@ -62,21 +69,23 @@ convert_bin_to_ccs <- function(sample_dataset, connection_params = NULL) {
         charges = rep(1, nrow(sample_data)),
         retentiontimes = sample_data$rt
     ))
+    message(glue::glue("Requesting conversion of bin values to CCS to the UNIFI API..."))
 
     # Make API call
-    response <- httr::POST(
-        url = sampleUrl,
-        body = body,
-        httr::add_headers(
-            "Content-Type" = "application/json",
-            "Authorization" = paste("Bearer", token)
+        response <- httr::POST(
+            url = sampleUrl,
+            body = body,
+            httr::add_headers(
+                "Content-Type" = "application/json",
+                "Authorization" = paste("Bearer", token)
+            )
         )
-    )
 
     # Check the response status
     if (httr::status_code(response) != 200) {
         stop("Error in API request: ", httr::content(response, "text", encoding = "UTF-8"))
     }
+    message(glue::glue("Conversion done."))
 
     # Update data with CCS values
     ccs_values <- jsonlite::fromJSON(httr::content(response, "text", encoding = "UTF-8"))
