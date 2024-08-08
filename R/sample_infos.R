@@ -44,10 +44,16 @@ setMethod("initialize", signature = "sample_infos",
 setMethod("get_sample_metadata", "sample_infos", function(obj) obj@sample_metadata)
 
 #' @describeIn sample_infos Accessor method to obtain the sample name.
-#' @return \code{get_sample_infos} returns a character object containing the sample name.
+#' @return \code{get_sample_name} returns a character object containing the sample name.
 #' @aliases get_sample_name
 #' @export
 setMethod("get_sample_name", "sample_infos", function(obj) obj@sample_metadata$sampleName)
+
+#' @describeIn sample_infos Accessor method to obtain the sample id.
+#' @return \code{get_sample_id} returns a character object containing the sample id.
+#' @aliases get_sample_name
+#' @export
+setMethod("get_sample_id", "sample_infos", function(obj) obj@sample_metadata$id)
 
 #' @describeIn sample_infos Accessor method to obtain the analysis name.
 #' @return \code{get_analysis_name} returns a character object containing the analysis name.
@@ -84,6 +90,20 @@ setMethod("get_spectrum_metadata_json", "sample_infos", function(obj) {
                   jsonlite::prettify(obj@spectrum_metadata_json)
           }
 })
+
+#' @describeIn Method to add a sample ID to the sample_infos object.
+#' @return \code{add_sample_id} returns a character object containing the sample id.
+#' @aliases get_sample_name
+#' @export
+setMethod("add_sample_id", "sample_infos", function(obj, id) {
+          if (!is.character(id)) {
+                    stop("The sample ID must be a character string.")
+          } else {
+                    obj@sample_metadata$id <- id
+          }
+          if (validObject(obj))
+                    return(obj)
+          })
 
 #' Retrieve Sample Information from UNIFI API with a sample id
 #'

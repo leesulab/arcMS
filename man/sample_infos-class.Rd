@@ -8,6 +8,7 @@
 \alias{get_sample_metadata}
 \alias{get_sample_name,sample_infos-method}
 \alias{get_sample_name}
+\alias{get_sample_id,sample_infos-method}
 \alias{get_analysis_name,sample_infos-method}
 \alias{get_analysis_name}
 \alias{get_sample_metadata_json,sample_infos-method}
@@ -21,6 +22,8 @@
 \S4method{get_sample_metadata}{sample_infos}(obj)
 
 \S4method{get_sample_name}{sample_infos}(obj)
+
+\S4method{get_sample_id}{sample_infos}(obj)
 
 \S4method{get_analysis_name}{sample_infos}(obj)
 
@@ -36,7 +39,9 @@
 \value{
 \code{get_sample_metadata} returns a data.table object containing the sample metadata.
 
-\code{get_sample_infos} returns a character object containing the sample name.
+\code{get_sample_name} returns a character object containing the sample name.
+
+\code{get_sample_id} returns a character object containing the sample id.
 
 \code{get_analysis_name} returns a character object containing the analysis name.
 
@@ -57,6 +62,8 @@ Objects for this class are returned by \code{\link{get_sample_infos}}.
 \item \code{get_sample_metadata(sample_infos)}: Accessor method to obtain the sample_infos table.
 
 \item \code{get_sample_name(sample_infos)}: Accessor method to obtain the sample name.
+
+\item \code{get_sample_id(sample_infos)}: Accessor method to obtain the sample id.
 
 \item \code{get_analysis_name(sample_infos)}: Accessor method to obtain the analysis name.
 
