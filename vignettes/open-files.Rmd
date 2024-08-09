@@ -2,7 +2,7 @@
 title: "Open Parquet files"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{open-files}
+  %\VignetteIndexEntry{Open Parquet files}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -29,9 +29,10 @@ Files created by `arcMS` in the Parquet format can be opened in R with the Arrow
 Data can be loaded in RAM with the following commands:
 
 ```{r, include = FALSE}
-library(arrow)
-download.file("https://media.githubusercontent.com/media/leesulab/arcms-dataviz/main/cal1-full-long.parquet", "cal1.parquet")
-data = read_parquet("cal1.parquet")
+#library(arrow)
+#download.file("https://media.githubusercontent.com/media/leesulab/arcms-dataviz/main/cal1-full-long.parquet", "cal1.parquet")
+# data = read_parquet("cal1.parquet")
+data = readRDS("hdata.rds")
 ```
 
 ```{r, eval = FALSE}
@@ -45,7 +46,7 @@ head(data)
 
 Data can then be filtered and quickly aggregated, e.g. to obtain TIC plot:
 
-```{r}
+```{r, eval = FALSE}
 library(data.table)
 data = as.data.table(data)
 datalow = data[mslevel == 1, ]
@@ -53,11 +54,12 @@ TIC = datalow[, list(intensity = sum(intensity)), by=list(rt)]
 plot(TIC$rt, TIC$intensity, type = "l")
 ```
 
-To save RAM, data can also be manipulated directly on-disk thanks to the Arrow library (`open_dataset()` function):
-
-```{r, include = FALSE}
-data = open_dataset("cal1.parquet")
+```{r echo=FALSE}
+TIC = readRDS("tic.rds")
+plot(TIC$rt, TIC$intensity, type = "l")
 ```
+
+To save RAM, data can also be manipulated directly on-disk thanks to the Arrow library (`open_dataset()` function):
 
 ```{r, eval = FALSE}
 data = open_dataset("converted_file.parquet")
@@ -65,7 +67,7 @@ data = open_dataset("converted_file.parquet")
 
 Data can be filtered, rearranged, sorted and aggregated with the dplyr syntax, and only the resulting data will be loaded in RAM (with the `collect()` function):
 
-```{r message=FALSE}
+```{r, eval = FALSE, message=FALSE}
 library(dplyr)
 
 TIC = data |>
@@ -80,12 +82,12 @@ TIC = data |>
 
 Parquet files can be opened as a DataFrame in Python with the pandas library:
 
-```{python, include = FALSE, eval = FALSE}
+```{python, include = FALSE, eval = FALSE, python.reticulate = FALSE}
 import pandas as pd
 data = pd.read_parquet("cal1.parquet")
 ```
 
-```{python, eval = FALSE}
+```{python, eval = FALSE, python.reticulate = FALSE}
 import pandas as pd
 data = pd.read_parquet("converted_file.parquet")
 ms1 = data[data['mslevel'] == "1"]
@@ -94,12 +96,12 @@ print(ms1)
 
 It can also be loaded as an Arrow object (ParquetDataset) with the pyarrow library:
 
-```{python, include = FALSE, eval = FALSE}
+```{python, include = FALSE, eval = FALSE, python.reticulate = FALSE}
 import pyarrow.parquet as pq
 data = pq.ParquetDataset("cal1.parquet")
 ```
 
-```{python, eval = FALSE}
+```{python, eval = FALSE, python.reticulate = FALSE}
 import pyarrow.parquet as pq
 data = pq.ParquetDataset("converted_file.parquet")
 ```
@@ -110,31 +112,44 @@ The methods above only retrieve the main data from the Parquet file, but not met
 
 To simplify opening both data and metadata, functions are available in `arcMS` to load a Parquet file as a `sample_dataset` object, also allowing easy manipulation with some generic functions.
 
-```{r, include = FALSE}
-library(arcMS)
-dataset = create_sample_dataset("cal1.parquet")  
-```
-
 ```{r, eval= FALSE}
 library(arcMS)
 dataset = create_sample_dataset("converted_file.parquet")  
 ```
 
-```{r}
+Retrieve main data:
+
+```{r, eval = FALSE}
 data = get_sample_data(dataset)
+```
+
+```{r}
 head(data)
 ```
 
-```{r}
+Retrieve sample metadata:
+
+```{r, eval = FALSE}
 sample_metadata = get_sample_metadata(dataset)
+```
+
+```{r, include = FALSE}
+sample_metadata = readRDS("sample_metadata.rds")
+```
+```{r}
 str(sample_metadata)
 ```
 
-```{r}
+Retrieve spectrum metadata: 
+
+```{r, eval = FALSE}
 spectrum_metadata = get_spectrum_metadata(dataset)
+```
+
+```{r, include = FALSE}
+spectrum_metadata = readRDS("spectrum_metadata.rds")
+```
+```{r}
 str(spectrum_metadata)
 ```
 
-```{r}
-
-```

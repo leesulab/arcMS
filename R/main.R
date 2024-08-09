@@ -7,7 +7,7 @@
 #' @importFrom utils head tail modifyList setTxtProgressBar txtProgressBar write.csv write.table read.csv data getFromNamespace
 #' @importFrom stats ave
 #' @importFrom magrittr %>%
-#' @importFrom dplyr mutate select
+#' @importFrom dplyr mutate select collect
 #' @importFrom tidytable uncount unnest
 #' @importFrom RProtoBuf readProtoFiles
 #' @importFrom httr GET add_headers content POST
@@ -16,7 +16,7 @@
 #' @importFrom future plan multisession
 #' @importFrom future.apply future_lapply
 #' @importFrom progressr progressor with_progress withProgressShiny
-#' @importFrom arrow write_parquet read_parquet
+#' @importFrom arrow write_parquet read_parquet open_dataset
 #' @importFrom rhdf5 h5write h5createFile
 NULL # need this for doc generation
 
@@ -47,5 +47,6 @@ NULL
 #'
 "_PACKAGE"
 NULL
-
+setOldClass("FileSystemDataset")
 setClassUnion("dataframeOrDatatable", c("data.frame", "data.table"))
+setClassUnion("dataframeOrDatatableOrArrowdataset", c("data.frame", "data.table", "FileSystemDataset"))

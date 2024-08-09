@@ -4,12 +4,14 @@ NULL
 
 #' Class containing a sample data and metadata
 #'
-#' Contains sample data, metadata and spectrum metadata in table and json formats.
+#' Contains sample data (as data.table in RAM or as pointer to Parquet file),
+#' metadata and spectrum metadata in table and json formats.
 #'
 #' Objects for this class are returned by \code{\link{collect_one_sample_data}}
 #' and \code{\link{create_sample_dataset}}.
 #'
-#' @slot sample_data Contains a \code{datatable} with the sample data.
+#' @slot sample_data Contains a \code{datatable} with the sample data, or
+#' an \code{Arrow Dataset} R6 object pointing to the Parquet file data.
 #' @slot sample_metadata Contains a \code{datatable} with the sample metadata.
 #' @slot spectrum_metadata Contains a \code{datatable} with the spectrum metadata.
 #' @slot sample_metadata_json Contains a \code{character} with the sample metadata.
@@ -22,7 +24,7 @@ NULL
 #'
 #' @export
 sample_dataset <- setClass("sample_dataset",
-                        slots = c(sample_data = "dataframeOrDatatable"),
+                        slots = c(sample_data = "dataframeOrDatatableOrArrowdataset"),
                         contains = "sample_infos")
 setMethod("initialize", signature = "sample_dataset",
           definition = function(.Object, ...)
@@ -45,7 +47,7 @@ setMethod("get_sample_data", "sample_dataset", function(obj) obj@sample_data)
 #' The function creates a sample dataset object from data imported from a Parquet file.
 #''
 #' @param file A character file name or URI of Parquet file.
-#' @param method Whether to import the data in RAM or keep it on-disk
+#' @param method Whether to import the data in RAM ("inram") or keep it on-disk ("ondisk")
 #'
 #' @return A \code{\link{sample_dataset}} object, containing the sample data,
 #' sample metadata and spectrum metadata datatables.
@@ -53,8 +55,14 @@ setMethod("get_sample_data", "sample_dataset", function(obj) obj@sample_data)
 #' @export
 
 create_sample_dataset <- function(file, method = "inram"){
-
-          data = read_parquet(file)
+          if (!method %in% c('inram', 'ondisk')) {
+          stop("The method must be either 'inram' or 'ondisk'")
+          }
+          if (method == "inram") {
+                    data = read_parquet(file)
+          } else {
+                    data = open_dataset(file)
+          }
 
           sample_metadata = spectrum_metadata = data.table(NULL)
           sample_metadata_json = spectrum_metadata_json = character(0)
@@ -62,18 +70,26 @@ create_sample_dataset <- function(file, method = "inram"){
           if (!is.null(attr(data, "sample_metadata"))) {
                     sample_metadata = attributes(data)$sample_metadata
                     attr(data, "sample_metadata") = NULL
+          } else if (!is.null(data$metadata$sample_metadata)) {
+                    sample_metadata = jsonlite::fromJSON(data$metadata$sample_metadata)
           }
           if (!is.null(attr(data, "spectrum_metadata"))) {
                     spectrum_metadata = attributes(data)$spectrum_metadata
                     attr(data, "spectrum_metadata") = NULL
+          } else if (!is.null(data$metadata$spectrum_metadata)) {
+                    spectrum_metadata = jsonlite::fromJSON(data$metadata$spectrum_metadata)
           }
           if (!is.null(attr(data, "sample_metadata_json"))) {
                     sample_metadata_json = as.character(attributes(data)$sample_metadata_json)
                     attr(data, "sample_metadata_json") = NULL
+          } else if (!is.null(data$metadata$sample_metadata)) {
+                    sample_metadata_json = data$metadata$sample_metadata
           }
           if (!is.null(attr(data, "spectrum_metadata_json"))) {
                     spectrum_metadata_json = as.character(attributes(data)$spectrum_metadata_json)
                     attr(data, "spectrum_metadata_json") = NULL
+          } else if (!is.null(data$metadata$spectrum_metadata)) {
+                    spectrum_metadata_json = data$metadata$spectrum_metadata
           }
 
           collecteddata <- sample_dataset(
@@ -87,36 +103,3 @@ create_sample_dataset <- function(file, method = "inram"){
           return(collecteddata)
 
           }
-
-#' Class containing a sample data as pointer to Parquet file, and metadata
-#'
-#' Contains sample data as a pointer to a Parquet file, and sample metadata
-#' and spectrum metadata in table and json formats.
-#'
-#' Objects for this class can be created by \code{\link{create_sample_dataset}}
-#' with the ondisk method.
-#'
-#' @slot sample_data Contains an \code{Arrow Dataset} R6 object pointing to the Parquet file.
-#' @slot sample_metadata Contains a \code{datatable} with the sample metadata.
-#' @slot spectrum_metadata Contains a \code{datatable} with the spectrum metadata.
-#' @slot sample_metadata_json Contains a \code{character} with the sample metadata.
-#' @slot spectrum_metadata_json Contains a \code{character} with the spectrum metadata.
-#'
-#' @section Use the \code{\link{collect_one_sample_data}} to:
-#'   store the sample data, metadata and spectrum metadata, in table and json formats.
-#'
-#' @param obj The \code{\link{sample_dataset}} object to access.
-#'
-#' @export
-
-sample_dataset_ondisk <- setClass("sample_dataset_ondisk",
-                        slots = c(sample_data = c("FileSystemDataset")),
-                        contains = "sample_infos")
-# initialize method during object instantiation
-setMethod("initialize", signature = "sample_dataset_ondisk",
-          definition = function(.Object, sample_data, ...)
-          {
-            .Object@sample_data <- sample_data
-            .Object <- callNextMethod(.Object, ...)
-            return(.Object)
-          } )

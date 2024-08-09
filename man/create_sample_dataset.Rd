@@ -9,7 +9,7 @@ create_sample_dataset(file, method = "inram")
 \arguments{
 \item{file}{A character file name or URI of Parquet file.}
 
-\item{method}{Whether to import the data in RAM or keep it on-disk}
+\item{method}{Whether to import the data in RAM ("inram") or keep it on-disk ("ondisk")}
 }
 \value{
 A \code{\link{sample_dataset}} object, containing the sample data,
