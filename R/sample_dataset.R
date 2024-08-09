@@ -47,15 +47,17 @@ setMethod("get_sample_data", "sample_dataset", function(obj) obj@sample_data)
 #' The function creates a sample dataset object from data imported from a Parquet file.
 #''
 #' @param file A character file name or URI of Parquet file.
-#' @param method Whether to import the data in RAM or keep it on-disk
+#' @param method Whether to import the data in RAM ("inram") or keep it on-disk ("ondisk")
 #'
 #' @return A \code{\link{sample_dataset}} object, containing the sample data,
 #' sample metadata and spectrum metadata datatables.
 #' @seealso \code{\link{save_one_sample_data}} to save collected data from the R environment to Parquet or HDF5 files, and \code{\link{convert_one_sample_data}} to both collect data and saving to files.
 #' @export
 
-create_sample_dataset <- function(file, method = c("inram", "ondisk")){
-
+create_sample_dataset <- function(file, method = "inram"){
+          if (!method %in% c('inram', 'ondisk')) {
+          stop("The method must be either 'inram' or 'ondisk'")
+          }
           if (method == "inram") {
                     data = read_parquet(file)
           } else {
