@@ -67,13 +67,17 @@ convert_one_sample_data <- function(sample_id, connection_params = NULL, format 
 #' \code{\link{create_connection_params}} function. If not provided, the
 #' \code{\link{get_connection_params}} will look for such object in the global environment
 #' @param num_spectras OPTIONAL Number of spectras to be downloaded (OPTIONAL, only if whole sample data not needed, e.g. for testing purposes)
+#' @param method Once downloaded, data will be deserialized and assembled as a long dataframe,
+#' either in RAM ("inram") or by creating small intermediate chunks on-disk ("ondisk").
+#' Choosing the "ondisk" method can help on computer with low RAM and for large data samples,
+#' but will be slower than the "inram" method.
 #'
 #' @return A \code{\link{sample_dataset}} object, containing the sample data,
 #' sample metadata and spectrum metadata datatables.
 #' @seealso \code{\link{save_one_sample_data}} to save collected data from the R environment to Parquet or HDF5 files, and \code{\link{convert_one_sample_data}} to both collect data and saving to files.
 #' @export
 
-collect_one_sample_data <- function(sample_id, connection_params = NULL, num_spectras = NULL){
+collect_one_sample_data <- function(sample_id, connection_params = NULL, num_spectras = NULL, method = "inram"){
 
   if(is.null(connection_params))
     connection_params = get_connection_params(parent.frame())
@@ -81,6 +85,10 @@ collect_one_sample_data <- function(sample_id, connection_params = NULL, num_spe
   sample_name = get_sample_name(sample_infos)
   analysis_name = get_analysis_name(sample_infos)
   sample_metadata = get_sample_metadata(sample_infos)
+
+  if (!method %in% c('inram', 'ondisk')) {
+      stop("The method must be either 'inram' or 'ondisk'")
+      }
 
   message(glue::glue("Downloading sample '{sample_name}'..."))
 
@@ -137,7 +145,6 @@ collect_one_sample_data <- function(sample_id, connection_params = NULL, num_spe
 }
 response = with_progress(resp(skips))
 message(glue::glue("Deserializing '{sample_name}' sample data..."))
-
 deseria = lapply(response, deserialize_data)
 output = tryCatch({
   lapply(deseria, outputlist_to_df)
@@ -146,25 +153,54 @@ output = tryCatch({
 })
 rm(deseria)
 
-data_all = data.table::rbindlist(output)
-rm(output)
+if (method == "ondisk") {
 
+  dir.create(file.path("temp"))
+  # assigning progress result to an object to avoid dipslaying end message
+  prog = with_progress({
+    p <- progressor(along = i)
+    future.apply::future_lapply(seq_along(output), function(i, p){
+      data_all = as.data.table(output[[i]])
+      data_all <- data_all[ , mslevel := as.factor(mslevel)]
+      data_all <- data_all[order(data_all$mslevel),]
+      explodedchunk = explode_spectra(data_all)
+      arrow::write_parquet(explodedchunk, paste0("temp/spl",i,".parquet"))
+      rm(explodedchunk)
+      p()
+    }, p = p)
+  }, )
 
-# defining data.table variable locally to avoid R cmd check NOTES due to NSE
-mslevel = NULL
+  ds <- arrow::open_dataset(sources = "temp")
+  # combine all chunks directly on disk as parquet file
+  ds |> arrow::write_parquet("long_data.parquet")
+  rm(output)
+  unlink("temp", force = T, recursive = T)
+  long_data = arrow::open_dataset("long_data.parquet")
+} else {
+  data_all = data.table::rbindlist(output)
+  rm(output)
+  # defining data.table variable locally to avoid R cmd check NOTES due to NSE
+  mslevel = NULL
 
-data_all <- data_all[ , mslevel := as.factor(mslevel)]
-data_all <- data_all[order(data_all$mslevel),]
+  data_all <- data_all[ , mslevel := as.factor(mslevel)]
+  data_all <- data_all[order(data_all$mslevel),]
 
-long_data = explode_spectra(data_all)
+  long_data = explode_spectra(data_all)
+}
+
 
 if("bin" %in% colnames(long_data)) {
-  message("Adding drift time to data")
-  long_data = add_drift_time(connection_params = connection_params, unnestdt = long_data, sample_id = sample_id)
+  long_data = add_drift_time(connection_params = connection_params, long_data = long_data, sample_id = sample_id)
 } else {
   # add bin and dt columns even for data without IMS, for compatibility with viz app
-  long_data[, "bin" := 1]
-  long_data[, "dt" := 0]
+  if (inherits(long_data, "FileSystemDataset")) {
+    # if data on disk
+    long_data |> mutate(bin = 1, dt = 0) |> arrow::write_parquet("long_data.parquet")
+  } else {
+    # if data in RAM
+    long_data[, "bin" := 1]
+    long_data[, "dt" := 0]
+  }
 }
 spectrum_infos = get_spectrum_metadata(sample_infos)
 sample_metadata_json = as.character(get_sample_metadata_json(sample_infos))
@@ -177,6 +213,10 @@ collecteddata <- sample_dataset(
     sample_metadata_json = sample_metadata_json,
     spectrum_metadata_json = spectrum_metadata_json
   )
+
+if (inherits(long_data, "FileSystemDataset")) {
+  unlink("long_data.parquet", force = T)
+}
 
 return(collecteddata)
 
