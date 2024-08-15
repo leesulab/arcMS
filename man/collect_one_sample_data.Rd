@@ -7,7 +7,8 @@
 collect_one_sample_data(
   sample_id,
   connection_params = NULL,
-  num_spectras = NULL
+  num_spectras = NULL,
+  method = "inram"
 )
 }
 \arguments{
@@ -18,6 +19,11 @@ collect_one_sample_data(
 \code{\link{get_connection_params}} will look for such object in the global environment}
 
 \item{num_spectras}{OPTIONAL Number of spectras to be downloaded (OPTIONAL, only if whole sample data not needed, e.g. for testing purposes)}
+
+\item{method}{Once downloaded, data will be deserialized and assembled as a long dataframe,
+either in RAM ("inram") or by creating small intermediate chunks on-disk ("ondisk").
+Choosing the "ondisk" method can help on computer with low RAM and for large data samples,
+but will be slower than the "inram" method.}
 }
 \value{
 A \code{\link{sample_dataset}} object, containing the sample data,
