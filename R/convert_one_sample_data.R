@@ -195,7 +195,7 @@ if("bin" %in% colnames(long_data)) {
   # add bin and dt columns even for data without IMS, for compatibility with viz app
   if (inherits(long_data, "FileSystemDataset")) {
     # if data on disk
-    long_data |> mutate(bin = 1, dt = 0) |> arrow::write_parquet("long_data.parquet")
+    long_data |> mutate(bin = 1, dt = 0) #|> arrow::write_parquet("long_data.parquet")
   } else {
     # if data in RAM
     long_data[, "bin" := 1]
@@ -213,10 +213,6 @@ collecteddata <- sample_dataset(
     sample_metadata_json = sample_metadata_json,
     spectrum_metadata_json = spectrum_metadata_json
   )
-
-if (inherits(long_data, "FileSystemDataset")) {
-  unlink("long_data.parquet", force = T)
-}
 
 return(collecteddata)
 
@@ -267,17 +263,44 @@ sample_data = get_sample_data(sample_dataset)
 sample_metadata = get_sample_metadata(sample_dataset)
 spectrum_metadata = get_spectrum_metadata(sample_dataset)
 
+rtmin = sample_data |>
+  to_duckdb() |>
+  summarize(across(rt, ~ min(.))) |>
+  collect()
+rtmax = sample_data |>
+  summarize(across(rt, ~ max(.))) |>
+  collect()
+mzmin = sample_data |>
+  to_duckdb() |>
+  summarize(across(mz, ~ min(.))) |>
+  collect()
+mzmax = sample_data |>
+  summarize(across(mz, ~ max(.))) |>
+  collect()
+binmin = sample_data |>
+  to_duckdb() |>
+  summarize(across(bin, ~ min(.))) |>
+  collect()
+binmax = sample_data |>
+  summarize(across(bin, ~ max(.))) |>
+  collect()
+
+if (inherits(sample_data, "FileSystemDataset")) {
+  # load file in RAM to be able to add metadata for Python/pyarrow
+  sample_data = sample_data |> collect()
+  unlink("long_data.parquet", force = T)
+}
 # attributes useful for direct opening in R with arrow::read_parquet
 attr(sample_data, "sample_metadata") = sample_metadata
 attr(sample_data, "spectrum_metadata") = spectrum_metadata
 attr(sample_data, "sample_metadata_json") = toJSON(sample_metadata, pretty = T)
 attr(sample_data, "spectrum_metadata_json") = toJSON(spectrum_metadata, pretty = T)
-attr(sample_data, "rtmin") = min(sample_data$rt)
-attr(sample_data, "rtmax") = max(sample_data$rt)
-attr(sample_data, "mzmin") = min(sample_data$mz)
-attr(sample_data, "mzmax") = max(sample_data$mz)
-attr(sample_data, "binmin") = min(sample_data$bin)
-attr(sample_data, "binmax") = max(sample_data$bin)
+attr(sample_data, "rtmin") = rtmin[[1]]
+attr(sample_data, "rtmax") = rtmax[[1]]
+attr(sample_data, "mzmin") = mzmin[[1]]
+attr(sample_data, "mzmax") = mzmax[[1]]
+attr(sample_data, "binmin") = binmin[[1]]
+attr(sample_data, "binmax") = binmax[[1]]
 attr(sample_data, "dims") = dim(sample_data)
 
 sample_data_arrow = arrow::arrow_table(sample_data)
