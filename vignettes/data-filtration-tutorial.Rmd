@@ -1,0 +1,458 @@
+---
+title: "Data filtration tutorial"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Data filtration tutorial}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r, include = FALSE}
+#library(arrow)
+#download.file("https://media.githubusercontent.com/media/leesulab/arcms-dataviz/main/cal1-full-long.parquet", "cal1.parquet")
+# data = read_parquet("cal1.parquet")
+data = readRDS("hdata.rds")
+TIC = readRDS("tic.rds")
+BPI = readRDS("bpi.rds")
+EIC = readRDS("eic.rds")
+library("fontawesome")
+```
+
+HRMS data converted with `arcMS` is stored as columnar files in the Apache Parquet format, offering high compression and fast access with the `arrow` library in R, and also because of its compatibility with recent libraries for peak detection like [DEIMoS](https://deimos.readthedocs.io/en/latest/) (compatible with IMS data).
+
+The Apache Parquet format can easily be read with many programming languages such as Python `r fa("python", fill = "steelblue")` or R `r fa("r-project", fill = "steelblue")`.
+
+Very small files can be obtained with this compressed data format, even when containing additional dimensions such as ion mobility, and in profile mode. A full data file in profile mode containing IMS, and HDMS<sup>E</sup> data (MS and MS/MS), is around 200-400 Mo.
+
+But the Parquet format and the Apache Arrow library offer another powerful feature: the whole data does not even need to be loaded in memory to access, filter and aggregate values, allowing for complex manipulation of big data with a very limited memory footprint...
+
+## `r fa("memory")` Loading data in memory
+
+With the `arrow` package, it is easy to load a file (here is an example file you can download: [cal1_sample.parquet](https://github.com/leesulab/arcms-dataviz/raw/refs/heads/main/cal1-full-long.parquet)) in the R environment as a dataframe/data.table:
+
+```{r warning=FALSE, message=FALSE}
+library(arrow)
+library(data.table)
+library(dplyr)
+library(duckdb)
+library(plotly)
+```
+
+```{r eval=FALSE}
+data = read_parquet("converted_file.parquet")
+```
+
+
+```{r}
+head(data)
+```
+
+The columns in this file are:
+
+|     |     |    
+|-----|-----|
+| rt  |  retention time   | 
+| scanid  | an identifier for each scan/retention time    | 
+| mslevel | Low or High collision energy in HDMSe mode (this column could be MS1/MS2 data) | 
+| mz | *m/z* ratio, in profile mode |
+| intensity | intensity of each detected *m/z* |
+| bin | drift time *bin* |
+|  dt | drift time |
+
+Loading the data is really fast and the dataframe can then be quickly sorted/arranged/aggregated as desired with modern libraries such as `data.table`. For example we can quickly get the Total Ion Chromatogram (after filtering the data to only keep low collision energy data - it would be similar to keep MS1 data and not keep MS2 data):
+
+```{r, eval=FALSE}
+datalow = data[mslevel == 1, ]
+TIC = datalow[, list(intensity = sum(intensity)), by=list(rt)]
+```
+
+```{r fig.width = 6}
+plot_ly(TIC, 
+                y=~intensity, 
+                x=~rt,
+                type = 'scatter',
+                mode = 'lines',
+                line = list(color = 'rgba(0,0,0,1)', width = 1),
+                line = list(shape = 'spline', smoothing = 1)
+)
+```
+
+But still, the loaded data for this example sample occupies \~1.9 Gb in memory, so a whole sequence of usually 10-30 samples (and even more when using triplicate injections) can quickly fill the available RAM of computers.
+
+## `r fa("database")` Querying data with Arrow
+
+The Arrow library can read parquet files without loading the whole file in memory... and this is where magic happened! {{< fa wand-magic-sparkles size=1.4xl >}}
+
+As described in `vignette("open-files")`, a parquet file can also be read on-disk in R with the `open_dataset()` function:
+
+```{r, eval = FALSE}
+data_arrow = open_dataset("converted_file.parquet")
+```
+
+We just created a pointer to the Parquet file, but it was not loaded in memory yet. Data can then be filtered, rearranged, sorted and aggregated with the `dplyr` syntax, and only the resulting data will be loaded in RAM (with the `collect()` function):
+
+```{r, eval = FALSE, message=FALSE}
+fulldatalow = data_arrow |> 
+  filter(mslevel == 1) |> 
+  arrange(scanid) |> 
+  collect()
+```
+
+The block above would collect all the low energy data arranged by increasing scanid (an identifier for each retention time scan).
+
+To get an overview of the columns available in the file, their type and their content, we cannot use `str(data_arrow)` or `summary(data_arrow)` but we can use `glimpse(data_arrow)` from the `dplyr` package:
+
+```{r, eval=FALSE}
+glimpse(data_arrow)
+#> FileSystemDataset with 1 Parquet file
+#> 57,980,927 rows x 7 columns
+#> $ rt               <double> 0.007404283, 0.007404283, 0.00740428…
+#> $ scanid            <int32> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, …
+#> $ mslevel <dictionary<...>> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, …
+#> $ mz               <double> 556.2536, 556.2566, 556.2596, 556.26…
+#> $ intensity        <double> 0, 5, 7, 0, 0, 1, 2, 0, 0, 3, 2, 0, …
+#> $ bin               <int32> 19, 19, 19, 19, 23, 23, 23, 23, 23, …
+#> $ dt               <double> 1.349, 1.349, 1.349, 1.349, 1.633, 1…
+#> Call `print()` for full schema details
+```
+
+We can also use the `summarise()` function after grouping the column of interest, for example to obtain the values of the mslevel column quickly:
+
+```{r, eval = FALSE}
+data_arrow |> 
+  group_by(mslevel) |>
+  summarise() |>
+  collect()
+#> # A tibble: 2 × 1
+#>   mslevel
+#>   <fct>  
+#> 1 1      
+#> 2 2     
+```
+
+
+## `r fa("chart-line")` Chromatograms
+
+### TIC
+
+Obtaining the same TIC as before is now just a matter of aggregating intensity values by retention time:
+
+```{r, eval = FALSE, message=FALSE}
+TIC = data_arrow |>
+  filter(mslevel == "1") |>
+  group_by(rt) |> 
+  summarise(int = sum(intensity)) |> 
+  collect()
+```
+
+```{r}
+format(object.size(TIC), unit = 'auto')
+```
+
+
+This took around 1s and the resulting data is only 64 Kb!
+
+### BPI
+
+If we now want the Base Peak Chromatogram (BPI) instead of the TIC, we simply use the `max()` function to take the peak of maximum intensity at each retention time:
+
+```{r, eval = FALSE}
+BPI = data_arrow |>
+  filter(mslevel == "1") |>
+  arrange(rt) |>
+  group_by(rt) |> 
+  summarise(intensity = max(intensity)) |> 
+  collect()
+```
+
+```{r fig.width = 6}
+plot_ly(BPI, 
+                y=~intensity, 
+                x=~rt, 
+                type = 'scatter',
+                mode = 'lines',
+                line = list(color = 'rgba(0,0,0,1)', width = 1),
+                line = list(shape = 'spline', smoothing = 1)
+)
+```
+
+### Extracted Ion Chromatogram (EIC)
+
+Now if we want to keep the data around a selected *m/z* ratio to obtain an EIC (say around the m/z ratio of atrazine: 216.1016), we can again use the `filter` function (and choose a tolerance for the *m/z* window):
+
+```{r, eval = FALSE}
+EIC = data_arrow |>
+  filter(mslevel == "1") |>
+  arrange(rt) |>
+  filter(mz > 216.0016 & mz < 216.2016) |> 
+  group_by(rt, scanid) |>
+  summarise(intensity = sum(intensity)) |>
+  collect()
+
+EIC = as.data.table(EIC)
+
+```
+
+```{r fig.width = 6}
+plot_ly(EIC, 
+                y=~intensity, 
+                x=~rt,
+                type = 'scatter',
+                mode = 'lines',
+                line = list(color = 'rgba(0,0,0,1)', width = 1),
+                line = list(shape = 'spline', smoothing = 1)
+)
+```
+
+## `r fa("chart-area")` Full 2D plots
+
+Now, how can we handle more data? For example, what if we want to plot a full 2D plot displaying *m/z* vs rt, or rt vs dt/bin, or *m/z* vs dt/bin?
+
+A first approach would be to simply aggregate data by two groups of choice, e.g. rt and mz, to get rid of the third parameter (here the dt bin):
+
+```{r, eval = FALSE}
+rtmz = data_arrow |>
+  filter(mslevel == "1") |>
+  arrange(rt) |>
+  group_by(rt, mz) |> 
+  summarise(intensity = sum(intensity)) |> 
+  collect()
+
+rtmz = as.data.table(rtmz)
+rtmz = rtmz[intensity != 0,]
+rtmz = rtmz[order(rtmz$mz),]
+rtmz = rtmz[order(rtmz$rt),]
+
+```
+
+This is a bit longer and the resulting object is \~300 Mb, even after removing zero intensity values, and there are \~1 million lines of rt and mz values, which is way too large to obtain a matrix that can then be used for plotting an heatmap or contour plot with `plotly`.
+
+So le'ts try to apply some data reduction by binning close rt and mz values to obtain a smaller matrix, directly in the list of arrow commands with the `mutate` function:
+
+```{r eval = FALSE, message=FALSE}
+rtmzbinned = data_arrow |>
+  filter(mslevel == "1") |>
+  arrange(rt) |>
+  group_by(rt, mz) |> 
+  summarise(sum_int = sum(intensity)) |> 
+  mutate(rt_binned = floor(rt/0.1)*0.1) |>
+  mutate(mz_binned = floor(mz/1)*1) |>
+  group_by(rt_binned, mz_binned) |>
+  summarise(sum_int_binned = sum(sum_int)) |> 
+  collect()
+```
+
+The resulting object is now just several Mbs, but the query takes \~30s to 1 min depending on the value chosen for binning mz and rt values.
+
+Now this is where DuckDB enters! It is a database management system that can query Arrow data directly with an SQL interface, without any copy of the data. It allows users to make queries that are not yet available in Arrow with the dplyr syntax, and can process complex data types very efficiently.
+
+To use DuckDB, only one more line is needed in our dplyr pipeline! We just need to transfer the data (with zero-copy streaming) to the DuckDB system with the `to_duckdb()` function:
+
+```{r eval = FALSE, message=FALSE, warning=FALSE}
+library(duckdb)
+
+rtmzbinned = data_arrow |>
+  to_duckdb() |>
+  filter(mslevel == "1") |>
+  mutate(rt_binned = floor(rt/0.1)*0.1) |>
+  mutate(mz_binned = floor(mz/1)*1) |>
+  group_by(rt_binned, mz_binned) |>
+  summarise(intensity = sum(intensity)) |>
+  collect()
+
+rtmzbinned = as.data.table(rtmzbinned)
+rtmzbinned = setorderv(rtmzbinned, c("rt_binned", "mz_binned"))
+```
+
+This now runs in a few seconds... We can then prepare our matrix for 2D contour plot:
+
+```{r, eval = FALSE}
+spreaddt = rtmzbinned |> pivot_wider(names_from = rt_binned, values_from = intensity)
+spreaddt = spreaddt[order(spreaddt$mz_binned),]
+setnafill(spreaddt, fill = 0)
+spreadmatrix = as.matrix(spreaddt[,-1])
+```
+```{r, include = FALSE}
+spreadmatrix = readRDS("mat.rds")
+spreaddt = readRDS("spd.rds")
+```
+
+```{r fig.width = 6}
+plot_ly(
+  x = as.numeric(colnames(spreaddt[,-1])),
+  y = spreaddt$mz_binned,
+  z = spreadmatrix,
+  type = "heatmap",
+  zmin = 0,
+  zmax = 100000
+)
+```
+
+The same data could be used for a 3D plot as well, as depicted in the miniature of the post. Zooming and hovering on this plot does not give accurate masses and it is just a raw preview of the data due to the binning with the `floor()` function, but we could make a new query to obtain the accurate data at specific rt and mz ranges, without any binning, e.g. around atrazine:
+
+```{r eval = FALSE, echo=FALSE, message=FALSE, warning=FALSE}
+rtmzatra = data_arrow |>
+  to_duckdb() |>
+  filter(mslevel == "1") |>
+  filter(rt > 9.54 & rt < 9.8) |>
+  filter(mz > 215 & mz < 220) |>
+  group_by(rt, mz) |>
+  summarise(intensity = sum(intensity)) |>
+  collect()
+
+rtmzatra = as.data.table(rtmzatra)
+rtmzatra = setorderv(rtmzatra, c("rt", "mz"))
+spreaddt = rtmzatra |> pivot_wider(names_from = rt, values_from = intensity)
+spreaddt = spreaddt[order(spreaddt$mz),]
+setnafill(spreaddt, fill = 0)
+spreadmatrix = as.matrix(spreaddt[,-1])
+```
+
+```{r, include=FALSE}
+spreaddt = readRDS("spdatra.rds")
+spreadmatrix = readRDS("matatra.rds")
+```
+
+
+```{r fig.width = 6}
+plot_ly(
+  x = as.numeric(colnames(spreaddt[,-1])),
+  y = spreaddt$mz,
+  z = spreadmatrix,
+  type = "contour",
+  zmin = 0,
+  zmax = 100000
+)
+```
+
+## `r fa("chart-column")` MS spectra
+
+Plotting MS spectra is straightforward at this point: here's the high energy spectrum ("MS2") of atrazine in profile mode (knowing its scanid numbers around its corresponding retention time):
+
+```{r eval = FALSE, message=FALSE}
+scanids = c(1150, 1151, 1152, 1153, 1154, 1155, 1156, 1157, 1158, 1159, 1160)
+
+MS = data_arrow |>
+  filter(mslevel == "1") |>
+  filter(scanid %in% !!scanids) |>
+  group_by(mz) |>
+  summarise(intensity = sum(intensity)) |>
+  arrange(mz) |>
+  collect()
+```
+
+```{r include=FALSE}
+MS = readRDS("msatra.rds")
+```
+
+
+```{r fig.width = 6}
+plot_ly(data = MS, 
+        x = ~mz, 
+        y = ~intensity, 
+        type="scatter",
+        mode = "line") %>%
+    layout(
+           xaxis = list(title = "m/z"),
+           yaxis = list(title = "Intensity"))
+```
+
+Now if we want a clean spectrum filtered thanks to ion mobility, we need to know the drift time of the molecule of interest, and this is not always the case. In case drift time is not available, we can filter based on the *bin* parameter corresponding to mobility separation (1 to 200 bins for each *rt*).
+
+We can thus plot the IMS 2D trace for a given *rt,* or a list of *rt*s (here selected by their *scanid*):
+
+```{r eval=FALSE, message=FALSE}
+scanids = c(1150, 1151, 1152, 1153, 1154, 1155, 1156, 1157, 1158, 1159, 1160)
+
+  IMStrace = data_arrow |>
+    to_duckdb() |>
+    filter(mslevel == "1") |>
+    filter(scanid %in% !!scanids) |>
+    group_by(bin, mz) |>
+    summarise(sum_int = sum(intensity)) |>
+    mutate(mz_binned = floor(mz/1)*1) |>
+    group_by(bin, mz_binned) |>
+    summarise(sum_int_binned = sum(sum_int)) |> 
+    collect()
+
+IMStrace = IMStrace[order(IMStrace$bin),]
+spreadIMS = IMStrace |> pivot_wider(names_from = bin, values_from = sum_int_binned)
+spreadIMS = spreadIMS[order(spreadIMS$mz_binned),]
+setnafill(spreadIMS, fill = 0)
+spreadmatrixIMS = as.matrix(spreadIMS[,-1])
+```
+
+```{r include=FALSE}
+spreadIMS = readRDS("spdims.rds")
+spreadmatrixIMS = readRDS("matims.rds")
+```
+
+
+```{r fig.width = 6}
+plot_ly(
+  x = as.numeric(colnames(spreadIMS[,-1])),
+  y = spreadIMS$mz_binned,
+  z = spreadmatrixIMS,
+  type = "heatmap",
+  zmin = 0,
+  zmax = 100000
+) %>%
+    layout(
+           xaxis = list(title = "bin"),
+           yaxis = list(title = "m/z"))
+```
+
+The *bin* value of atrazine is around 62. In this plot, we also see a molecule at *bin* \~50 and *m/z* \~174, probably an in-source fragment of atrazine thus showing a different drift time.
+
+### MS spectrum filtering
+
+Now that we found out that *bin* values of atrazine are \~55 to \~70, we can use the `filter()` function to only select these values fo interest:
+
+```{r eval=FALSE, message=FALSE}
+scanids = c(1150, 1151, 1152, 1153, 1154, 1155, 1156, 1157, 1158, 1159, 1160)
+binsarray = c(58, 59, 60, 61, 62, 63, 64, 65, 66)
+
+MSf = data_arrow |>
+  filter(mslevel == "1") |>
+  filter(scanid %in% !!scanids) |>
+  filter(bin %in% binsarray) |>
+  group_by(mz) |>
+  summarise(intensity = sum(intensity)) |>
+  arrange(mz) |>
+  collect()
+```
+
+```{r, include=FALSE}
+MSf = readRDS("msatraf.rds")
+```
+
+
+```{r fig.width = 6}
+plot_ly(data = MSf, 
+        x = ~mz, 
+        y = ~intensity, 
+        type="scatter",
+        mode = "line") %>%
+    layout(
+           xaxis = list(title = "m/z"),
+           yaxis = list(title = "Intensity"))
+```
+
+Here we quickly combined several scans (retention times) and several bins corresponding to atrazine, which almost completely filtered out the other molecule.
+
+## `r fa("list")` Conclusion
+
+-   The Apache Parquet file format, in addition to its high compression and light data files, can be read directly by the Arrow library without loading the data in memory.
+
+-   The interoperability of Arrow, DuckDB and dplyr makes data queries extremely fast and easy to write in a few lines.
+
+-   Parquet, Arrow and DuckDB are cross-platform and multi-language: they can be used with R, Python or Julia.
+
+-   Thanks to all these possibilities, we developed a simple [R Shiny application](https://github.com/leesulab/arcms-dataviz) to visualize HRMS data directly in the browser, without requiring workstations with lots of RAM.
