@@ -1,0 +1,68 @@
+---
+title: "Distant query to Parquet file"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Distant query to Parquet file}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+A Parquet file can be hosted online and queried almost with the same methods shown in the `vignette("data-filtration-tutorial")` vignette.
+
+We can use DuckDB again, but need to create a database distant connection first before we can make our query in the dplyr syntax.
+
+```{r eval=FALSE}
+library(DBI)
+library(dplyr)
+library(duckdb)
+```
+
+```{r eval=FALSE}
+con = dbConnect(duckdb::duckdb(), dbdir=":memory:", read_only=FALSE)
+
+dbExecute(con, "INSTALL httpfs;") # run once to install the httpfs library
+dbExecute(con, "LOAD httpfs;")
+
+dbExecute(con,
+  "CREATE VIEW cal1 AS
+   SELECT * FROM PARQUET_SCAN('https://github.com/leesulab/arcms-dataviz/raw/refs/heads/main/cal1-full-long.parquet');
+")
+```
+
+Check that the connection has been created:
+```{r eval=FALSE}
+dbListTables(con)
+```
+
+Then make the query:
+
+```{r eval=FALSE}
+tic = tbl(con, "cal1") |>
+  filter(mslevel == 1) |>
+  group_by(rt) |> 
+  summarise(intensity = sum(intensity)) |> 
+      arrange(rt) |>
+  collect()
+```  
+
+The TIC data has been downloaded and can be plotted as shown in other vignettes:
+
+```{r eval=FALSE}
+plotly::plot_ly(tic, 
+                y=~intensity, 
+                x=~rt, 
+                type = 'scatter',
+                mode = 'lines',
+                line = list(color = 'rgba(0,0,0,1)', width = 1),
+                line = list(shape = 'spline', smoothing = 1)
+)
+```
+
+

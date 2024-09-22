@@ -1,16 +1,15 @@
 Package: arcMS
 Type: Package
 Title: MS converter from UNIFI to Parquet and HDF5 formats
-Version: 1.1.0
+Version: 1.1.1
 Authors@R: c(
     person("Julien", "Le Roux", email = "julien.le-roux@u-pec.fr", role = c("aut", "cre"), comment = c(ORCID = "0000-0003-0245-8536")),
     person("Julien", "Sade", email = "julien.sade@u-pec.fr", role = "aut")
     )
 Maintainer: Julien Le Roux <julien.le-roux@u-pec.fr>
-Description: Functions to connect to Waters UNIFI API and convert data to parquet or HDF5 format.
+Description: Functions to connect to Waters UNIFI API and convert data to Parquet or HDF5 format.
 License: MIT + file LICENSE
 Encoding: UTF-8
-LazyData: true
 RoxygenNote: 7.3.1
 Suggests:
     testthat (>= 3.0.0),
@@ -22,7 +21,10 @@ Suggests:
     shiny,
     bs4Dash,
     knitr,
-    rmarkdown
+    rmarkdown,
+    duckdb,
+    plotly,
+    fontawesome
 Config/testthat/edition: 3
 Imports:
     methods,

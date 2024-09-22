@@ -1,8 +1,8 @@
 ---
-title: "collect-save-functions"
+title: "Collect and Save functions"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{collect-save-functions}
+  %\VignetteIndexEntry{Collect and Save functions}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

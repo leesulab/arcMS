@@ -17,7 +17,8 @@
 \code{get_sample_data} returns a data.table object containing the sample data.
 }
 \description{
-Contains sample data, metadata and spectrum metadata in table and json formats.
+Contains sample data (as data.table in RAM or as pointer to Parquet file),
+metadata and spectrum metadata in table and json formats.
 }
 \details{
 Objects for this class are returned by \code{\link{collect_one_sample_data}}
@@ -31,7 +32,8 @@ and \code{\link{create_sample_dataset}}.
 \section{Slots}{
 
 \describe{
-\item{\code{sample_data}}{Contains a \code{datatable} with the sample data.}
+\item{\code{sample_data}}{Contains a \code{datatable} with the sample data, or
+an \code{Arrow Dataset} R6 object pointing to the Parquet file data.}
 
 \item{\code{sample_metadata}}{Contains a \code{datatable} with the sample metadata.}
 
