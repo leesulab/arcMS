@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">arcMS</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -19,9 +19,11 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/api-configuration.html">UNIFI API configuration</a></li>
-    <li><a class="dropdown-item" href="../articles/collect-save-functions.html">collect-save-functions</a></li>
+    <li><a class="dropdown-item" href="../articles/collect-save-functions.html">Collect and Save functions</a></li>
     <li><a class="dropdown-item" href="../articles/get-ccs-values.html">Get CCS values</a></li>
-    <li><a class="dropdown-item" href="../articles/open-files.html">open-files</a></li>
+    <li><a class="dropdown-item" href="../articles/open-files.html">Open Parquet files</a></li>
+    <li><a class="dropdown-item" href="../articles/data-filtration-tutorial.html">Queries and filtration of Parquet files - full tutorial</a></li>
+    <li><a class="dropdown-item" href="../articles/distant-query.html">Distant query to Parquet file</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -53,6 +55,9 @@
 <span><span class="fu">get_sample_name</span><span class="op">(</span><span class="va">obj</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S4 method for class 'sample_infos'</span></span>
+<span><span class="fu">get_sample_id</span><span class="op">(</span><span class="va">obj</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S4 method for class 'sample_infos'</span></span>
 <span><span class="fu">get_analysis_name</span><span class="op">(</span><span class="va">obj</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S4 method for class 'sample_infos'</span></span>
@@ -62,7 +67,10 @@
 <span><span class="fu">get_spectrum_metadata</span><span class="op">(</span><span class="va">obj</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S4 method for class 'sample_infos'</span></span>
-<span><span class="fu">get_spectrum_metadata_json</span><span class="op">(</span><span class="va">obj</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">get_spectrum_metadata_json</span><span class="op">(</span><span class="va">obj</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S4 method for class 'sample_infos'</span></span>
+<span><span class="fu">add_sample_id</span><span class="op">(</span><span class="va">obj</span>, <span class="va">id</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -72,15 +80,21 @@
 <dl><dt id="arg-obj">obj<a class="anchor" aria-label="anchor" href="#arg-obj"></a></dt>
 <dd><p>The <code>sample_infos</code> object to access.</p></dd>
 
+
+<dt id="arg-id">id<a class="anchor" aria-label="anchor" href="#arg-id"></a></dt>
+<dd><p>The identifier of the sample result for which spectrum information is to be retrieved.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p><code>get_sample_metadata</code> returns a data.table object containing the sample metadata.</p>
-<p><code>get_sample_infos</code> returns a character object containing the sample name.</p>
+<p><code>get_sample_name</code> returns a character object containing the sample name.</p>
+<p><code>get_sample_id</code> returns a character object containing the sample id.</p>
 <p><code>get_analysis_name</code> returns a character object containing the analysis name.</p>
 <p><code>get_sample_metadata_json</code> returns a json character object containing the sample metadata.</p>
 <p><code>get_spectrum_metadata</code> returns a data.table object containing the spectrum metadata of a sample.</p>
 <p><code>get_spectrum_metadata_json</code> returns a json character object containing the spectrum metadata of a sample.</p>
+<p><code>add_sample_id</code> returns a character object containing the sample id.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -91,10 +105,12 @@
 
 <ul><li><p><code>get_sample_metadata(sample_infos)</code>: Accessor method to obtain the sample_infos table.</p></li>
 <li><p><code>get_sample_name(sample_infos)</code>: Accessor method to obtain the sample name.</p></li>
+<li><p><code>get_sample_id(sample_infos)</code>: Accessor method to obtain the sample id.</p></li>
 <li><p><code>get_analysis_name(sample_infos)</code>: Accessor method to obtain the analysis name.</p></li>
 <li><p><code>get_sample_metadata_json(sample_infos)</code>: Accessor method to obtain the sample metadata in json format.</p></li>
 <li><p><code>get_spectrum_metadata(sample_infos)</code>: Accessor method to obtain the spectrum_metadata table.</p></li>
 <li><p><code>get_spectrum_metadata_json(sample_infos)</code>: Accessor method to obtain the spectrum metadata in json format.</p></li>
+<li><p><code>add_sample_id(sample_infos)</code>: Method to add a sample ID to the sample_infos object.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="slots">Slots<a class="anchor" aria-label="anchor" href="#slots"></a></h2>
@@ -133,7 +149,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
     </footer></div>

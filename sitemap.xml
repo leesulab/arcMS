@@ -4,6 +4,8 @@
 <url><loc>https://leesulab.github.io/arcMS/LICENSE.html</loc></url>
 <url><loc>https://leesulab.github.io/arcMS/articles/api-configuration.html</loc></url>
 <url><loc>https://leesulab.github.io/arcMS/articles/collect-save-functions.html</loc></url>
+<url><loc>https://leesulab.github.io/arcMS/articles/data-filtration-tutorial.html</loc></url>
+<url><loc>https://leesulab.github.io/arcMS/articles/distant-query.html</loc></url>
 <url><loc>https://leesulab.github.io/arcMS/articles/get-ccs-values.html</loc></url>
 <url><loc>https://leesulab.github.io/arcMS/articles/index.html</loc></url>
 <url><loc>https://leesulab.github.io/arcMS/articles/open-files.html</loc></url>
@@ -32,7 +34,6 @@
 <url><loc>https://leesulab.github.io/arcMS/reference/outputlist_to_df.html</loc></url>
 <url><loc>https://leesulab.github.io/arcMS/reference/run_app.html</loc></url>
 <url><loc>https://leesulab.github.io/arcMS/reference/sample_dataset-class.html</loc></url>
-<url><loc>https://leesulab.github.io/arcMS/reference/sample_dataset_ondisk-class.html</loc></url>
 <url><loc>https://leesulab.github.io/arcMS/reference/sample_infos-class.html</loc></url>
 <url><loc>https://leesulab.github.io/arcMS/reference/save_one_sample_data.html</loc></url>
 <url><loc>https://leesulab.github.io/arcMS/reference/store_unifi_api_token.html</loc></url>

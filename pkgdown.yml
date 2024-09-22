@@ -1,12 +1,14 @@
 pandoc: 3.1.11
-pkgdown: 2.1.0
+pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
   api-configuration: api-configuration.html
   collect-save-functions: collect-save-functions.html
+  articles/data-filtration-tutorial: data-filtration-tutorial.html
+  distant-query: distant-query.html
   get-ccs-values: get-ccs-values.html
   open-files: open-files.html
-last_built: 2024-08-05T09:09Z
+last_built: 2024-09-22T20:13Z
 urls:
   reference: https://leesulab.github.io/arcMS/reference
   article: https://leesulab.github.io/arcMS/articles
