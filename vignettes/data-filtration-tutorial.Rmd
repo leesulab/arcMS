@@ -1,8 +1,8 @@
 ---
-title: "Data filtration tutorial"
+title: "Queries and filtration of Parquet files - full tutorial"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Data filtration tutorial}
+  %\VignetteIndexEntry{Queries and filtration of Parquet files - full tutorial}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
