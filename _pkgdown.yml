@@ -2,4 +2,13 @@ url: https://leesulab.github.io/arcMS/
 template:
   bootstrap: 5
   bootswatch: cerulean
-
+articles:
+- title: Articles
+  navbar: ~
+  contents:
+  - api-configuration
+  - collect-save-functions
+  - get-ccs-values
+  - open-files
+  - articles/data-filtration-tutorial
+  - distant-query
