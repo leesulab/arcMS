@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-A Parquet file can be hosted online and queried almost with the same methods shown in the `vignette("data-filtration-tutorial")` vignette.
+A Parquet file can be hosted online and queried almost with the same methods shown in the [tutorial on data query and filtration](articles/data-filtration-tutorial.html).
 
 We can use DuckDB again, but need to create a database distant connection first before we can make our query in the dplyr syntax.
 
