@@ -139,9 +139,9 @@ This will save the samples data and metadata in the same `file.h5` file.
 
 Other functions are available to only collect the data from the API to
 an R object, and then to save this R object to a Parquet file (see
-`vignette("collect-save-functions"))`. CCS values can also be retrieved
+`vignette("collect-save-functions")`). CCS values can also be retrieved
 in addition to bin index and drift time values, see
-`vignette("get-ccs-values").`
+`vignette("get-ccs-values")`.
 
 Parquet or HDF5 files can be opened easily in `R` with the `arrow` or
 `rhdf5` packages. Parquet files contain both low and high energy spectra
