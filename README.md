@@ -28,7 +28,9 @@ the converted data (Parquet format) as 2D plots, TIC, BPI or EIC
 chromatograms…
 
 Also, check the `vignette("open-files")` for details on how converted
-files can be opened in R or Python.
+files can be opened in R or Python, and the full tutorial on how to
+query, filter, aggregate data (e.g. to obtain chromatograms or spectra)
+in the `vignette("data-filtration-tutorial")`.
 
 ## :arrow_down: Installation
 
