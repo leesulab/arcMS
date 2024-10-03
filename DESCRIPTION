@@ -10,7 +10,7 @@ Maintainer: Julien Le Roux <julien.le-roux@u-pec.fr>
 Description: Functions to connect to Waters UNIFI API and convert data to Parquet or HDF5 format.
 License: MIT + file LICENSE
 Encoding: UTF-8
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Suggests:
     testthat (>= 3.0.0),
     spsComps,

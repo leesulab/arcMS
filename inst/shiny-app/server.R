@@ -50,7 +50,7 @@ server <- function(input, output, session) {
 
   analysisList <- shiny::eventReactive(input$jstreefolders_selected, {
     req(input$jstreefolders_selected)
-    print(input$jstreefolders_selected)
+    # print(input$jstreefolders_selected)
     if(length(input$jstreefolders_selected) != 0) {
     df = rv$folders
     selfolder = input$jstreefolders_selected[[1]]$text
@@ -136,8 +136,9 @@ server <- function(input, output, session) {
     progressr::withProgressShiny(message = "Conversion in progress", {
     spsComps::shinyCatch({
       #sampleId = "0134efbf-c75a-411b-842a-4f35e2b76347"
-          collected_data = arcMS::collect_one_sample_data(sampleId, rv$con)
-          arcMS::save_one_sample_data(collected_data, path = shinyFiles::parseDirPath(c(home = '~'), selected_dir()), format = format)
+          arcMS::convert_one_sample_data(sampleId, rv$con, format = format, path = shinyFiles::parseDirPath(c(home = '~'), selected_dir()), overwrite = input$overwrite)
+          # collected_data = arcMS::collect_one_sample_data(sampleId, rv$con)
+          # arcMS::save_one_sample_data(collected_data, path = shinyFiles::parseDirPath(c(home = '~'), selected_dir()), format = format)
     },
       prefix = "", blocking_level = "error"
     )
@@ -161,7 +162,7 @@ server <- function(input, output, session) {
         if(input$fileFormat == 1) format = "parquet" else format = "hdf5"
         progressr::withProgressShiny(message = "Conversion in progress", {
           spsComps::shinyCatch({
-              arcMS::convert_all_samples_data(analysisId, rv$con, format = format, path = shinyFiles::parseDirPath(c(home = '~'), selected_dir()))
+              arcMS::convert_all_samples_data(analysisId, rv$con, format = format, path = shinyFiles::parseDirPath(c(home = '~'), selected_dir()), overwrite = input$overwrite)
           },
             prefix = "", blocking_level = "error"
           )
