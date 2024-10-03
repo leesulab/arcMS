@@ -2,6 +2,12 @@
 
 ## Changes
 
+- In Shiny app: added option (checkbox) to overwrite or not the files already converted and present in target folder
+
+# arcMS 1.2.0
+
+## Changes
+
 - `sample_dataset` object creation with on-disk method (not loading Parquet data in memory)
 - Added vignette with full tutorial on how to open, filter and aggregate data from Parquet file (e.g. to obtain chromatograms or spectra)
 - Added vignette to show how to query data from a distant Parquet file
