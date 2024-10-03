@@ -38,9 +38,9 @@ convert_one_sample_data <- function(sample_id, connection_params = NULL, format 
       message(glue::glue("File '{sample_name}' already exists..."))
     } else {
       collected_data = collect_one_sample_data(sample_id, connection_params, num_spectras)
-      printf("Start Saving")
+      # printf("Start Saving")
       save_one_sample_data(collected_data, sample_name, analysis_name, path = path, format = format)
-      printf("End Saving")
+      # printf("End Saving")
       rm(collected_data)
     }
   }

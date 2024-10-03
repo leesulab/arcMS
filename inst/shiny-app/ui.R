@@ -98,6 +98,7 @@ ui <- bs4Dash::dashboardPage(skin = "blue",
                                                 align = "center"
                                             )
                                         ),
+                                        shiny::checkboxInput(inputId = "overwrite", label = "Overwrite files if already present in selection directory?", value = FALSE),
                                         shiny::actionButton(inputId = "convert_one", label = "Convert one sample selected in the Samples table"),
                                         shiny::actionButton(inputId = "convert_all", label = "Convert all samples from the selected Analysis"),
                                         shiny::textOutput("conversion_end_message")
