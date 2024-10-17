@@ -97,7 +97,12 @@ collect_one_sample_data <- function(sample_id, connection_params = NULL, num_spe
   numLogicalSpectra =  numSpectra * 200
   message(glue::glue("Number of spectra to download: {numSpectra}"))
   chunkSize = 500 #default value in msconvert = 20
-  nchunks = ceiling(numSpectra / chunkSize)
+  if (numSpectra > chunkSize) {
+    nchunks = ceiling(numSpectra / chunkSize)
+  } else {
+    nchunks = 1
+    chunkSize = numSpectra
+  }
   # nchunks = 5
   skip = 0
   skips = list()
