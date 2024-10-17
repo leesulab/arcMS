@@ -1,5 +1,5 @@
 
-# 🏹 arcMS
+# 🏹 arcMS <a href="https://leesulab.github.io/arcMS/"><img src="man/figures/logo.png" align="right" height="138" alt="arcMS website" /></a>
 
 <!-- badges: start -->
 <!-- badges: end -->
