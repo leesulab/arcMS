@@ -9,3 +9,5 @@ man-roxygen
 ^pkgdown$
 ^\.github$
 ^vignettes/articles$
+^doc$
+^Meta$
