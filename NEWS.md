@@ -1,4 +1,11 @@
-# arcMS 1.2.0
+# arcMS 1.2.2
+
+## Changes
+
+- Conversion of mzML files to Parquet
+- Bug fix: regenerating connection when lost during two conversions (getting new token)
+
+# arcMS 1.2.1
 
 ## Changes
 

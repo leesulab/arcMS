@@ -14,12 +14,12 @@ add_drift_time <- function(connection_params, unnestdt, sample_id) {
     token = connection_token(connection_params)
 
     url2 <- glue::glue("{url}/sampleresults({sample_id})/spectra/mass.mse/convertbintodrifttime")
-    rg <- httr::POST(url2,
+    rg <- quote(httr::POST(url2,
         body = jsonlite::toJSON(list(bins = 1:200)),
         add_headers("Content-Type" = "application/json",
-        "Authorization" = paste("Bearer", token)))
-
-    json_string <- httr::content(rg, "text", encoding = "UTF-8")
+        "Authorization" = paste("Bearer", token))))
+    req = send_request(rg, connection_params)
+    json_string <- httr::content(req, "text", encoding = "UTF-8")
     infos <- jsonlite::fromJSON(json_string)
 
     unnestf = function(unnestdt){

@@ -37,8 +37,17 @@ convert_one_sample_data <- function(sample_id, connection_params = NULL, format 
     if (file.exists(glue("{path2}/{sample_name}.parquet")) & overwrite == F) {
       message(glue::glue("File '{sample_name}' already exists..."))
     } else {
-      collected_data = collect_one_sample_data(sample_id, connection_params, num_spectras)
-      # printf("Start Saving")
+      repeat {
+        collected_data = try(
+          collect_one_sample_data(sample_id, connection_params, num_spectras)
+        )
+        if (!inherits(collected_data,"try-error")) {
+          break
+        } else {
+          message(glue::glue("Trying again sample '{sample_name}' (previous conversion aborted)..."))
+        }
+      }
+      # message("Start Saving")
       save_one_sample_data(collected_data, sample_name, analysis_name, path = path, format = format)
       # printf("End Saving")
       rm(collected_data)
@@ -87,7 +96,10 @@ collect_one_sample_data <- function(sample_id, connection_params = NULL, num_spe
   }
 
   spectrumCountEndpoint = glue::glue(sampleUrl, "/spectra/mass.mse/$count")
-  spectrumCount = httr::content(httpClientPlain(spectrumCountEndpoint, token), "text", encoding = "utf-8")
+
+  rq1 = quote(httpClientPlain(spectrumCountEndpoint, token))
+  req = send_request(rq1, connection_params)
+  spectrumCount = httr::content(req, "text", encoding = "utf-8")
 
   if (!is.null(num_spectras)) {
     numSpectra = num_spectras
@@ -97,7 +109,12 @@ collect_one_sample_data <- function(sample_id, connection_params = NULL, num_spe
   numLogicalSpectra =  numSpectra * 200
   message(glue::glue("Number of spectra to download: {numSpectra}"))
   chunkSize = 500 #default value in msconvert = 20
-  nchunks = ceiling(numSpectra / chunkSize)
+  if (numSpectra > chunkSize) {
+    nchunks = ceiling(numSpectra / chunkSize)
+  } else {
+    nchunks = 1
+    chunkSize = numSpectra
+  }
   # nchunks = 5
   skip = 0
   skips = list()
@@ -122,7 +139,11 @@ response = with_progress(resp(skips))
 message(glue::glue("Deserializing '{sample_name}' sample data..."))
 
 deseria = lapply(response, deserialize_data)
-output = lapply(deseria, outputlist_to_df)
+output = tryCatch({
+  lapply(deseria, outputlist_to_df)
+}, error = function(e) {
+  stop("Error deserializing sample data")
+})
 rm(deseria)
 
 data_all = data.table::rbindlist(output)
@@ -138,6 +159,7 @@ data_all <- data_all[order(data_all$mslevel),]
 long_data = explode_spectra(data_all)
 
 if("bin" %in% colnames(long_data)) {
+  message("Adding drift time to data")
   long_data = add_drift_time(connection_params = connection_params, unnestdt = long_data, sample_id = sample_id)
 } else {
   # add bin and dt columns even for data without IMS, for compatibility with viz app
@@ -190,6 +212,7 @@ save_one_sample_data <- function(sample_dataset, sample_name = NULL, analysis_na
     analysis_name = analysis_name
   } else {
     analysis_name = get_analysis_name(sample_dataset)
+    if (is.null(analysis_name)) {analysis_name = "."}
   }
 message(glue::glue("Saving sample '{sample_name}' to folder '{analysis_name}'..."))
 if(!is.null(path)) {

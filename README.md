@@ -1,5 +1,5 @@
 
-# 🏹 arcMS
+# 🏹 arcMS <a href="https://leesulab.github.io/arcMS/"><img src="man/figures/logo.png" alt="arcMS website" align="right" height="138"/></a>
 
 <!-- badges: start -->
 <!-- badges: end -->
@@ -7,7 +7,8 @@
 `arcMS` can convert (HD)MS<sup>E</sup> data acquired with Waters UNIFI
 to tabular format for use in R or Python, with a small filesize when
 saved on disk. It is compatible with data containing ion mobility
-(HDMS<sup>E</sup>) or not (MS<sup>E</sup>).
+(HDMS<sup>E</sup>) or not (MS<sup>E</sup>). Conversion of mzML files is
+also supported (see `convert_mzml_to_parquet()`).
 
 Two output data file formats can be obtained:
 
@@ -169,3 +170,13 @@ additional packages):
 ``` r
 run_app()
 ```
+
+## 📖 Citing
+
+When using `arcMS` or referencing it in an academic article, please
+include the following citation:
+
+Le Roux, J.; Sade, J. arcMS: Transformation of Multi-Dimensional
+High-Resolution Mass Spectrometry Data to Columnar Format for Compact
+Storage and Fast Access. *Bioinformatics Advances* **2024**, *4* (1).
+<https://doi.org/10.1093/bioadv/vbae160>.
