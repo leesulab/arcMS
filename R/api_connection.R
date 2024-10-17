@@ -45,10 +45,11 @@ setMethod("initialize", signature = "connection_params",
 #' @param password The \code{password} to connect to the UNIFI API identity server.
 #' @param apihosturl The \code{url} to connect to the UNIFI API server (host).
 #' @param install if TRUE, will install the token in your \code{.Renviron} file for use in future sessions.  Defaults to TRUE.
+#' @param verbose if TRUE, will print messages.  Defaults to TRUE.
 #' @return A list containing all parameters needed for the connection, in a \code{\link{connection_params}} object.
 #' @export
 
-create_connection_params <- function(identityurl = "http://localhost:50333/identity/connect/token", username = "administrator", password = "administrator", apihosturl = "http://localhost:50034/unifi/v1", install = TRUE)
+create_connection_params <- function(identityurl = "http://localhost:50333/identity/connect/token", username = "administrator", password = "administrator", apihosturl = "http://localhost:50034/unifi/v1", install = TRUE, verbose = TRUE)
 {
     parsed_url = httr::parse_url(apihosturl)
     api_version = if (parsed_url$port == 50034) 3 else 4
@@ -75,7 +76,7 @@ create_connection_params <- function(identityurl = "http://localhost:50333/ident
     c = content(r)
     bearer_token = c$access_token
 
-    store_unifi_api_token(bearer_token, install = install, overwrite = TRUE)
+    store_unifi_api_token(bearer_token, install = install, overwrite = TRUE, verbose = verbose)
 
     ret <- connection_params(identityurl = identityurl,
                             username = username,
@@ -98,6 +99,23 @@ setMethod("connection_apihosturl", "connection_params", function(obj) obj@apihos
 #' @export
 setMethod("connection_token", "connection_params", function(obj) obj@token)
 
+#' @describeIn connection_params Accessor method to obtain the connection token.
+#' @return \code{connection_identityurl} returns a character object containing the connection identity url.
+#' @aliases connection_identityurl
+#' @export
+setMethod("connection_identityurl", "connection_params", function(obj) obj@identityurl)
+
+#' @describeIn connection_params Accessor method to obtain the connection username.
+#' @return \code{connection_username} returns a character object containing the connection username.
+#' @aliases connection_username
+#' @export
+setMethod("connection_username", "connection_params", function(obj) obj@username)
+
+#' @describeIn connection_params Accessor method to obtain the connection password.
+#' @return \code{connection_password} returns a character object containing the connection password.
+#' @aliases connection_password
+#' @export
+setMethod("connection_password", "connection_params", function(obj) obj@password)
 
 # Helper functions to connect to API with URL, either collecting plain text or binary response
 httpClientPlain = function(url, token) {
@@ -146,7 +164,7 @@ httpClientOctet = function(url, token) {
 #' }
 #' @export
 
-store_unifi_api_token <- function(token, overwrite = FALSE, install = FALSE){
+store_unifi_api_token <- function(token, overwrite = FALSE, install = FALSE, verbose = TRUE){
 
   if (install) {
     home <- Sys.getenv("HOME")
@@ -160,10 +178,11 @@ store_unifi_api_token <- function(token, overwrite = FALSE, install = FALSE){
     }
     else{
       if(isTRUE(overwrite)){
-        message("Your original .Renviron will be backed up and stored in your R HOME directory if needed.")
-        oldenv=read.table(renv, stringsAsFactors = FALSE)
-        newenv <- oldenv[-grep("UNIFI_API_TOKEN", oldenv),]
-        write.table(newenv, renv, quote = FALSE, sep = "\n",
+          if(verbose)
+            message("Your original .Renviron will be backed up and stored in your R HOME directory if needed.")
+          oldenv=read.table(renv, stringsAsFactors = FALSE)
+          newenv <- oldenv[-grep("UNIFI_API_TOKEN", oldenv),]
+          write.table(newenv, renv, quote = FALSE, sep = "\n",
                     col.names = FALSE, row.names = FALSE)
       }
       else{
@@ -177,7 +196,8 @@ store_unifi_api_token <- function(token, overwrite = FALSE, install = FALSE){
     tokenconcat <- paste0("UNIFI_API_TOKEN='", token, "'")
     # Append API key to .Renviron file
     write(tokenconcat, renv, sep = "\n", append = TRUE)
-    message('Your API token has been stored in your .Renviron and can be accessed by Sys.getenv("UNIFI_API_TOKEN"). \nTo use now, restart R or run `readRenviron("~/.Renviron")`')
+    if(verbose)
+        message('Your API token has been stored in your .Renviron and can be accessed by Sys.getenv("UNIFI_API_TOKEN"). \nTo use now, restart R or run `readRenviron("~/.Renviron")`')
     return(token)
   } else {
     message("To install your API token for use in future sessions, run this function with `install = TRUE`.")
@@ -219,4 +239,30 @@ get_connection_params <- function(envir = parent.frame()){
     }
   }
 
+}
+
+#' Check if the connection is still active before current request then return request
+#' @description This function will check if the connection is still active
+#' and the current token is valid before retrieving request results
+#' @param endpoint The endpoint of request to be executed during/after checking
+#' @param connection_params The current connection parameters object (with current token)
+send_request <- function(request, connection_params){
+    token = connection_token(connection_params)
+    # check if connection still active, else get a new token
+    # ifelse(type == "plain", request = httpClientPlain(endpoint, token), request = httpClientOctet(endpoint, token))
+    # eval(request)
+    e = parent.frame()
+    if(httr::http_error(eval(request, envir = e))) {
+       message("Regenerating connection")
+       # get previous connection parameters
+       hostUrl = connection_apihosturl(connection_params)
+       identityUrl = connection_identityurl(connection_params)
+       username = connection_username(connection_params)
+       password = connection_password(connection_params)
+       # issue new connection request and retrieve new token
+       connection_params = create_connection_params(identityurl = identityUrl, username = username, password = password, apihosturl = hostUrl, verbose = FALSE)
+       e$token = connection_token(connection_params)
+       # ifelse(type == "plain", request = httpClientPlain(endpoint, token), request = httpClientOctet(endpoint, token))
+   }
+   return(eval(request, envir = e))
 }
