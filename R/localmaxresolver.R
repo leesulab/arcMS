@@ -17,7 +17,7 @@ searchXWidth = 0.05
 # searchXWidth = minimum search range (RT/mobility, absolute) = size of RT or mobility window examined (SEARCH_RT_RANGE)
 # min ratio : min ratio of peak top/edge 
 
-# pour aller vite, deux étapes : 1) fast locmax : si un seul pic, on ne fait rien, si plusieurs pics alors on scinde la feature en plusieurs 
+# piste pour aller vite, deux étapes : 1) fast locmax : si un seul pic, on ne fait rien, si plusieurs pics alors on scinde la feature en plusieurs 
 # puis pour chaque pic il faut checker la forme du pic
 
 MinimumSearchFeatureResolver <- function(chrom, chromThreshold, hws = 4L, minDataPoints, xRange, searchXWidth, minRatio, minAbsoluteHeight, minRelativeHeight, smoothing = TRUE) {
