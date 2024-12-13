@@ -328,13 +328,14 @@ calculateExactMass(imscan, topIndex, datapoints)
  
 data = det4
   data = spectrum
+  noiseLevel = 10
   exactmassdetector3 <- function(data, noiseLevel, smoothing = T) {
     
     if (smoothing == T) {
       data$intsmoothed = MsCoreUtils::smooth(data$intensity, MsCoreUtils::coefSG(2, k = 3L)) 
       datasm = copy(data)
-      datasm = datasm[, intensity := intsmoothed]
-      datasm = datasm[, intensity:=ifelse(intensity<0, 0, intensity)]
+      datasm[, intensity := intsmoothed]
+      datasm[, intensity:=ifelse(intensity<0, 0, intensity)]
       data = datasm
     }
 
@@ -342,34 +343,23 @@ data = det4
     # cumsum steps are the longest
 
     data2 = data[, nextIntensity := data.table::shift(intensity, type="lead", fill = 0)]
-    data2 = data2[, prevIntensity := data.table::shift(intensity, type="lag", fill = 0)]
-    data2 = data2[, nextMz := data.table::shift(mz, type="lead", fill = 0)]
-    #tail(data2)
-    data2 = data2[, nextIsBigger := nextIntensity > intensity]
-    data2 = data2[, prevIsBigger := prevIntensity >= intensity]
-    #head(data2)
-    data2 = data2[, nextIsZero := nextIntensity == 0]
-    data2 = data2[, currentIsZero := intensity == 0]
-    data2 = data2[, prevIsZero := prevIntensity == 0]
+    data2[, prevIntensity := data.table::shift(intensity, type="lag", fill = 0)]
+    data2[, nextMz := data.table::shift(mz, type="lead", fill = 0)]
+    data2[, nextIsBigger := nextIntensity > intensity]
+    data2[, prevIsBigger := prevIntensity >= intensity]
+    data2[, nextIsZero := nextIntensity == 0]
+    data2[, currentIsZero := intensity == 0]
+    data2[, prevIsZero := prevIntensity == 0]
     
-    data2 = data2[, descending := !currentIsZero & !nextIsBigger]
-    #setnames(data2, "locmax", "descending")
-    data2 = data2[, locmax := descending & !prevIsBigger]
+    data2[, descending := !currentIsZero & !nextIsBigger]
+    data2[, locmax := descending & !prevIsBigger]
 
-    
-  #  dataf = data2 |> filter(round(rt,1) == 10.6) |> filter(round(mz,1) == 748.5) |> filter(bin > 67 & bin < 69)
-   # dataf =  data2 |> 
-    #  filter(mslevel == "1") |>
-    #  filter(round(rt, 5) == 10.59274)  |>
-    #  filter(bin ==68)
+    data2[, cleft := ifelse(!currentIsZero & nextIsBigger, 1, 0)]
+    data2[, cright := ifelse(!currentIsZero & !nextIsBigger, 1, 0)]
+    data2[, cpeak := cleft + cright]
 
-    
-    data2 = data2[, cleft := ifelse(!currentIsZero & nextIsBigger, 1, 0)]
-    data2 = data2[, cright := ifelse(!currentIsZero & !nextIsBigger, 1, 0)]
-    data2 = data2[, cpeak := cleft + cright]
-
-    data2 = data2[, halfIntensity := ifelse(locmax, intensity / 2, 0)]
-    data2 = data2[, halfIntensity2 := cumsum(halfIntensity), by = rleid(cright == 0L)]
+    data2[, halfIntensity := ifelse(locmax, intensity / 2, 0)]
+    data2[, halfIntensity2 := cumsum(halfIntensity), by = rleid(cright == 0L)]
 
     data2 = data2[, cleftcum := cumsum(cleft), by = rleid(halfIntensity != 0L)]
     data2 = data2[, crightcum := cumsum(cright), by = rleid(cright == 0L)]
