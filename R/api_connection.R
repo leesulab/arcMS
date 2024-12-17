@@ -98,6 +98,23 @@ setMethod("connection_apihosturl", "connection_params", function(obj) obj@apihos
 #' @export
 setMethod("connection_token", "connection_params", function(obj) obj@token)
 
+#' @describeIn connection_params Accessor method to obtain the connection token.
+#' @return \code{connection_identityurl} returns a character object containing the connection identity url.
+#' @aliases connection_identityurl
+#' @export
+setMethod("connection_identityurl", "connection_params", function(obj) obj@identityurl)
+
+#' @describeIn connection_params Accessor method to obtain the connection username.
+#' @return \code{connection_username} returns a character object containing the connection username.
+#' @aliases connection_username
+#' @export
+setMethod("connection_username", "connection_params", function(obj) obj@username)
+
+#' @describeIn connection_params Accessor method to obtain the connection password.
+#' @return \code{connection_password} returns a character object containing the connection password.
+#' @aliases connection_password
+#' @export
+setMethod("connection_password", "connection_params", function(obj) obj@password)
 
 # Helper functions to connect to API with URL, either collecting plain text or binary response
 httpClientPlain = function(url, token) {

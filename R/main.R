@@ -11,7 +11,7 @@
 #' @importFrom dplyr mutate select collect
 #' @importFrom tidytable uncount unnest
 #' @importFrom RProtoBuf readProtoFiles
-#' @importFrom httr GET add_headers content POST
+#' @importFrom httr GET add_headers content POST http_error
 #' @importFrom jsonlite fromJSON toJSON prettify
 #' @importFrom glue glue
 #' @importFrom future plan multisession
