@@ -96,7 +96,10 @@ collect_one_sample_data <- function(sample_id, connection_params = NULL, num_spe
   }
 
   spectrumCountEndpoint = glue::glue(sampleUrl, "/spectra/mass.mse/$count")
-  spectrumCount = httr::content(httpClientPlain(spectrumCountEndpoint, token), "text", encoding = "utf-8")
+
+  rq1 = quote(httpClientPlain(spectrumCountEndpoint, token))
+  req = send_request(rq1, type = "plain", connection_params)
+  spectrumCount = httr::content(req, "text", encoding = "utf-8")
 
   if (!is.null(num_spectras)) {
     numSpectra = num_spectras
