@@ -245,14 +245,14 @@ get_connection_params <- function(envir = parent.frame()){
 #' @description This function will check if the connection is still active
 #' and the current token is valid before retrieving request results
 #' @param endpoint The endpoint of request to be executed during/after checking
-#' @param type The type of request (plain or octet stream)
 #' @param connection_params The current connection parameters object (with current token)
-send_request <- function(request, type, connection_params){
+send_request <- function(request, connection_params){
     token = connection_token(connection_params)
     # check if connection still active, else get a new token
     # ifelse(type == "plain", request = httpClientPlain(endpoint, token), request = httpClientOctet(endpoint, token))
     # eval(request)
-    if(httr::http_error(eval(request))) {
+    e = parent.frame()
+    if(httr::http_error(eval(request, envir = e))) {
        message("Regenerating connection")
        # get previous connection parameters
        identityUrl = connection_identityurl(connection_params)
@@ -260,8 +260,8 @@ send_request <- function(request, type, connection_params){
        password = connection_password(connection_params)
        # issue new connection request and retrieve new token
        connection_params = create_connection_params(identityurl = identityUrl, username = username, password = password, apihosturl = hostUrl, verbose = FALSE)
-       token = connection_token(connection_params)
+       e$token = connection_token(connection_params)
        # ifelse(type == "plain", request = httpClientPlain(endpoint, token), request = httpClientOctet(endpoint, token))
    }
-   return(eval(request))
+   return(eval(request, envir = e))
 }
