@@ -19,14 +19,16 @@ get_samples_list <- function(analysis_id, connection_params = NULL) {
   token = connection_token(connection_params)
 
   url1 = glue::glue("{hostUrl}/analyses({analysis_id})")
-  rg <- httpClientPlain(url1, token)
-  json_string <- httr::content(rg, "text", encoding = "UTF-8")
+  rg <- quote(httpClientPlain(url1, token))
+  req = send_request(rg, connection_params)
+  json_string <- httr::content(req, "text", encoding = "UTF-8")
   infos = jsonlite::fromJSON(json_string)
   analysis_name = infos$name
 
   url2 = glue::glue("{hostUrl}/analyses({analysis_id})/sampleresults")
-  rg2 <- httpClientPlain(url2, token)
-  json_string <- httr::content(rg2, "text", encoding = "UTF-8")
+  rg2 <- quote(httpClientPlain(url2, token))
+  req2 = send_request(rg2, connection_params)
+  json_string <- httr::content(req2, "text", encoding = "UTF-8")
   samplelistjson = jsonlite::fromJSON(json_string)
   samplelist = as.data.table(samplelistjson$value)
   samplelist = make_unique_sample_names(samplelist)

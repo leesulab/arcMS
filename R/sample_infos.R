@@ -133,7 +133,9 @@ token = connection_token(connection_params)
 
 # get sample name and analysis name for creating folder and file on disk
 parentAnalysisEndpoint = glue::glue("{hostUrl}/sampleresults({sample_id})/analyses")
-parentAnalysis = httr::content(httpClientPlain(parentAnalysisEndpoint, token), "text", encoding = "utf-8")
+rq = quote(httpClientPlain(parentAnalysisEndpoint, token))
+req = send_request(rq, connection_params)
+parentAnalysis = httr::content(req, "text", encoding = "utf-8")
 parentAnalysisInfo = jsonlite::fromJSON(parentAnalysis)
 parentAnalysisId = parentAnalysisInfo$value$id
 # save sample list with custom names avoiding duplicates
@@ -148,8 +150,9 @@ sample_metadata_json = jsonlite::toJSON(sample_metadata, pretty = T)
 sample_metadata_json = as.character(sample_metadata_json)
 
 spectrumInfosEndpoint <- glue::glue("{hostUrl}/sampleresults({sample_id})/spectruminfos")
-rg <- httpClientPlain(spectrumInfosEndpoint, token)
-json_string <- httr::content(rg, "text", encoding = "UTF-8")
+rg <- quote(httpClientPlain(spectrumInfosEndpoint, token))
+req = send_request(rg, connection_params)
+json_string <- httr::content(req, "text", encoding = "UTF-8")
 spectrum_infos <- jsonlite::fromJSON(json_string)
 spectrum_metadata_json <- jsonlite::toJSON(spectrum_infos, pretty = TRUE, auto_unbox = TRUE)
 spectrum_metadata_json = as.character(spectrum_metadata_json)
