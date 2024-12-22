@@ -4,6 +4,7 @@
 #' @import dtplyr
 #' @import bitops
 #' @import withr
+#' @import mzR
 #' @importFrom utils head tail modifyList setTxtProgressBar txtProgressBar write.csv write.table read.csv data getFromNamespace
 #' @importFrom stats ave
 #' @importFrom magrittr %>%

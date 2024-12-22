@@ -195,6 +195,7 @@ save_one_sample_data <- function(sample_dataset, sample_name = NULL, analysis_na
     analysis_name = analysis_name
   } else {
     analysis_name = get_analysis_name(sample_dataset)
+    if (is.null(analysis_name)) {analysis_name = "."}
   }
 message(glue::glue("Saving sample '{sample_name}' to folder '{analysis_name}'..."))
 if(!is.null(path)) {
