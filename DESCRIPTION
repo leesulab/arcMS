@@ -36,6 +36,7 @@ Imports:
     future (>= 1.26.1),
     arrow (>= 9.0.0),
     dplyr (>= 1.0.10),
+    mzR,
     dtplyr,
     future.apply,
     progressr,
@@ -61,6 +62,7 @@ Collate:
     'explode_spectra.R'
     'folders_search.R'
     'get_samples_list.R'
+    'mzml_to_parquet.R'
     'outputlist_to_df.R'
     'run_app.R'
     'sample_infos.R'
