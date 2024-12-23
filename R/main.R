@@ -4,13 +4,14 @@
 #' @import dtplyr
 #' @import bitops
 #' @import withr
+#' @import mzR
 #' @importFrom utils head tail modifyList setTxtProgressBar txtProgressBar write.csv write.table read.csv data getFromNamespace
 #' @importFrom stats ave
 #' @importFrom magrittr %>%
 #' @importFrom dplyr mutate select collect
 #' @importFrom tidytable uncount unnest
 #' @importFrom RProtoBuf readProtoFiles
-#' @importFrom httr GET add_headers content POST
+#' @importFrom httr GET add_headers content POST http_error
 #' @importFrom jsonlite fromJSON toJSON prettify
 #' @importFrom glue glue
 #' @importFrom future plan multisession
