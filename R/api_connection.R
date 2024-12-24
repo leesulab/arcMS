@@ -255,6 +255,7 @@ send_request <- function(request, connection_params){
     if(httr::http_error(eval(request, envir = e))) {
        message("Regenerating connection")
        # get previous connection parameters
+       hostUrl = connection_apihosturl(connection_params)
        identityUrl = connection_identityurl(connection_params)
        username = connection_username(connection_params)
        password = connection_password(connection_params)
