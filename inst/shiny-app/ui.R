@@ -23,7 +23,7 @@ ui <- bs4Dash::dashboardPage(skin = "blue",
                           bs4Dash::tabItem(tabName = "unificonnect",
                               shiny::fluidRow(
                                   bs4Dash::box(width = 12,
-                                          title = "Connect to UNIFI API to retrieve MS spectra of markers",
+                                          title = "Connect to UNIFI API",
                                           status = "primary",
                                           p("To connect to the UNIFI API, the API must first be installed in UNIFI. Create a client ID in the UNIFI API with the following parameters :"),
                                           tags$ul(
