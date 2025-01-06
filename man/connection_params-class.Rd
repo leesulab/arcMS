@@ -8,11 +8,23 @@
 \alias{connection_apihosturl}
 \alias{connection_token,connection_params-method}
 \alias{connection_token}
+\alias{connection_identityurl,connection_params-method}
+\alias{connection_identityurl}
+\alias{connection_username,connection_params-method}
+\alias{connection_username}
+\alias{connection_password,connection_params-method}
+\alias{connection_password}
 \title{Class containing UNIFI API connection parameters}
 \usage{
 \S4method{connection_apihosturl}{connection_params}(obj)
 
 \S4method{connection_token}{connection_params}(obj)
+
+\S4method{connection_identityurl}{connection_params}(obj)
+
+\S4method{connection_username}{connection_params}(obj)
+
+\S4method{connection_password}{connection_params}(obj)
 }
 \arguments{
 \item{obj}{The \code{\link{connection_params}} object to access.}
@@ -21,6 +33,12 @@
 \code{connection_apihosturl} returns a character object containing the connection url.
 
 \code{connection_token} returns a character object containing the connection token.
+
+\code{connection_identityurl} returns a character object containing the connection identity url.
+
+\code{connection_username} returns a character object containing the connection username.
+
+\code{connection_password} returns a character object containing the connection password.
 }
 \description{
 Contains url and token for connection to UNIFI API.
@@ -33,6 +51,12 @@ Objects for this class are returned by \code{\link{create_connection_params}}.
 \item \code{connection_apihosturl(connection_params)}: Accessor method to obtain the connection url.
 
 \item \code{connection_token(connection_params)}: Accessor method to obtain the connection token.
+
+\item \code{connection_identityurl(connection_params)}: Accessor method to obtain the connection token.
+
+\item \code{connection_username(connection_params)}: Accessor method to obtain the connection username.
+
+\item \code{connection_password(connection_params)}: Accessor method to obtain the connection password.
 
 }}
 \section{Slots}{

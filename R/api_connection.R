@@ -143,6 +143,7 @@ httpClientOctet = function(url, token) {
 #' @param token The API token retrieved from UNIFI formated in quotes.
 #' @param install if TRUE, will install the token in your \code{.Renviron} file for use in future sessions.  Defaults to FALSE.
 #' @param overwrite If this is set to TRUE, it will overwrite an existing UNIFI_API_TOKEN that you already have in your \code{.Renviron} file.
+#' @param verbose Adding information messages if TRUE
 #' @importFrom utils write.table read.table
 #' @examples
 #'
@@ -244,7 +245,7 @@ get_connection_params <- function(envir = parent.frame()){
 #' Check if the connection is still active before current request then return request
 #' @description This function will check if the connection is still active
 #' and the current token is valid before retrieving request results
-#' @param endpoint The endpoint of request to be executed during/after checking
+#' @param request The request to be executed during/after checking
 #' @param connection_params The current connection parameters object (with current token)
 send_request <- function(request, connection_params){
     token = connection_token(connection_params)
