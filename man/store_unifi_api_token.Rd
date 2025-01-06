@@ -4,7 +4,12 @@
 \alias{store_unifi_api_token}
 \title{Save the API token in the \code{.Renviron} file for repeated use}
 \usage{
-store_unifi_api_token(token, overwrite = FALSE, install = FALSE)
+store_unifi_api_token(
+  token,
+  overwrite = FALSE,
+  install = FALSE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{token}{The API token retrieved from UNIFI formated in quotes.}
@@ -12,6 +17,8 @@ store_unifi_api_token(token, overwrite = FALSE, install = FALSE)
 \item{overwrite}{If this is set to TRUE, it will overwrite an existing UNIFI_API_TOKEN that you already have in your \code{.Renviron} file.}
 
 \item{install}{if TRUE, will install the token in your \code{.Renviron} file for use in future sessions.  Defaults to FALSE.}
+
+\item{verbose}{Adding information messages if TRUE}
 }
 \description{
 This function will add the UNIFI API token to your \code{.Renviron} file so it can be called securely without being stored

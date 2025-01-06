@@ -9,7 +9,8 @@ create_connection_params(
   username = "administrator",
   password = "administrator",
   apihosturl = "http://localhost:50034/unifi/v1",
-  install = TRUE
+  install = TRUE,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ create_connection_params(
 \item{apihosturl}{The \code{url} to connect to the UNIFI API server (host).}
 
 \item{install}{if TRUE, will install the token in your \code{.Renviron} file for use in future sessions.  Defaults to TRUE.}
+
+\item{verbose}{if TRUE, will print messages.  Defaults to TRUE.}
 }
 \value{
 A list containing all parameters needed for the connection, in a \code{\link{connection_params}} object.
