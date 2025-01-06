@@ -142,7 +142,7 @@
 <p>Parquet or HDF5 files can be opened easily in <code>R</code> with the <code>arrow</code> or <code>rhdf5</code> packages. Parquet files contain both low and high energy spectra (HDMSe), and HDF5 files contain low energy in the “ms1” dataset, high energy in the “ms2” dataset, and metadata in the “metadata” dataset. The <code>fromJSON</code> function from <code>jsonlite</code> package will import the metadata json file (associated with the Parquet file) as a list of dataframes.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sampleparquet</span> <span class="op">=</span> <span class="fu">arrow</span><span class="fu">::</span><span class="fu"><a href="https://arrow.apache.org/docs/r/reference/read_parquet.html" class="external-link">read_parquet</a></span><span class="op">(</span><span class="st">"sample.parquet"</span><span class="op">)</span></span>
-<span><span class="va">metadataparquet</span> <span class="op">=</span> <span class="fu">jsonlite</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/jsonlite/man/fromJSON.html" class="external-link">fromJSON</a></span><span class="op">(</span><span class="st">"sample-metadata.json"</span><span class="op">)</span></span>
+<span><span class="va">metadataparquet</span> <span class="op">=</span> <span class="fu">jsonlite</span><span class="fu">::</span><span class="fu"><a href="https://jeroen.r-universe.dev/jsonlite/reference/fromJSON.html" class="external-link">fromJSON</a></span><span class="op">(</span><span class="st">"sample-metadata.json"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">samplems1hdf5</span> <span class="op">=</span> <span class="fu">rhdf5</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/rhdf5/man/h5_read.html" class="external-link">h5read</a></span><span class="op">(</span><span class="st">"sample.h5"</span>, name <span class="op">=</span> <span class="st">"ms1"</span><span class="op">)</span></span>
 <span><span class="va">samplems2hdf5</span> <span class="op">=</span> <span class="fu">rhdf5</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/rhdf5/man/h5_read.html" class="external-link">h5read</a></span><span class="op">(</span><span class="st">"sample.h5"</span>, name <span class="op">=</span> <span class="st">"ms2"</span><span class="op">)</span></span>
@@ -155,6 +155,12 @@
 <p>A Shiny application is available to use the package easily. To run the app, just use the following command (it might need to install a few additional packages):</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/run_app.html">run_app</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="id_-citing">📖 Citing<a class="anchor" aria-label="anchor" href="#id_-citing"></a>
+</h2>
+<p>When using <code>arcMS</code> or referencing it in an academic article, please include the following citation:</p>
+<p>Le Roux, J.; Sade, J. arcMS: Transformation of Multi-Dimensional High-Resolution Mass Spectrometry Data to Columnar Format for Compact Storage and Fast Access. <em>Bioinformatics Advances</em> <strong>2024</strong>, <em>4</em> (1). <a href="https://doi.org/10.1093/bioadv/vbae160" class="external-link uri">https://doi.org/10.1093/bioadv/vbae160</a>.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
