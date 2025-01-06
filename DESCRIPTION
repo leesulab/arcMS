@@ -49,6 +49,7 @@ Imports:
     magrittr,
     fs
 Collate:
+    'ADAPChromBuilder.R'
     'add_drift_time.R'
     'analysis_search.R'
     'generics.R'
@@ -59,9 +60,12 @@ Collate:
     'convert_one_sample_data.R'
     'decodeVarint.R'
     'deserialize_data.R'
+    'exactmassdetector.R'
     'explode_spectra.R'
+    'fastlocalmax.R'
     'folders_search.R'
     'get_samples_list.R'
+    'localmaxresolver.R'
     'mzml_to_parquet.R'
     'outputlist_to_df.R'
     'run_app.R'
