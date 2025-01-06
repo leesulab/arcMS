@@ -1,5 +1,5 @@
 
-# 🏹 arcMS <a href="https://leesulab.github.io/arcMS/"><img src="man/figures/logo.png" align="right" height="138" alt="arcMS website" /></a>
+# 🏹 arcMS <a href="https://leesulab.github.io/arcMS/"><img src="man/figures/logo.png" alt="arcMS website" align="right" height="138"/></a>
 
 <!-- badges: start -->
 <!-- badges: end -->
@@ -170,3 +170,13 @@ additional packages):
 ``` r
 run_app()
 ```
+
+## 📖 Citing
+
+When using `arcMS` or referencing it in an academic article, please
+include the following citation:
+
+Le Roux, J.; Sade, J. arcMS: Transformation of Multi-Dimensional
+High-Resolution Mass Spectrometry Data to Columnar Format for Compact
+Storage and Fast Access. *Bioinformatics Advances* **2024**, *4* (1).
+<https://doi.org/10.1093/bioadv/vbae160>.
