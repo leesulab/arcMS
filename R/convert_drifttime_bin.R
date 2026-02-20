@@ -18,7 +18,7 @@ convert_drifttime_to_bin <- function(sample_id, drift_times, connection_params =
   hostUrl <- connection_apihosturl(connection_params)
   token <- connection_token(connection_params)
 
-  url <- glue::glue("{hostUrl}/sampleresults({sample_id})/spectra/mass.mse/convertdrifttimetobin")
+  url <- paste0(hostUrl, "/sampleresults(", sample_id, ")/spectra/mass.mse/convertdrifttimetobin")
 
   body <- jsonlite::toJSON(list(drifttimes = drift_times), auto_unbox = FALSE)
   response <- httr::POST(url,
@@ -59,7 +59,7 @@ convert_bin_to_drifttime <- function(sample_id, bins, connection_params = NULL) 
   hostUrl <- connection_apihosturl(connection_params)
   token <- connection_token(connection_params)
 
-  url <- glue::glue("{hostUrl}/sampleresults({sample_id})/spectra/mass.mse/convertbintodrifttime")
+  url <- paste0(hostUrl, "/sampleresults(", sample_id, ")/spectra/mass.mse/convertbintodrifttime")
 
   body <- jsonlite::toJSON(list(bins = as.integer(bins)), auto_unbox = FALSE)
   response <- httr::POST(url,
@@ -108,7 +108,7 @@ convert_bin_to_aligned_drifttime <- function(sample_id, bins, mzs, connection_pa
   if (length(mzs) == 1 && length(bins) > 1)
     mzs <- rep(mzs, length(bins))
 
-  url <- glue::glue("{hostUrl}/sampleresults({sample_id})/spectra/mass.mse/convertbintoaligneddrifttime")
+  url <- paste0(hostUrl, "/sampleresults(", sample_id, ")/spectra/mass.mse/convertbintoaligneddrifttime")
 
   body <- jsonlite::toJSON(list(bins = as.integer(bins), mzs = mzs), auto_unbox = FALSE)
   response <- httr::POST(url,
@@ -132,19 +132,26 @@ convert_bin_to_aligned_drifttime <- function(sample_id, bins, mzs, connection_pa
 #' Find the Best Bin for a Given Drift Time and m/z
 #'
 #' This function finds the bin number whose aligned drift time is closest to the target
-#' drift time for a given m/z value. It replicates the logic from the JavaScript explorer
-#' that searches through all bins to find the best match using aligned drift times.
+#' drift time for a given m/z value. It uses the \code{convertbintoaligneddrifttime}
+#' endpoint to get m/z-dependent aligned drift times for all 200 bins in a single API
+#' call, then selects the bin with the closest aligned DT to the target.
+#'
+#' Additionally, it retrieves the raw bin from \code{convertdrifttimetobin} as a
+#' reference point for comparison.
 #'
 #' @param sample_id The identifier of the sample result.
-#' @param target_dt The target drift time value (in milliseconds).
+#' @param target_dt The target drift time value (in milliseconds), as reported by the
+#'   UNIFI components table (\code{ims.driftTime}).
 #' @param mz The m/z value for alignment.
 #' @param connection_params OPTIONAL: Connection parameters object created by the
 #' \code{\link{create_connection_params}} function.
 #'
 #' @return A list with elements:
-#'   \item{best_bin}{The bin number closest to the target drift time.}
+#'   \item{best_bin}{The bin number closest to the target aligned drift time.}
 #'   \item{best_dt}{The aligned drift time of the best bin.}
-#'   \item{bin_dt_table}{A data.table with columns \code{bin} and \code{aligned_dt} for all valid bins.}
+#'   \item{raw_bin}{The raw bin obtained from \code{convertdrifttimetobin} (for reference).}
+#'   \item{bin_dt_table}{A data.table with columns \code{bin}, \code{aligned_dt} and
+#'     \code{raw_dt} for all valid bins (positive aligned DT).}
 #'
 #' @export
 
@@ -152,34 +159,54 @@ find_best_bin <- function(sample_id, target_dt, mz, connection_params = NULL) {
   if (is.null(connection_params))
     connection_params <- get_connection_params(parent.frame())
 
-  # Find the first bin with a positive aligned drift time
-  first_valid_bin <- 1L
-  for (bin in 1:200) {
-    aligned_dt <- convert_bin_to_aligned_drifttime(
-      sample_id, bins = bin, mzs = mz, connection_params = connection_params
-    )
-    if (aligned_dt > 0) {
-      first_valid_bin <- bin
-      break
-    }
-  }
+  all_bins <- 1L:200L
 
-  # Get aligned drift times for all valid bins in one request
-  valid_bins <- seq(first_valid_bin, 200L)
+  # Step 1: Get aligned drift times for all bins in a single API call
   aligned_dts <- convert_bin_to_aligned_drifttime(
-    sample_id, bins = valid_bins, mzs = mz, connection_params = connection_params
+    sample_id, bins = all_bins, mzs = mz, connection_params = connection_params
   )
 
-  bin_dt_table <- data.table::data.table(bin = valid_bins, aligned_dt = aligned_dts)
+  # Step 2: Get raw drift times for all bins in a single API call
+  raw_dts <- convert_bin_to_drifttime(
+    sample_id, bins = all_bins, connection_params = connection_params
+  )
 
-  # Find the closest bin to the target drift time
-  idx <- which.min(abs(aligned_dts - target_dt))
-  best_bin <- valid_bins[idx]
-  best_dt <- aligned_dts[idx]
+  # Step 3: Also get the raw bin from the target DT directly
+  raw_bin <- tryCatch(
+    convert_drifttime_to_bin(sample_id, target_dt, connection_params = connection_params),
+    error = function(e) NA_integer_
+  )
+
+  # Build full lookup table
+  bin_dt_table <- data.table::data.table(
+    bin = all_bins,
+    aligned_dt = aligned_dts,
+    raw_dt = raw_dts
+  )
+
+  # Keep only bins with positive aligned DT
+  valid_table <- bin_dt_table[aligned_dt > 0]
+
+  if (nrow(valid_table) == 0) {
+    # Fallback: use raw bin if aligned DTs are all invalid
+    best_bin <- if (!is.na(raw_bin)) raw_bin else 1L
+    return(list(
+      best_bin = best_bin,
+      best_dt = NA_real_,
+      raw_bin = raw_bin,
+      bin_dt_table = bin_dt_table
+    ))
+  }
+
+  # Step 4: Find the bin whose aligned DT is closest to the target DT
+  idx <- which.min(abs(valid_table$aligned_dt - target_dt))
+  best_bin <- valid_table$bin[idx]
+  best_dt  <- valid_table$aligned_dt[idx]
 
   return(list(
     best_bin = best_bin,
     best_dt = best_dt,
+    raw_bin = raw_bin,
     bin_dt_table = bin_dt_table
   ))
 }

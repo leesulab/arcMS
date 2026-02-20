@@ -21,7 +21,7 @@ get_components <- function(sample_id, connection_params = NULL) {
   hostUrl <- connection_apihosturl(connection_params)
   token <- connection_token(connection_params)
 
-  componentsEndpoint <- glue::glue("{hostUrl}/sampleresults({sample_id})/components")
+  componentsEndpoint <- paste0(hostUrl, "/sampleresults(", sample_id, ")/components")
 
   rg <- quote(httpClientPlain(componentsEndpoint, token))
   req <- send_request(rg, connection_params)

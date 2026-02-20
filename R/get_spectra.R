@@ -30,11 +30,14 @@ get_spectra_by_rt <- function(sample_id, rt_min, rt_max, energy_level = "Low",
 
   energy_filter <- match.arg(energy_level, c("Low", "High"))
 
-  url <- glue::glue(
-    "{hostUrl}/sampleresults({sample_id})/spectra/mass.mse",
-    "?$filter=energyLevel eq '{energy_filter}'",
-    " and retentiontime ge {rt_min}",
-    " and retentiontime le {rt_max}"
+  odata_filter <- paste0(
+    "energyLevel eq '", energy_filter, "'",
+    " and retentiontime ge ", rt_min,
+    " and retentiontime le ", rt_max
+  )
+  url <- paste0(
+    hostUrl, "/sampleresults(", sample_id, ")/spectra/mass.mse",
+    "?$filter=", utils::URLencode(odata_filter, reserved = TRUE)
   )
 
   rg <- quote(httpClientOctet(url, token))
@@ -66,7 +69,7 @@ get_spectra_count <- function(sample_id, connection_params = NULL) {
   hostUrl <- connection_apihosturl(connection_params)
   token <- connection_token(connection_params)
 
-  url <- glue::glue("{hostUrl}/sampleresults({sample_id})/spectra/mass.mse/$count")
+  url <- paste0(hostUrl, "/sampleresults(", sample_id, ")/spectra/mass.mse/$count")
   rg <- quote(httpClientPlain(url, token))
   req <- send_request(rg, connection_params)
 
@@ -95,12 +98,12 @@ get_spectra_count <- function(sample_id, connection_params = NULL) {
 #' @export
 
 extract_spectrum_at_bin <- function(spectrum, dt_bin) {
-  scan_sizes <- spectrum$MassSpectrum$ScanSize
-  masses <- spectrum$MassSpectrum$Masses
-  intensities <- spectrum$Intensities
-  rt <- spectrum$MassSpectrum$MSeMassSpectrum$RetentionTime
-  energy <- spectrum$MassSpectrum$MSeMassSpectrum$EnergyLevel
-  polarity <- spectrum$MassSpectrum$MSeMassSpectrum$IonizationPolarity
+  scan_sizes <- as.integer(spectrum$MassSpectrum$ScanSize)
+  masses <- as.numeric(spectrum$MassSpectrum$Masses)
+  intensities <- as.numeric(spectrum$Intensities)
+  rt <- as.numeric(spectrum$MassSpectrum$MSeMassSpectrum$RetentionTime)
+  energy <- as.integer(spectrum$MassSpectrum$MSeMassSpectrum$EnergyLevel)
+  polarity <- as.integer(spectrum$MassSpectrum$MSeMassSpectrum$IonizationPolarity)
 
   if (length(scan_sizes) == 0 || dt_bin > length(scan_sizes)) {
     return(data.table::data.table(
@@ -128,6 +131,17 @@ extract_spectrum_at_bin <- function(spectrum, dt_bin) {
 
   end_idx <- start_idx + selected_size - 1
 
+  # Guard against indices exceeding the actual arrays (sparse or mismatched data)
+  max_idx <- length(masses)
+  if (start_idx > max_idx) {
+    return(data.table::data.table(
+      masses = numeric(0), intensities = numeric(0),
+      retentionTime = rt, energyLevel = energy,
+      ionizationPolarity = polarity
+    ))
+  }
+  end_idx <- min(end_idx, max_idx)
+
   data.table::data.table(
     masses = masses[start_idx:end_idx],
     intensities = intensities[start_idx:end_idx],
@@ -135,6 +149,90 @@ extract_spectrum_at_bin <- function(spectrum, dt_bin) {
     energyLevel = energy,
     ionizationPolarity = polarity
   )
+}
+
+
+#' Centroid a Profile Spectrum
+#'
+#' Reduces a profile spectrum to centroid peaks by finding local intensity maxima.
+#' For each local maximum, the reported m/z is the intensity-weighted mean of the
+#' surrounding points within \code{mz_window} Da (centre-of-mass centroiding),
+#' and the reported intensity is the apex value.
+#'
+#' This is a client-side approximation of the centroiding applied by UNIFI when
+#' displaying spectra. It does not require additional API calls.
+#'
+#' @param spectrum A data.table with columns \code{masses} and \code{intensities},
+#'   as returned by \code{\link{extract_spectrum_at_bin}} or \code{\link{combine_spectra}}
+#'   (after normalisation).
+#' @param mz_window Half-width in Da used to group adjacent points around a local
+#'   maximum when computing the weighted mean m/z. Default \code{0.01}.
+#' @param min_intensity_fraction Peaks whose apex intensity is below this fraction
+#'   of the tallest peak are dropped before centroiding. Default \code{0.001}
+#'   (0.1\%).
+#'
+#' @return A data.table with columns \code{masses} and \code{intensities} containing
+#'   only the centroided peaks, ordered by m/z.
+#'
+#' @export
+
+centroid_spectrum <- function(spectrum, mz_window = 0.01, min_intensity_fraction = 0.001) {
+  if (is.null(spectrum) || nrow(spectrum) == 0) {
+    return(data.table::data.table(masses = numeric(0), intensities = numeric(0)))
+  }
+
+  # Ensure sorted by m/z
+  spectrum <- spectrum[order(masses)]
+  masses <- spectrum$masses
+  intensities <- spectrum$intensities
+  n <- length(masses)
+
+  if (n == 0) {
+    return(data.table::data.table(masses = numeric(0), intensities = numeric(0)))
+  }
+
+  # Pre-filter noise
+  threshold <- min_intensity_fraction * max(intensities)
+  keep <- intensities >= threshold
+  masses <- masses[keep]
+  intensities <- intensities[keep]
+  n <- length(masses)
+
+  if (n == 0) {
+    return(data.table::data.table(masses = numeric(0), intensities = numeric(0)))
+  }
+  if (n == 1) {
+    return(data.table::data.table(masses = masses, intensities = intensities))
+  }
+
+  # Identify local maxima: a point is a local maximum if it is >= both neighbours
+  # (pad with -Inf at edges so first/last points can be maxima)
+  padded <- c(-Inf, intensities, -Inf)
+  is_max <- padded[2:(n + 1)] >= padded[1:n] & padded[2:(n + 1)] >= padded[3:(n + 2)]
+
+  apex_idx <- which(is_max)
+  if (length(apex_idx) == 0) {
+    # Fallback: take the single tallest point
+    apex_idx <- which.max(intensities)
+  }
+
+  # For each apex, compute intensity-weighted mean m/z over points within mz_window
+  centroid_mz  <- numeric(length(apex_idx))
+  centroid_int <- numeric(length(apex_idx))
+
+  for (k in seq_along(apex_idx)) {
+    i <- apex_idx[k]
+    apex_mz <- masses[i]
+    in_window <- abs(masses - apex_mz) <= mz_window
+    w <- intensities[in_window]
+    m <- masses[in_window]
+    centroid_mz[k]  <- sum(w * m) / sum(w)
+    centroid_int[k] <- intensities[i]
+  }
+
+  result <- data.table::data.table(masses = centroid_mz, intensities = centroid_int)
+  result <- result[order(masses)]
+  return(result)
 }
 
 
@@ -162,20 +260,21 @@ combine_spectra <- function(spectra_list) {
     ))
   }
 
-  combined <- data.table::rbindlist(spectra_list, fill = TRUE)
+  # Only keep masses and intensities columns
+  spectra_list <- lapply(spectra_list, function(x) x[, .(masses, intensities)])
+
+  combined <- data.table::rbindlist(spectra_list)
   combined <- combined[intensities != 0]
-  combined <- combined[order(masses)]
-
-  # Keep the exact mass of the highest intensity peak for each rounded mass group
-  exact_mass_ref <- combined[, .SD[which.max(intensities)], by = .(round(masses, digits = 2))]
-  exact_mass_ref <- exact_mass_ref[!duplicated(round)]
-  data.table::setnames(exact_mass_ref, "round", "rounded")
-
-  # Sum intensities by rounded mass
   combined[, round_masses := round(masses, digits = 2)]
-  result <- combined[, .(total_intensities = sum(intensities), num = .N), by = round_masses]
-  result[, exact_masses := exact_mass_ref$masses]
 
+  # Sum intensities and keep the exact mass of the most intense peak per group
+  result <- combined[, .(
+    total_intensities = sum(intensities),
+    exact_masses = masses[which.max(intensities)],
+    num = .N
+  ), by = round_masses]
+
+  result <- result[order(round_masses)]
   return(result)
 }
 
@@ -196,15 +295,21 @@ combine_spectra <- function(spectra_list) {
 #' from the UNIFI explorer app.
 #'
 #' @param sample_id The identifier of the sample result.
-#' @param rt Retention time of the marker (in seconds, will be converted to minutes internally).
+#' @param rt Retention time of the marker (in minutes, as returned by the UNIFI components table).
 #' @param dt Drift time of the marker (in milliseconds).
 #' @param mz m/z value of the marker.
-#' @param rt_tolerance Retention time tolerance (in seconds, default 0.05).
-#'   The range will be \code{[rt/60 - rt_tolerance, rt/60 + rt_tolerance]} in minutes.
+#' @param rt_tolerance Retention time tolerance (in minutes, default 0.05).
+#'   The range will be \code{[rt - rt_tolerance, rt + rt_tolerance]}.
 #' @param dt_tolerance Drift time bin tolerance (number of bins around the best bin, default 1).
 #' @param combine_scans Logical. If \code{TRUE}, combine all RT scans within the window (default \code{TRUE}).
 #' @param combine_bins Logical. If \code{TRUE}, combine all DT bins within tolerance (default \code{FALSE}).
 #' @param use_ims Logical. If \code{TRUE}, apply IMS filtering (default \code{TRUE}).
+#' @param centroid Logical. If \code{TRUE}, apply \code{\link{centroid_spectrum}} to the
+#'   final low and high spectra before returning (default \code{FALSE}). This reduces
+#'   profile data to centroid peaks and can significantly reduce the number of data
+#'   points, making downstream visualisation faster.
+#' @param mz_window Half-width in Da for centroiding window (passed to
+#'   \code{\link{centroid_spectrum}}, default \code{0.01}). Only used when \code{centroid = TRUE}.
 #' @param connection_params OPTIONAL: Connection parameters object created by the
 #' \code{\link{create_connection_params}} function.
 #'
@@ -213,8 +318,10 @@ combine_spectra <- function(spectra_list) {
 #'   \item{high}{A data.table with MS2 (high energy) spectrum data (\code{masses} and \code{intensities}).}
 #'   \item{low_raw}{The raw deserialized list of low energy spectra.}
 #'   \item{high_raw}{The raw deserialized list of high energy spectra.}
-#'   \item{best_bin}{The best matching bin number.}
-#'   \item{bin_dt_table}{A data.table mapping bins to aligned drift times.}
+#'   \item{best_bin}{The best matching aligned bin number.}
+#'   \item{raw_bin}{The raw bin from \code{convertdrifttimetobin} (for reference).}
+#'   \item{best_dt}{The aligned drift time at the best bin.}
+#'   \item{bin_dt_table}{A data.table mapping bins to aligned and raw drift times.}
 #'   \item{scan_count}{Number of scans in the RT window.}
 #'
 #' @export
@@ -225,14 +332,15 @@ get_marker_spectra <- function(sample_id, rt, dt, mz,
                                combine_scans = TRUE,
                                combine_bins = FALSE,
                                use_ims = TRUE,
+                               centroid = FALSE,
+                               mz_window = 0.01,
                                connection_params = NULL) {
   if (is.null(connection_params))
     connection_params <- get_connection_params(parent.frame())
 
-  # Convert RT from seconds to minutes (UNIFI stores RT in minutes in the API filter)
-  rt_min_value <- rt / 60
-  rt_low <- rt_min_value - rt_tolerance
-  rt_high <- rt_min_value + rt_tolerance
+  # RT is already in minutes (as returned by UNIFI components table)
+  rt_low <- rt - rt_tolerance
+  rt_high <- rt + rt_tolerance
 
   # Get raw spectra (Low = MS1, High = MS2)
   spectra_low <- get_spectra_by_rt(sample_id, rt_low, rt_high, "Low", connection_params)
@@ -245,91 +353,114 @@ get_marker_spectra <- function(sample_id, rt, dt, mz,
       low = data.table::data.table(masses = numeric(0), intensities = numeric(0)),
       high = data.table::data.table(masses = numeric(0), intensities = numeric(0)),
       low_raw = list(), high_raw = list(),
-      best_bin = NA_integer_, bin_dt_table = data.table::data.table(),
+      best_bin = NA_integer_, raw_bin = NA_integer_, best_dt = NA_real_,
+      bin_dt_table = data.table::data.table(),
       scan_count = 0L
     ))
   }
 
   # Find best bin if IMS is used
   best_bin <- NA_integer_
+  raw_bin <- NA_integer_
+  best_dt <- NA_real_
   bin_dt_table <- data.table::data.table()
 
   if (use_ims) {
     bin_info <- find_best_bin(sample_id, dt, mz, connection_params)
     best_bin <- bin_info$best_bin
+    best_dt <- bin_info$best_dt
+    raw_bin <- bin_info$raw_bin
     bin_dt_table <- bin_info$bin_dt_table
 
     dt_bin_min <- max(1L, best_bin - dt_tolerance)
     dt_bin_max <- min(200L, best_bin + dt_tolerance)
 
+    # Number of available scans (low and high may differ)
+    n_low  <- length(spectra_low)
+    n_high <- length(spectra_high)
+
+    safe_extract <- function(spectra_list, scan_idx, bin) {
+      if (scan_idx > length(spectra_list)) {
+        return(data.table::data.table(masses = numeric(0), intensities = numeric(0)))
+      }
+      tryCatch(
+        extract_spectrum_at_bin(spectra_list[[scan_idx]], bin),
+        error = function(e) data.table::data.table(masses = numeric(0), intensities = numeric(0))
+      )
+    }
+
     if (combine_scans && combine_bins) {
       # Combine across both RT scans and DT bins
       all_low <- list()
       all_high <- list()
-      for (scan_idx in seq_along(spectra_low)) {
+      for (scan_idx in seq_len(max(n_low, n_high))) {
         for (bin in dt_bin_min:dt_bin_max) {
-          all_low[[length(all_low) + 1]] <- extract_spectrum_at_bin(spectra_low[[scan_idx]], bin)
-          all_high[[length(all_high) + 1]] <- extract_spectrum_at_bin(spectra_high[[scan_idx]], bin)
+          all_low[[length(all_low) + 1]]   <- safe_extract(spectra_low,  scan_idx, bin)
+          all_high[[length(all_high) + 1]] <- safe_extract(spectra_high, scan_idx, bin)
         }
       }
-      result_low <- combine_spectra(all_low)
+      result_low  <- combine_spectra(all_low)
       result_high <- combine_spectra(all_high)
 
     } else if (combine_scans) {
       # Combine across RT scans at the best bin
-      all_low <- lapply(spectra_low, extract_spectrum_at_bin, dt_bin = best_bin)
-      all_high <- lapply(spectra_high, extract_spectrum_at_bin, dt_bin = best_bin)
-      result_low <- combine_spectra(all_low)
+      all_low  <- lapply(seq_len(n_low),  function(i) safe_extract(spectra_low,  i, best_bin))
+      all_high <- lapply(seq_len(n_high), function(i) safe_extract(spectra_high, i, best_bin))
+      result_low  <- combine_spectra(all_low)
       result_high <- combine_spectra(all_high)
 
     } else if (combine_bins) {
       # Combine across DT bins at first scan
-      all_low <- lapply(dt_bin_min:dt_bin_max, function(bin) {
-        extract_spectrum_at_bin(spectra_low[[1]], bin)
-      })
-      all_high <- lapply(dt_bin_min:dt_bin_max, function(bin) {
-        extract_spectrum_at_bin(spectra_high[[1]], bin)
-      })
-      result_low <- combine_spectra(all_low)
+      all_low  <- lapply(dt_bin_min:dt_bin_max, function(bin) safe_extract(spectra_low,  1L, bin))
+      all_high <- lapply(dt_bin_min:dt_bin_max, function(bin) safe_extract(spectra_high, 1L, bin))
+      result_low  <- combine_spectra(all_low)
       result_high <- combine_spectra(all_high)
 
     } else {
       # Single scan, single bin
-      result_low <- extract_spectrum_at_bin(spectra_low[[1]], best_bin)
-      result_high <- extract_spectrum_at_bin(spectra_high[[1]], best_bin)
+      result_low  <- safe_extract(spectra_low,  1L, best_bin)
+      result_high <- safe_extract(spectra_high, 1L, best_bin)
     }
 
   } else {
     # No IMS: just use masses/intensities directly
     if (combine_scans) {
       all_low <- lapply(spectra_low, function(sp) {
-        data.table::data.table(masses = sp$MassSpectrum$Masses, intensities = sp$Intensities)
+        data.table::data.table(masses = as.numeric(sp$MassSpectrum$Masses), intensities = as.numeric(sp$Intensities))
       })
       all_high <- lapply(spectra_high, function(sp) {
-        data.table::data.table(masses = sp$MassSpectrum$Masses, intensities = sp$Intensities)
+        data.table::data.table(masses = as.numeric(sp$MassSpectrum$Masses), intensities = as.numeric(sp$Intensities))
       })
       result_low <- combine_spectra(all_low)
       result_high <- combine_spectra(all_high)
     } else {
       result_low <- data.table::data.table(
-        masses = spectra_low[[1]]$MassSpectrum$Masses,
-        intensities = spectra_low[[1]]$Intensities
+        masses = as.numeric(spectra_low[[1]]$MassSpectrum$Masses),
+        intensities = as.numeric(spectra_low[[1]]$Intensities)
       )
       result_high <- data.table::data.table(
-        masses = spectra_high[[1]]$MassSpectrum$Masses,
-        intensities = spectra_high[[1]]$Intensities
+        masses = as.numeric(spectra_high[[1]]$MassSpectrum$Masses),
+        intensities = as.numeric(spectra_high[[1]]$Intensities)
       )
     }
   }
 
   # Normalize column names for combined results
-  if ("exact_masses" %in% names(result_low)) {
-    low_final <- data.table::data.table(masses = result_low$exact_masses, intensities = result_low$total_intensities)
-    high_final <- data.table::data.table(masses = result_high$exact_masses, intensities = result_high$total_intensities)
-  } else {
-    low_final <- result_low[, .(masses, intensities)]
-    high_final <- result_high[, .(masses, intensities)]
+  normalize_result <- function(res) {
+    if (nrow(res) == 0) {
+      return(data.table::data.table(masses = numeric(0), intensities = numeric(0)))
+    }
+    if ("exact_masses" %in% names(res)) {
+      return(data.table::data.table(masses = res$exact_masses, intensities = res$total_intensities))
+    }
+    if ("masses" %in% names(res) && "intensities" %in% names(res)) {
+      return(res[, .(masses, intensities)])
+    }
+    # Fallback: return empty
+    data.table::data.table(masses = numeric(0), intensities = numeric(0))
   }
+  low_final <- normalize_result(result_low)
+  high_final <- normalize_result(result_high)
 
   # Filter out noise (keep above 0.1% of max intensity)
   if (nrow(low_final) > 0) {
@@ -341,12 +472,20 @@ get_marker_spectra <- function(sample_id, rt, dt, mz,
     high_final <- high_final[order(-intensities)]
   }
 
+  # Optional centroiding: reduce profile peaks to local maxima
+  if (centroid) {
+    low_final  <- centroid_spectrum(low_final,  mz_window = mz_window)
+    high_final <- centroid_spectrum(high_final, mz_window = mz_window)
+  }
+
   return(list(
     low = low_final,
     high = high_final,
     low_raw = spectra_low,
     high_raw = spectra_high,
     best_bin = best_bin,
+    raw_bin = raw_bin,
+    best_dt = best_dt,
     bin_dt_table = bin_dt_table,
     scan_count = scan_count
   ))
@@ -368,7 +507,7 @@ get_chromatogram_infos <- function(sample_id, connection_params = NULL) {
   hostUrl <- connection_apihosturl(connection_params)
   token <- connection_token(connection_params)
 
-  url <- glue::glue("{hostUrl}/sampleresults({sample_id})/chromatograminfos")
+  url <- paste0(hostUrl, "/sampleresults(", sample_id, ")/chromatograminfos")
   rg <- quote(httpClientPlain(url, token))
   req <- send_request(rg, connection_params)
   json_string <- httr::content(req, "text", encoding = "UTF-8")
@@ -398,7 +537,7 @@ get_chromatogram_data <- function(sample_id, chromatogram_id, connection_params 
   hostUrl <- connection_apihosturl(connection_params)
   token <- connection_token(connection_params)
 
-  url <- glue::glue("{hostUrl}/sampleresults({sample_id})/chromatograminfos({chromatogram_id})/data")
+  url <- paste0(hostUrl, "/sampleresults(", sample_id, ")/chromatograminfos(", chromatogram_id, ")/data")
   rg <- quote(httpClientPlain(url, token))
   req <- send_request(rg, connection_params)
   json_string <- httr::content(req, "text", encoding = "UTF-8")
